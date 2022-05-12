@@ -28,16 +28,7 @@ class loginbox():
         self.B1 = Button(self.Main, text = "Submit")
         self.B1.pack(side = RIGHT)
     def submit(self):
-        cursor.execute ("SELECT TOP [sFirstName]"
-                        ",[sName]"
-                        ",[nEmployee]"
-                        ",[bStatus]"
-                        ",[nProduktionsGruppe]"
-                        "FROM [PulseCoreTest5].[dbo].[PO_employee]"
-                        f"WHERE [nEmployee] = {login}")
-        employeeinfo = cursor.fetchone()
-        nEmployee = float(employeeinfo[2])
-        #insert if else statement that determines if user is a manager or operator
+       
 
 
 
