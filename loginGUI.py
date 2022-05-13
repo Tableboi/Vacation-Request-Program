@@ -1,39 +1,33 @@
 from tkinter import *
-import pandas as pd
-import pyodbc
+from tkinter import ttk
 
-cnxn_str = ("Driver={ODBC Driver 18 for SQL Server};"
-            "Server=<server_id>;"
-            "Database=<database_id>;"
-            "UID=<user_id>;"
-            "PWD=<password>;")
-cnxn = pyodbc.connect(cnxn_str)
-cursor = cnxn.cursor(prepared = True)
-
+root = Tk()
 class loginbox():
     def __init__(self, master):
-        self.master = master
         master.title("Core Solution Urlaubsantrag Einloggen")
-        self.Main = Frame(self.master)
-        self.Main.pack(padx = 10, pady = 10, expand = True, fill = X)
-        
+        self.Main = Frame(master)
+        self.Main.pack(side = TOP, pady = 10)
+        self.Info = Frame(master)
+        self.Info.pack(pady = 10)
+
         self.label = Label(self.Main, text = "Core Solution Einloggen")
         self.label.pack()
         
-        self.L1 = Label(self.Main, text = "Personal Nummer:")
+        self.L1 = Label(self.Info, text = "Personal Nummer:")
         self.L1.pack(side = TOP)
-        self.E1 = Entry(self.Main)
-        self.E1.pack(side = LEFT)
+        E1 = Entry(self.Info)
+        E1.pack(side = LEFT)
 
-        self.B1 = Button(self.Main, text = "Submit")
+        self.B1 = Button(self.Info, text = "Submit")
         self.B1.pack(side = RIGHT)
-    def submit(self):
-       
+    window_width = 300
+    window_height = 200
+    screen_width = root.winfo_screenwidth()
+    screen_height = root.winfo_screenheight()
+    center_x = int(screen_width/2 - window_width/2)
+    center_y = int(screen_height/2 - window_height/2)
+    root.geometry(f"{window_width}x{window_height}+{center_x}+{center_y}")
 
 
-
-
-root = Tk()
-root.resizable(False, False)
 window = loginbox(root)
 root.mainloop()
