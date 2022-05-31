@@ -6,12 +6,16 @@ import pyodbc
 from datetime import datetime, timedelta
 from tkinter import *
 
-#Import for request_window
+#For request_window
 from models import cnxn_str
 from models import new_info
 
+#For loginbox
+from models import cnxn_str
+from models import infofetcher
+
 #GUI for login
-class loginbox():
+class loginbox(): #NEEDS WORK
     def __init__(self, master):
         self.master = master
         master.title("Core Solution Urlaubsantrag Einloggen")
@@ -25,15 +29,20 @@ class loginbox():
         self.L1.pack(side = TOP)
         self.E1 = Entry(self.Main)
         self.E1.pack(side = LEFT)
-        global nEmployee
-        nEmployee = self.E1.get()
 
-        self.B1 = Button(self.Main, text = "Submit")
+        self.B1 = Button(self.Main, text = "Submit", command = self.submit)
         self.B1.pack(side = RIGHT)
-    def submit(self):
-        cursor.execute(models.infofetcher, controller.login_info)
-        employeeinfo = cursor.fetchone()
-        nEmployee = float(employeeinfo[2])
+    def submit(self): #NEEDS WORK, FOR NOW ITS JUST FOR TESTING
+        try:
+            nEmployee = int(self.E1.get())
+            self.cnxn = pyodbc.connect(cnxn_str)
+            self.cursor = self.cnxn.cursor()
+            self.cursor.execute(infofetcher, nEmployee)
+            print(self.cursor.fetchone())
+            self.cnxn.commit()
+            self.cnxn.close()
+        except:
+            print("Submission Failed")
 
 class request_window():
     def __init__(self, master):
