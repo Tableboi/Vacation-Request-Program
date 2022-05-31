@@ -5,6 +5,22 @@ import pandas as pd
 import pyodbc
 from datetime import datetime, timedelta
 from tkinter import *
+from tkinter import messagebox
+
+#For error messagebox
+class Error_message(Tk):
+        def create_Widgets(self, error_str):
+            self.label = Label(self, text = error_str)
+            self.label.pack(pady = 10)
+            self.button = Button(self, text = 'Back', 
+                                command = lambda: self.destroy())
+            self.button.pack(pady = 10)
+        
+        def __init__(self, error_str):
+            Tk.__init__(self)
+            self.title('Error')
+            self.geometry('200x100')
+            self.create_Widgets(error_str)
 
 #For request_window
 from models import cnxn_str
