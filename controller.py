@@ -11,6 +11,13 @@ import pandas as pd
 import pyodbc
 from datetime import datetime, timedelta
 
+#ERROR MESSAGE
+#Anywhere where an error messagebox should pop up, type: error_message('error message string')
+def error_message(error_str):
+    
+    errmess = views.Error_message(error_str)
+    errmess.mainloop()
+
 #CONNECT
 #test connection to sql NEEDS WORK
 def connect(cnxn_str):
@@ -19,7 +26,7 @@ def connect(cnxn_str):
         print('{c} is working'.format(c = cnxn_str))
         cnxn.close()
     except pyodbc.Error as ex:
-        print("{c} is not working".format(c = cnxn_str))
+        error_message('Error: Failed to connect')
 
 #CREATE
 #create entry into vacation requests table NEEDS WORK
@@ -37,7 +44,7 @@ def create_entry(cnxn_str, entry_creator, new_info):
         cursor.execute(entry_creator, new_info)
         cnxn.commit()
     except pyodbc.Error:
-        print('Error, entry not successful')
+        error_message('Error: Entry unsuccessful')
 
 #READ
 #fetch employee info from login
@@ -51,7 +58,7 @@ def infofetch(cnxn_str, infofetcher, login_info):
     try:
         cursor.execute(infofetcher, login_info)
     except pyodbc.Error:
-        print('Error, info fetch not successful')
+        error_message('Error: Info fetch unsuccessful')
 
 #fetch all vacation requests
 def allfetch(cnxn_str, allfetcher):
@@ -60,7 +67,7 @@ def allfetch(cnxn_str, allfetcher):
     try:
         cursor.execute(allfetcher)
     except pyodbc.Error:
-        print('Error, request fetch unsuccessful')
+        error_message('Error: request fetch unsuccessful')
 
 #fetch a request by its request number
 spec_request = (xnRequest)
@@ -83,7 +90,7 @@ def pg_check(cnxn_str, pg_checker, pg_tbchecked):
     try:
         cursor.execute(pg_checker, pg_tbchecked)
     except pyodbc.Error:
-        print('Error, produktionsgruppe not found')
+        error_message('Error: produktionsgruppe not found')
 
 #find a replacement operator from the same production group that is in
 # town during the requested time off
@@ -99,7 +106,7 @@ def pg_find_replacement(cnxn_str, pg_replacer, pg_repinfo):
     try:
         cursor.execute(pg_replacer, pg_repinfo)
     except pyodbc.Error:
-        print('Error, replacement find unsuccessful')
+        error_message('Error: replacement find unsuccessful')
 
 #UPDATE
 #edit the vacation request table and adds a string in the approval column
@@ -115,7 +122,7 @@ def approve(cnxn_str, approver, approve_info):
         cursor.execute(approver, approve_info)
         cnxn.commit()
     except pyodbc.Error:
-        print('Error, request update unsuccessful')
+        error_message('Error: request update unsuccessful')
 
 #update an existing request
 request_info = (dDateStart, dDateEnd, sReason, xnRequest)
@@ -132,7 +139,7 @@ def update_request(cnxn_str, request_updater, request_info):
         cursor.execute(request_updater, request_info)
         cnxn.commit()
     except pyodbc.Error:
-        print('Error, request update unsucessful')
+        error_message('Error: request update unsucessful')
 
 #DELETE
 #delete a request in the vacations requests table
@@ -146,7 +153,7 @@ def request_delete(cnxn_str, request_deleter):
         cursor.execute(request_deleter)
         cnxn.commit()
     except pyodbc.Error:
-        print('Error, deletion not successful')
+        error_message('Error: deletion unsuccessful')
 
 #EMAIL
 #fetch info for the confirmation email
