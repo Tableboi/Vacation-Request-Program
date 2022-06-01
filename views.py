@@ -6,6 +6,7 @@ import pyodbc
 from datetime import datetime, timedelta
 from tkinter import *
 from tkinter import messagebox
+import controller
 
 #For error messagebox
 class Error_message(Tk):
@@ -58,7 +59,7 @@ class loginbox(): #NEEDS WORK
             self.cnxn.commit()
             self.cnxn.close()
         except:
-            print("Submission Failed")
+            error_message("Error: Submission Failed")
 
 class request_window():
     def __init__(self, master):
@@ -223,7 +224,7 @@ class request_window():
             self.cursor = self.cnxn.cursor()
             print("Connection Succeeded")
         except:
-            print("Connection Failed")
+            error_message("Error: Connection Failed")
  
     def submit(self):
         start_date = self.dDateStart.get().strip()
