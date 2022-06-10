@@ -28,9 +28,6 @@ class Model:
 
         def infofetch(login_info):
                 Model.cursor.execute(Model.infofetcher, login_info)
-                user_info = Model.cursor.fetchone()
-                user_id = user_info[2]
-                print(user_id)
         
         #for submit in request_window
         """Parameters
@@ -79,3 +76,31 @@ class Model:
         def update_request(updated_info):
                 Model.cursor.execute(Model.request_updater, updated_info)
                 Model.cnxn.commit()
+
+        #delete an existing request
+        """Parameters
+        -----------
+        xnRequest : int"""
+        request_deleter = """DELETE FROM [PulseCoreTest5].[dbo].[PC_VacationsRequests]
+                          WHERE [xnRequest] = ?"""
+
+        def delete_request(xnRequest):
+                Model.cursor.execute(Model.request_deleter, xnRequest)
+                Model.cnxn.commit()
+        
+        #search all vacation requests by nEmployee
+        """Parameters
+        -----------
+        nEmployee : int"""
+        
+        emp_searcher = """SELECT [dDateStart]
+                        ,[dDateEnd]
+                        ,[xnRequest]
+                        ,[sReasons]
+                        ,[sStatus]
+                        FROM [PulseCoreTest5].[dbo].[PC_VacationsRequests]
+                        WHERE [nEmployee] = ?"""
+        
+        def emp_search(nEmployee):
+                Model.cursor.execute(Model.emp_searcher, nEmployee)
+                
