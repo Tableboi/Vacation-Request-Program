@@ -5,6 +5,7 @@ from tkinter import ttk
 from datetime import date
 
 from controller import Controller
+from PIL import Image, ImageTk
 
 class loginbox(ttk.Frame):
     def __init__(self, parent, controller):
@@ -60,7 +61,7 @@ class request_window(ttk.Frame):
         self.img.thumbnail((150,150))
         self.new_img = ImageTk.PhotoImage(self.img)
 # Create a Label Widget to display the text or Image
-        self.label = Label(root, image = self.new_img)
+        self.label = ttk.Label(root, image = self.new_img)
         self.label.pack()
 
         self.Main = ttk.Frame(self)
