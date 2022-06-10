@@ -3,21 +3,23 @@ from tkinter import *
 
 import pandas as pd
 import pyodbc
-from PIL import ImageTk, Image
+from PIL import Image, ImageTk
+
 
 class Window():
     def __init__(self, master):
         self.master = master
-        self.frame = Frame(master, width=60, height=40)
+        self.frame = Frame(master, width=600, height=400)
         self.frame.pack()
         self.frame.place(anchor='center', relx=0.5, rely=0.5)
 
 # Create an object of tkinter ImageTk
-        self.path = 'C:/Users/Paro1052/Downloads/RegistrationFormGUI/coresolutionlogo.jpg'
-        self.img = ImageTk.PhotoImage(Image.open(self.path))
-
+        self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB.jpg'
+        self.img = Image.open(self.path)
+        self.img.thumbnail((150,150))
+        self.new_img = ImageTk.PhotoImage(self.img)
 # Create a Label Widget to display the text or Image
-        self.label = Label(master, image = self.img)
+        self.label = Label(root, image = self.new_img)
         self.label.pack()
         self.Main = Frame(self.master)
 
