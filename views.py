@@ -54,7 +54,13 @@ class request_window(ttk.Frame):
 
         tk.Frame.__init__(self, parent)
 
-        self.label = ttk.Label(self, text = "Core Solution Urlaubsantrag", foreground = "white", font = "Georgia 20 bold", background = "navy blue")
+        # Create an object of tkinter ImageTk
+        self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB.jpg'
+        self.img = Image.open(self.path)
+        self.img.thumbnail((150,150))
+        self.new_img = ImageTk.PhotoImage(self.img)
+# Create a Label Widget to display the text or Image
+        self.label = Label(root, image = self.new_img)
         self.label.pack()
 
         self.Main = ttk.Frame(self)
