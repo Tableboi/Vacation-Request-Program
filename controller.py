@@ -1,5 +1,7 @@
 import pyodbc
 
+import views
+
 from models import Model
 
 class Controller:
@@ -19,6 +21,9 @@ class Controller:
             Controller.user_id = user_info[2]
         except pyodbc.Error as error:
             print(error)
+        except TypeError:
+            views.Error_message('Error: Invalid Personalnummer')
+
     #for the request_window submit button
     def sub_new_info(new_info):
         try:
@@ -38,6 +43,13 @@ class Controller:
     def update(updated_info):
         try:
             Model.update_request(updated_info)
+        except pyodbc.Error as error:
+            print(error)
+    
+    #for the manager_view update button
+    def man_update(man_info):
+        try:
+            Model.man_update(man_info)
         except pyodbc.Error as error:
             print(error)
     

@@ -2,11 +2,12 @@
 #user. It represents the model's data to the user.
 import tkinter as tk
 from tkinter import ttk
+import tkinter.font
+from tkinter import messagebox
 from datetime import date
+from PIL import Image, ImageTk
 
 from controller import Controller
-
-from PIL import Image, ImageTk
 
 class loginbox(ttk.Frame):
     def __init__(self, parent, controller):
@@ -18,17 +19,21 @@ class loginbox(ttk.Frame):
         self.L1 = ttk.Label(self, text = "Personal Nummer:")
         self.L1.grid(column = 0, row = 1, sticky = "E")
 
-        self.E1_var = tk.StringVar()
-        self.E1 = ttk.Entry(self, textvariable = self.E1_var)
+        logininfo = int()
+        self.E1 = ttk.Entry(self, textvariable = logininfo)
         self.E1.focus()
         self.E1.grid(column = 1, row = 1, sticky = "W")
 
         self.B1 = ttk.Button(self, text = "Submit", \
-            command = lambda : [ controller.show_frame(emp_choose), loginbox.submit(self)])
+            command = lambda : [controller.show_frame(emp_choose), \
+                loginbox.submit(self)])
         self.B1.grid(column = 2, row = 1, sticky = "")
 
     def submit(self):
-        Controller.login(int(self.E1.get()))
+        #need a global variable here so other classes can easily access it
+        global logininfo
+        logininfo = self.E1.get()
+        Controller.login(logininfo)
 
 class emp_choose(ttk.Frame):
     def __init__(self, parent, controller):
@@ -63,7 +68,7 @@ class request_window(ttk.Frame):
 
         tk.Frame.__init__(self, parent)
 
-         # Create an object of tkinter ImageTk
+        # Create an object of tkinter ImageTk
         self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB.jpg'
         self.img = Image.open(self.path)
         self.img.thumbnail((150,150))
@@ -220,6 +225,10 @@ class request_window(ttk.Frame):
         self.B1 = ttk.Button(self.Main, text = "Submit", \
             command = lambda : [controller.show_frame(loginbox), request_window.submit(self)])
         self.B1.pack(padx = 5, pady = 5, side = 'right')
+        
+        self.B2 = ttk.Button(self.Main, text = "Return", \
+            command = lambda : controller.show_frame(emp_choose))
+        self.B2.pack(padx = 5, pady = 5, side = 'left')
  
         self.Main.pack(padx = 5, pady = 5, expand = True, fill = 'x')
 
@@ -232,79 +241,50 @@ class request_window(ttk.Frame):
             data = (start_date, end_date, self.nEmployee.get(), self.T1.get("1.0", "end"), "anhängig")
         Controller.sub_new_info(data)
 
-class VerticalScrolledFrame(ttk.Frame):
-    def __init__(self, parent, *args, **kw):
-        ttk.Frame.__init__(self, parent, *args, **kw)
-
-        # Create a canvas object and a vertical scrollbar for scrolling it.
-        vscrollbar = ttk.Scrollbar(self, orient='vertical')
-        vscrollbar.pack(fill = 'y', side = 'right', expand = False)
-        canvas = tk.Canvas(self, bd=0, highlightthickness=0,
-                           yscrollcommand=vscrollbar.set)
-        canvas.pack(side = 'left', fill = 'both', expand = True)
-        vscrollbar.config(command=canvas.yview)
-
-        # Reset the view
-        canvas.xview_moveto(0)
-        canvas.yview_moveto(0)
-
-        # Create a frame inside the canvas which will be scrolled with it.
-        self.interior = interior = ttk.Frame(canvas)
-        interior_id = canvas.create_window(0, 0, window=interior,
-                                           anchor='nw')
-
-        # Track changes to the canvas and frame width and sync them,
-        # also updating the scrollbar.
-        def _configure_interior(event):
-            # Update the scrollbars to match the size of the inner frame.
-            size = (interior.winfo_reqwidth(), interior.winfo_reqheight())
-            canvas.config(scrollregion="0 0 %s %s" % size)
-            if interior.winfo_reqwidth() != canvas.winfo_width():
-                # Update the canvas's width to fit the inner frame.
-                canvas.config(width=interior.winfo_reqwidth())
-        interior.bind('<Configure>', _configure_interior)
-
-        def _configure_canvas(event):
-            if interior.winfo_reqwidth() != canvas.winfo_width():
-                # Update the inner frame's width to fill the canvas.
-                canvas.itemconfigure(interior_id, width=canvas.winfo_width())
-        canvas.bind('<Configure>', _configure_canvas)
-
 class manager_view(ttk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
+        
+        #setting the font for headers
+        header_font = tkinter.font.Font(\
+            family = "Helvertica", size = 16, weight = "bold", underline = 1)
 
         #top frame for header widgets
         self.Headerframe = ttk.Frame(self)
-        self.Headerframe.grid(column = 0, row = 0)
+        self.Headerframe.pack(side = 'top', fill = 'x')
+        self.Headerframe.configure(relief = 'groove', \
+            borderwidth = 2, padding = 5)
 
         self.label = ttk.Label(self.Headerframe, text = "Manager Request Search")
-        self.label.grid(column = 2, row = 0)
+        self.label.configure(font = header_font)
+        self.label.grid( columnspan = 2, column = 0, row = 0)
 
         self.E1_var = tk.StringVar()
         self.E1 = ttk.Entry(self.Headerframe, textvariable = self.E1_var)
         self.E1.focus()
-        self.E1.grid(column = 2, row = 1)
+        self.E1.grid(column = 1, row = 1)
 
-        self.L0 = ttk.Label(self.Headerframe, text = 'Personalnummer')
-        self.L0.grid(column = 1, row = 1)
+        self.L0 = ttk.Label(self.Headerframe, text = 'Personalnummer:')
+        self.L0.grid(column = 0, row = 1)
 
         self.B1 = ttk.Button(self.Headerframe, text = "Search", \
             command = lambda : manager_view.search_by_employee(self))
-        self.B1.grid(column = 3, row = 1)
+        self.B1.grid(column = 2, row = 1)
 
         #command frame for the buttons on the bottom
         self.F2 = ttk.Frame(self)
-        self.F2.grid(column = 0, row = 3)
+        self.F2.pack(side = 'bottom', fill = 'x')
+        self.F2.configure(relief = 'groove', \
+            borderwidth = 2, padding = 5)
 
-        self.cf_label = ttk.Label(self.F2, text = 'Update Frame', \
-            background = 'grey', foreground = 'white')
+        self.cf_label = ttk.Label(self.F2, text = 'Update Requests:')
+        self.cf_label.configure(font = header_font)
         self.cf_label.grid(columnspan = 5, column = 0, row = 0)
         
         self.cf_search_label = ttk.Label(self.F2, text = 'Antragsnummer:')
         self.cf_search_label.grid(column = 1, row = 1)
 
-        self.cf_search_val = int()
+        self.cf_search_val = tk.StringVar()
         self.cf_search = ttk.Entry(self.F2, textvariable = self.cf_search_val)
         self.cf_search.grid(column = 2, row = 1)
 
@@ -346,36 +326,41 @@ class manager_view(ttk.Frame):
             command = lambda : manager_view.delete(self))
         self.B4.grid(column = 2, row = 3)
 
-    #lists necessary for entries
-    entries = []
-    ubuttons = []
-    bcommands = []
-    def search_by_employee(self):
         #entry box master frame
-        self.F1 = VerticalScrolledFrame(self, width = 500, height = 200)
-        self.F1.grid(column = 0, row = 1)
+        self.F1 = VerticalScrolledFrame(self)
+        self.F1.pack(fill = 'x')
+
+    def search_by_employee(self):
+        #lists necessary for entries
+        self.entries = []
+
         #first clear the frame that the entry widgets will fill
         for widget in self.F1.interior.winfo_children():
             widget.destroy()
 
         self.L1 = ttk.Label(self.F1.interior, text = 'Startdatum', \
-            borderwidth = 2, relief = 'solid')
+            borderwidth = 2, relief = 'solid', background = 'grey', \
+            foreground = 'white')
         self.L1.grid(column = 0, row = 0)
 
         self.L2 = ttk.Label(self.F1.interior, text = 'Endedatum', \
-            borderwidth = 2, relief = 'solid')
+            borderwidth = 2, relief = 'solid', background = 'grey', \
+            foreground = 'white')
         self.L2.grid(column = 1, row = 0)
 
         self.L3 = ttk.Label(self.F1.interior, text = 'Antragsnummer', \
-            borderwidth = 2, relief = 'solid')
+            borderwidth = 2, relief = 'solid', background = 'grey', \
+            foreground = 'white')
         self.L3.grid(column = 2, row = 0)
 
         self.L4 = ttk.Label(self.F1.interior, text = 'Grund', \
-            borderwidth = 2, relief = 'solid')
+            borderwidth = 2, relief = 'solid', background = 'grey', \
+            foreground = 'white')
         self.L4.grid(column = 3, row = 0)
 
         self.L5 = ttk.Label(self.F1.interior, text = 'Status', \
-            borderwidth = 2, relief = 'solid')
+            borderwidth = 2, relief = 'solid', background = 'grey', \
+            foreground = 'white')
         self.L5.grid(column = 4, row = 0)
 
         Controller.search_emp(int(self.E1.get()))
@@ -387,6 +372,7 @@ class manager_view(ttk.Frame):
                 data = str(entry[ii])
                 self.entries.append(ttk.Entry(self.F1.interior))
                 self.entries[-1].insert(0, [data])
+                self.entries[-1].configure(state = 'disabled')
                 self.entries[-1].grid(row = i + 1 , column = ii, padx = 5, pady = 5)
 
     def search(self):
@@ -395,12 +381,183 @@ class manager_view(ttk.Frame):
         self.cf_E1.insert(0, [str(Controller.req_data[0])])
         self.cf_E2.delete(0, 'end')
         self.cf_E2.insert(0, [str(Controller.req_data[1])])
+
+        self.cf_E3.config(state = 'enabled')
         self.cf_E3.delete(0, 'end')
         self.cf_E3.insert(0, [str(Controller.req_data[2])])
+        self.cf_E3.config(state = 'disabled')
+
         self.cf_E4.delete(0, 'end')
         self.cf_E4.insert(0, [str(Controller.req_data[3]).strip()])
         self.cf_E5.delete(0, 'end')
         self.cf_E5.insert(0, [str(Controller.req_data[4])])
+
+    def update(self):
+        start_date = self.cf_E1.get().strip()
+        end_date = self.cf_E2.get().strip()
+        new_reason = self.cf_E4.get().strip()
+        sStatus = self.cf_E5.get().strip()
+        xnRequest = self.cf_search.get().strip()
+        if start_date or end_date:
+            if end_date == '':
+                end_date = start_date
+            updated = (start_date, end_date, new_reason, sStatus, xnRequest)
+        Controller.man_update(updated)
+    
+    def delete(self):
+        xnRequest = self.cf_search.get().strip()
+        Controller.delete(xnRequest)
+        self.cf_E1.delete(0, 'end')
+        self.cf_E2.delete(0, 'end')
+        self.cf_E3.delete(0, 'end')
+        self.cf_E4.delete(0, 'end')
+        self.cf_E5.delete(0, 'end')
+
+class employee_req_view(ttk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        #setting some fonts for headers
+        header_font = tkinter.font.Font(\
+            family = "Helvetica", size = 16, weight = "bold", underline = 1)
+
+        #top frame for header widgets
+        self.Headerframe = ttk.Frame(self)
+        self.Headerframe.pack(side = 'top', fill = 'x')
+        self.Headerframe.configure(relief = 'groove', \
+            borderwidth = 2, padding = 5)
+
+        self.label = ttk.Label(self.Headerframe, text = "Your Requests:")
+        self.label.configure(font = header_font)
+        self.label.grid(column = 0, row = 0)
+
+        self.B1 = ttk.Button(self.Headerframe, text = "Load", \
+            command = lambda : employee_req_view.search_by_employee(self))
+        self.B1.grid(column = 1, row = 0)
+
+        #command frame for the buttons on the bottom
+        self.F2 = ttk.Frame(self)
+        self.F2.pack(side = 'bottom', fill = 'x')
+        self.F2.configure(relief = 'groove', \
+            borderwidth = 2, padding = 5)
+
+        self.cf_label = ttk.Label(self.F2, text = 'Update Request:')
+        self.cf_label.configure(font = header_font)
+        self.cf_label.grid(columnspan = 1, column = 0, row = 0)
+        
+        self.cf_search_label = ttk.Label(self.F2, text = 'Antragsnummer:')
+        self.cf_search_label.grid(column = 1, row = 1)
+
+        self.cf_search_val = tk.StringVar()
+        self.cf_search = ttk.Entry(self.F2, textvariable = self.cf_search_val)
+        self.cf_search.grid(column = 2, row = 1)
+
+        self.cf_search_button = ttk.Button(self.F2, text = 'Search', \
+            command = lambda : employee_req_view.search(self))
+        self.cf_search_button.grid(column = 3, row = 1)
+
+        self.cf_options = {'padx' : 5, 'pady' : 5}
+
+        self.cf_E1_val = tk.StringVar()
+        self.cf_E1 = ttk.Entry(self.F2, textvariable = self.cf_E1_val)
+        self.cf_E1.grid(column = 0, row = 2, **self.cf_options)
+
+        self.cf_E2_val = tk.StringVar()
+        self.cf_E2 = ttk.Entry(self.F2, textvariable = self.cf_E2_val)
+        self.cf_E2.grid(column = 1, row = 2, **self.cf_options)
+
+        self.cf_E3_val = tk.StringVar()
+        self.cf_E3 = ttk.Entry(self.F2, textvariable = self.cf_E3_val)
+        self.cf_E3.grid(column = 2, row = 2, **self.cf_options)
+
+        self.cf_E4_val = tk.StringVar()
+        self.cf_E4 = ttk.Entry(self.F2, textvariable = self.cf_E4_val)
+        self.cf_E4.grid(column = 3, row = 2, **self.cf_options)
+
+        self.cf_E5_val = tk.StringVar()
+        self.cf_E5 = ttk.Entry(self.F2, textvariable = self.cf_E5_val)
+        self.cf_E5.grid(column = 4, row = 2, **self.cf_options)
+
+        self.B2 = ttk.Button(self.F2, text = "Return", \
+            command = lambda : controller.show_frame(emp_choose))
+        self.B2.grid(column = 1, row = 3)
+
+        self.B3 = ttk.Button(self.F2, text = "Update", \
+            command = lambda : manager_view.update(self))
+        self.B3.grid(column = 3, row = 3)
+
+        self.B4 = ttk.Button(self.F2, text = "Delete Request", \
+            command = lambda : manager_view.delete(self))
+        self.B4.grid(column = 2, row = 3)
+
+        #entry box master frame
+        self.F1 = VerticalScrolledFrame(self)
+        self.F1.pack(fill = 'x')
+
+    def search_by_employee(self):        
+        #lists necessary for entries
+        self.entries = []
+
+        #first clear the frame that the entry widgets will fill
+        for widget in self.F1.interior.winfo_children():
+            widget.destroy()
+
+        self.L1 = ttk.Label(self.F1.interior, text = 'Startdatum', \
+            borderwidth = 2, relief = 'solid', background = 'grey', \
+            foreground = 'white')
+        self.L1.grid(column = 0, row = 0)
+
+        self.L2 = ttk.Label(self.F1.interior, text = 'Endedatum', \
+            borderwidth = 2, relief = 'solid', background = 'grey', \
+            foreground = 'white')
+        self.L2.grid(column = 1, row = 0)
+
+        self.L3 = ttk.Label(self.F1.interior, text = 'Antragsnummer', \
+            borderwidth = 2, relief = 'solid', background = 'grey', \
+            foreground = 'white')
+        self.L3.grid(column = 2, row = 0)
+
+        self.L4 = ttk.Label(self.F1.interior, text = 'Grund', \
+            borderwidth = 2, relief = 'solid', background = 'grey', \
+            foreground = 'white')
+        self.L4.grid(column = 3, row = 0)
+
+        self.L5 = ttk.Label(self.F1.interior, text = 'Status', \
+            borderwidth = 2, relief = 'solid', background = 'grey', \
+            foreground = 'white')
+        self.L5.grid(column = 4, row = 0)
+        
+        Controller.search_emp(int(logininfo))
+        row_len = len(Controller.fetched_reqs)
+
+        for i in range(0, row_len, 1):
+            for ii in range(0, 5, 1):
+                entry = Controller.fetched_reqs[i]
+                data = str(entry[ii])
+                self.entries.append(ttk.Entry(self.F1.interior))
+                self.entries[-1].insert(0, [data])
+                self.entries[-1].configure(state = 'disabled')
+                self.entries[-1].grid(row = i + 1 , column = ii, padx = 5, pady = 5)
+
+    def search(self):
+        Controller.search(int(self.cf_search.get()))
+        self.cf_E1.delete(0, 'end')
+        self.cf_E1.insert(0, [str(Controller.req_data[0])])
+        self.cf_E2.delete(0, 'end')
+        self.cf_E2.insert(0, [str(Controller.req_data[1])])
+
+        self.cf_E3.config(state = 'enabled')
+        self.cf_E3.delete(0, 'end')
+        self.cf_E3.insert(0, [str(Controller.req_data[2])])
+        self.cf_E3.config(state = 'disabled')
+        
+        self.cf_E4.delete(0, 'end')
+        self.cf_E4.insert(0, [str(Controller.req_data[3]).strip()])
+
+        self.cf_E5.config(state = 'enabled')
+        self.cf_E5.delete(0, 'end')
+        self.cf_E5.insert(0, [str(Controller.req_data[4])])
+        self.cf_E5.config(state = 'disabled')
 
     def update(self):
         start_date = self.cf_E1.get().strip()
@@ -422,111 +579,58 @@ class manager_view(ttk.Frame):
         self.cf_E4.delete(0, 'end')
         self.cf_E5.delete(0, 'end')
 
-class employee_req_view(ttk.Frame):
-    def __init__(self, parent, controller):
-        tk.Frame.__init__(self, parent)
+#The below frame is needed for the manager_view and employee_req_view
+# scrollbar frames
+class VerticalScrolledFrame(ttk.Frame):
+    def __init__(self, parent, *args, **kw):
+        ttk.Frame.__init__(self, parent, *args, **kw)
 
-        self.label = ttk.Label(self, text = "Request Search", \
-            background = "blue", foreground = "white")
-        self.label.grid(column = 2, row = 0)
+        # Create a canvas object and a vertical scrollbar for scrolling it.
+        vscrollbar = ttk.Scrollbar(self, orient='vertical')
+        vscrollbar.pack(fill = 'y', side = 'right', expand = False)
+        canvas = tk.Canvas(self, bd=0, highlightthickness=0,
+                           yscrollcommand=vscrollbar.set)
+        canvas.pack(side = 'left', fill = 'both', expand = True)
+        vscrollbar.config(command=canvas.yview)
 
-        self.E1_var = tk.StringVar()
-        self.E1 = ttk.Entry(self, textvariable = self.E1_var)
-        self.E1.focus()
-        self.E1.grid(column = 2, row = 1)
+        # Reset the view
+        canvas.xview_moveto(0)
+        canvas.yview_moveto(0)
 
-        self.L0 = ttk.Label(self, text = 'Antragsnummer:')
-        self.L0.grid(column = 1, row = 1)
+        # Create a frame inside the canvas which will be scrolled with it.
+        self.interior = interior = ttk.Frame(canvas)
+        interior_id = canvas.create_window(0, 0, window=interior,
+                                           anchor='nw')
 
-        self.B1 = ttk.Button(self, text = "Search", \
-            command = lambda : employee_req_view.search(self))
-        self.B1.grid(column = 3, row = 1)
+        # Track changes to the canvas and frame width and sync them,
+        # also updating the scrollbar.
+        def _configure_interior(event):
+            # Update the scrollbars to match the size of the inner frame.
+            size = (interior.winfo_reqwidth(), interior.winfo_reqheight())
+            canvas.config(scrollregion="0 0 %s %s" % size)
+            if interior.winfo_reqwidth() != canvas.winfo_width():
+                # Update the canvas's width to fit the inner frame.
+                canvas.config(width=interior.winfo_reqwidth())
+        interior.bind('<Configure>', _configure_interior)
 
-        #Formatting options for the entry boxes
-        eoptions = {'padx' : 10, 'pady' : 10, 'ipadx' : 5, 'ipady' : 5}
+        def _configure_canvas(event):
+            if interior.winfo_reqwidth() != canvas.winfo_width():
+                # Update the inner frame's width to fill the canvas.
+                canvas.itemconfigure(interior_id, width=canvas.winfo_width())
+        canvas.bind('<Configure>', _configure_canvas)
 
-        self.L1 = ttk.Label(self, text = 'Startdatum')
-        self.L1.grid(column = 0, row = 2)
+#ERROR MESSAGE GUI
+class Error_message(tk.Toplevel):       
+        def __init__(self, parent, controller, error_str):
+            tk.Toplevel.__init__(self, parent)
 
-        self.text1 = tk.StringVar()
-        self.T1 = ttk.Entry(self, textvariable = self.text1)
-        self.T1.grid(column = 0, row = 3, **eoptions)
-
-        self.L2 = ttk.Label(self, text = 'Endedatum')
-        self.L2.grid(column = 1, row = 2)
-
-        self.text2 = tk.StringVar()
-        self.T2 = ttk.Entry(self, textvariable = self.text2)
-        self.T2.grid(column = 1, row = 3, **eoptions)
-
-        self.L3 = ttk.Label(self, text = 'Personalnummer')
-        self.L3.grid(column = 2, row = 2)
-
-        self.text3 = int()
-        #the widget below uses the tk.Entry class rather than ttk.Entry
-        # because the background and foreground options of ttk.Entry do not work
-        self.T3 = tk.Entry(self, textvariable = self.text3, \
-            background = "grey", foreground = "white")
-        self.T3.grid(column = 2, row = 3, **eoptions)
-
-        self.L4 = ttk.Label(self, text = 'Grund')
-        self.L4.grid(column = 3, row = 2)
-
-        self.text4 = tk.StringVar()
-        self.T4 = ttk.Entry(self, textvariable = self.text4)
-        self.T4.grid(column = 3, row = 3, **eoptions)
-
-        self.L5 = ttk.Label(self, text = 'Status')
-        self.L5.grid(column = 4,  row = 2)
-
-        self.text5 = tk.StringVar()
-        #the widget below uses the tk.Entry class rather than ttk.Entry
-        # because the background and foreground options of ttk.Entry do not work
-        self.T5 = tk.Entry(self, textvariable = self.text5, \
-            background = "grey", foreground = "white")
-        self.T5.grid(column = 4, row = 3, **eoptions)
-
-        self.B2 = ttk.Button(self, text = "Return", \
-            command = lambda : controller.show_frame(emp_choose))
-        self.B2.grid(column = 1, row = 4)
-
-        self.B3 = ttk.Button(self, text = "Update", \
-            command = lambda : employee_req_view.update(self))
-        self.B3.grid(column = 3, row = 4)
-
-        self.B4 = ttk.Button(self, text = "Delete Request", \
-            command = lambda : employee_req_view.delete(self))
-        self.B4.grid(column = 2, row = 4)
-
-    def search(self):
-        Controller.search(int(self.E1.get()))
-        self.T1.delete(0, 'end')
-        self.T1.insert(0, [str(Controller.req_data[0])])
-        self.T2.delete(0, 'end')
-        self.T2.insert(0, [str(Controller.req_data[1])])
-        self.T3.delete(0, 'end')
-        self.T3.insert(0, [str(Controller.req_data[2])])
-        self.T4.delete(0, 'end')
-        self.T4.insert(0, [str(Controller.req_data[3])])
-        self.T5.delete(0, 'end')
-        self.T5.insert(0, [str(Controller.req_data[4])])
-
-    def update(self):
-        start_date = self.T1.get().strip()
-        end_date = self.T2.get().strip()
-        new_reason = self.T4.get().strip()
-        xnRequest = self.E1.get().strip()
-        if start_date or end_date:
-            if end_date == '':
-                end_date = start_date
-            updated = (start_date, end_date, new_reason, xnRequest)
-        Controller.update(updated)
-    
-    def delete(self):
-        xnRequest = self.E1.get().strip()
-        Controller.delete(xnRequest)
-        self.T1.delete(0, 'end')
-        self.T2.delete(0, 'end')
-        self.T3.delete(0, 'end')
-        self.T4.delete(0, 'end')
-        self.T5.delete(0, 'end')
+            self.title('Error')
+            self.geometry('200x100')
+            self.create_Widgets(error_str)
+        
+        def create_Widgets(self, error_str):
+            self.label = ttk.Label(self, text = error_str)
+            self.label.pack(pady = 10)
+            self.button = ttk.Button(self, text = 'Back', 
+                                command = lambda: self.destroy())
+            self.button.pack(pady = 10)

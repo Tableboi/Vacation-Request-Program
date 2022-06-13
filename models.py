@@ -42,8 +42,7 @@ class Model:
 
         def submit_request(new_info):
                 Model.cursor.execute(Model.new_info, new_info)
-                Model.cnxn.commit() 
-                Model.cnxn.close()
+                Model.cnxn.commit()
 
         #fetch a request by its request number
         """Parameters
@@ -76,6 +75,26 @@ class Model:
         def update_request(updated_info):
                 Model.cursor.execute(Model.request_updater, updated_info)
                 Model.cnxn.commit()
+
+        #manager update, includes sStatus
+        """Parameters
+        -----------
+        dDateStart : date
+        dDateEnd : date
+        sReasons : str
+        xnRequest : int
+        sStatus : str"""
+        man_updater = """UPDATE [PulseCoreTest5].[dbo].[PC_VacationsRequests]
+                           SET [dDateStart] = ?,
+                           [dDateEnd] = ?,
+                           [sReasons] = ?,
+                           [sStatus] = ?
+                           WHERE [xnRequest] = ?"""
+        
+        def man_update(man_info):
+                Model.cursor.execute(Model.man_updater, man_info)
+                Model.cnxn.commit()
+
 
         #delete an existing request
         """Parameters
