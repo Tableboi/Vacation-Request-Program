@@ -1,27 +1,30 @@
 #The View represents the GUI, which interact with the end
 #user. It represents the model's data to the user.
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox
+from datetime import date
+
 from controller import Controller
+from PIL import Image, ImageTk
 
 class loginbox(ttk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
 
         self.label = ttk.Label(self, text = "Core Solution Einloggen")
-        self.label.pack()
+        self.label.grid(column = 1, row = 0)
         
         self.L1 = ttk.Label(self, text = "Personal Nummer:")
-        self.L1.pack(side = 'top')
+        self.L1.grid(column = 0, row = 1, sticky = "E")
 
         self.E1_var = tk.StringVar()
         self.E1 = ttk.Entry(self, textvariable = self.E1_var)
         self.E1.focus()
-        self.E1.pack(side = 'left')
+        self.E1.grid(column = 1, row = 1, sticky = "W")
 
         self.B1 = ttk.Button(self, text = "Submit", \
             command = lambda : [controller.show_frame(emp_choose), loginbox.submit(self)])
-        self.B1.pack(side = 'right')
+        self.B1.grid(column = 2, row = 1, sticky = "")
 
     def submit(self):
         Controller.login(int(self.E1.get()))
@@ -52,7 +55,13 @@ class request_window(ttk.Frame):
 
         tk.Frame.__init__(self, parent)
 
-        self.label = ttk.Label(self, text = "Core Solution Urlaubsantrag", foreground = "white", font = "Georgia 20 bold", background = "navy blue")
+        # Create an object of tkinter ImageTk
+        self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB.jpg'
+        self.img = Image.open(self.path)
+        self.img.thumbnail((150,150))
+        self.new_img = ImageTk.PhotoImage(self.img)
+# Create a Label Widget to display the text or Image
+        self.label = ttk.Label(self, image = self.new_img)
         self.label.pack()
 
         self.Main = ttk.Frame(self)
@@ -195,7 +204,7 @@ class request_window(ttk.Frame):
         # ----- Section 4
         
         self.B1 = ttk.Button(self.Main, text = "Submit", \
-            command = lambda : [controller.show_frame(loginbox), request_window.submit(self)])
+            command = lambda : [controller.show_frame(loginbox), request_window.submit(self), request_window.click_me(self)])
         self.B1.pack(padx = 5, pady = 5, side = 'right')
  
         self.Main.pack(padx = 5, pady = 5, expand = True, fill = 'x')
@@ -208,6 +217,9 @@ class request_window(ttk.Frame):
                 end_date = start_date
             data = (start_date, end_date, self.nEmployee.get(), self.T1.get("1.0", "end"), "anhängig")
         Controller.sub_new_info(data)
+     
+    def click_me(self):
+        self.mssg = messagebox.showinfo("Success", "Your submission was recorded!")
 
 class manager_view(ttk.Frame):
     def __init__(self, parent, controller):
@@ -225,39 +237,82 @@ class employee_req_view(ttk.Frame):
         self.E1.focus()
         self.E1.grid(column = 2, row = 1)
 
-        self.L1 = ttk.Label(self, text = 'Personal Nummer:')
-        self.L1.grid(column = 1, row = 1)
+        self.L0 = ttk.Label(self, text = 'Antragsnummer:')
+        self.L0.grid(column = 1, row = 1)
 
         self.B1 = ttk.Button(self, text = "Search", \
             command = lambda : employee_req_view.search(self))
         self.B1.grid(column = 3, row = 1)
 
+        self.L1 = ttk.Label(self, text = 'Startdatum')
+        self.L1.grid(column = 0, row = 2)
+
         self.text1 = tk.StringVar()
-        self.T1 = tk.Text(self, height = 1, width = 20)
-        self.T1.grid(column = 0, row = 2)
+        self.T1 = ttk.Entry(self, textvariable = self.text1)
+        self.T1.grid(column = 0, row = 3)
 
-        self.text2 = tk.StringVar
-        self.T2 = tk.Text(self, height = 1, width = 20)
-        self.T2.grid(column = 1, row = 2)
+        self.L2 = ttk.Label(self, text = 'Endedatum')
+        self.L2.grid(column = 1, row = 2)
 
-        self.text3 = tk.StringVar()
-        self.T3 = tk.Text(self, height = 1, width = 20)
-        self.T3.grid(column = 2, row = 2)
+        self.text2 = tk.StringVar()
+        self.T2 = ttk.Entry(self, textvariable = self.text2)
+        self.T2.grid(column = 1, row = 3)
+
+        self.L3 = ttk.Label(self, text = 'Personalnummer')
+        self.L3.grid(column = 2, row = 2)
+
+        self.text3 = int()
+        #the widget below uses the tk.Entry class rather than ttk.Entry
+        # because the background and foreground options of ttk.Entry do not work
+        self.T3 = tk.Entry(self, textvariable = self.text3, \
+            background = "grey", foreground = "white")
+        self.T3.grid(column = 2, row = 3)
+
+        self.L4 = ttk.Label(self, text = 'Grund')
+        self.L4.grid(column = 3, row = 2)
 
         self.text4 = tk.StringVar()
-        self.T4 = tk.Text(self, height = 1, width = 20)
-        self.T4.grid(column = 3, row = 2)
+        self.T4 = ttk.Entry(self, textvariable = self.text4)
+        self.T4.grid(column = 3, row = 3)
+
+        self.L5 = ttk.Label(self, text = 'Status')
+        self.L5.grid(column = 4,  row = 2)
 
         self.text5 = tk.StringVar()
-        self.T5 = tk.Text(self, height = 1, width = 20)
-        self.T5.grid(column = 4, row = 2)
+        #the widget below uses the tk.Entry class rather than ttk.Entry
+        # because the background and foreground options of ttk.Entry do not work
+        self.T5 = tk.Entry(self, textvariable = self.text5, \
+            background = "grey", foreground = "white")
+        self.T5.grid(column = 4, row = 3)
 
         self.B2 = ttk.Button(self, text = "Return", \
             command = lambda : controller.show_frame(emp_choose))
-        self.B2.grid(column = 1, row = 3)
+        self.B2.grid(column = 1, row = 4)
 
-        self.B3 = ttk.Button(self, text = "Update")
-        self.B3.grid(column = 3, row = 3)
+        self.B3 = ttk.Button(self, text = "Update", \
+            command = lambda : employee_req_view.update(self))
+        self.B3.grid(column = 3, row = 4)
 
     def search(self):
         Controller.search(int(self.E1.get()))
+        self.T1.delete(0, 'end')
+        self.T1.insert(0, [str(Controller.req_data[0])])
+        self.T2.delete(0, 'end')
+        self.T2.insert(0, [str(Controller.req_data[1])])
+        self.T3.delete(0, 'end')
+        self.T3.insert(0, [str(Controller.req_data[2])])
+        self.T4.delete(0, 'end')
+        self.T4.insert(0, [str(Controller.req_data[3])])
+        self.T5.delete(0, 'end')
+        self.T5.insert(0, [str(Controller.req_data[4])])
+
+    def update(self):
+        start_date = self.T1.get().strip()
+        end_date = self.T2.get().strip()
+        new_reason = self.T4.get().strip()
+        xnRequest = self.E1.get().strip()
+        if start_date or end_date:
+            if end_date == '':
+                end_date = start_date
+            updated = (start_date, end_date, new_reason, xnRequest)
+        Controller.update(updated)
