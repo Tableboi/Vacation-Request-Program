@@ -13,170 +13,222 @@ class loginbox(ttk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
 
-        self.label = ttk.Label(self, text = "Core Solution Einloggen")
-        self.label.grid(column = 1, row = 0)
+        pad_options = {'padx' : 5, 'pady' : 5}
+
+        # Create an object of tkinter ImageTk
+        self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB.jpg'
+        self.img = Image.open(self.path)
+        self.img.thumbnail((200,200))
+        self.new_img = ImageTk.PhotoImage(self.img)
+        # Create a Label Widget to display the text or Image
+        self.label = ttk.Label(self, image = self.new_img)
+        self.label.pack(side = 'top', **pad_options)
+
+        #setting the font types
+        header_font = tkinter.font.Font(\
+            family = "Helvertica", size = 14, weight = "bold", underline = 1)
         
-        self.L1 = ttk.Label(self, text = "Personal Nummer:")
-        self.L1.grid(column = 0, row = 1, sticky = "E")
+        subheader_font = tkinter.font.Font(\
+            family = "Helvertica", size = 12, weight = "normal", underline = 0)
 
-        logininfo = int()
-        self.E1 = ttk.Entry(self, textvariable = logininfo)
+        self.F1 = ttk.Frame(self, relief = 'groove')
+        self.F1.pack()
+
+        self.label = ttk.Label(self.F1, text = "Einloggen")
+        self.label.grid(column = 1, row = 0, **pad_options)
+        self.label.configure(font = header_font)
+        
+        self.L1 = ttk.Label(self.F1, text = "Personal Nummer:")
+        self.L1.grid(column = 0, row = 1, sticky = "E", **pad_options)
+
+        logininfo = tk.StringVar()
+        self.E1 = ttk.Entry(self.F1, textvariable = logininfo)
         self.E1.focus()
-        self.E1.grid(column = 1, row = 1, sticky = "W")
+        self.E1.grid(column = 1, row = 1, sticky = "W", **pad_options)
 
-        self.B1 = ttk.Button(self, text = "Submit", \
-            command = lambda : [controller.show_frame(emp_choose), \
-                loginbox.submit(self)])
-        self.B1.grid(column = 2, row = 1, sticky = "")
+        self.B1 = ttk.Button(self.F1, text = "Submit", \
+            command = lambda : loginbox.submit(self))
+        self.B1.grid(column = 2, row = 1, sticky = "", **pad_options)
+
+        self.F2 = ttk.Frame(self, relief = 'groove')
+        #self.F2.pack()
+
+        #self.label = ttk.Label(self.F2, text = "Options")
+        #self.label.grid(columnspan = 3, column = 0, row = 0)
+
+        self.L1 = ttk.Label(self.F2, text = "View Request")
+        self.L1.configure(font = subheader_font)
+        self.L1.grid(column = 0, row = 1, **pad_options)
+
+        self.B1 = ttk.Button(self.F2, text = "Go", \
+                command = lambda : controller.show_frame(employee_req_view), \
+                    state = 'disabled')
+        self.B1.grid(column = 0, row = 2, **pad_options)
+
+        self.L2 = ttk.Label(self.F2, text = "New Request")
+        self.L2.configure(font = subheader_font)
+        self.L2.grid(column = 1, row = 1, **pad_options)
+
+        self.B2 = ttk.Button(self.F2, text = "Go", \
+                command = lambda : controller.show_frame(request_window), \
+                    state = 'disabled')
+        self.B2.grid(column = 1, row = 2, **pad_options)
+
+        self.L3 = ttk.Label(self.F2, text = "Manager View")
+        self.L3.configure(font = subheader_font)
+        self.L3.grid(column = 2, row = 1, **pad_options)
+            
+        self.B3 = ttk.Button(self.F2, text = "Go", \
+                command = lambda : controller.show_frame(manager_view), \
+                    state = 'disabled')
+        self.B3.grid(column = 2, row = 2, **pad_options)
 
     def submit(self):
+        #reveal buttons
+        self.F2.pack()
+
+        #reset button states
+        self.B1.configure(state = 'disable')
+        self.B2.configure(state = 'disable')
+        self.B3.configure(state = 'disable')
+
         #need a global variable here so other classes can easily access it
-        global logininfo
-        logininfo = self.E1.get()
-        Controller.login(logininfo)
-
-class emp_choose(ttk.Frame):
-    def __init__(self, parent, controller):
-        tk.Frame.__init__(self, parent)
-
-        self.label = ttk.Label(self, text = "Options")
-        self.label.grid(columnspan = 3, column = 0, row = 0)
-
-        self.L1 = ttk.Label(self, text = "View Request")
-        self.L1.grid(column = 0, row = 1)
-
-        self.B1 = ttk.Button(self, text = "Go", \
-            command = lambda : controller.show_frame(employee_req_view))
-        self.B1.grid(column = 0, row = 2)
-
-        self.L2 = ttk.Label(self, text = "New Request")
-        self.L2.grid(column = 1, row = 1)
-
-        self.B2 = ttk.Button(self, text = "Go", \
-            command = lambda : controller.show_frame(request_window))
-        self.B2.grid(column = 1, row = 2)
-
-        self.L3 = ttk.Label(self, text = "Manager View")
-        self.L3.grid(column = 2, row = 1)
-        
-        self.B3 = ttk.Button(self, text = "Go", \
-            command = lambda : controller.show_frame(manager_view))
-        self.B3.grid(column = 2, row = 2)
+        global login_info
+        login_info = self.E1.get()
+        try:
+            Controller.login(int(login_info))
+            #this is the employee number validator, to check if
+            # the user is a manager
+            if int(login_info) == 905:
+                loginbox.enable_allbuttons(self)
+            else:
+                loginbox.enable_empbuttons(self)
+        except TypeError:
+            messagebox.showerror('Error', 'Invalid Personalnummer')
+    
+    def enable_empbuttons(self):
+        self.B1.configure(state = 'enable')
+        self.B2.configure(state = 'enable')
+    
+    def enable_allbuttons(self):
+        self.B1.configure(state = 'enable')
+        self.B2.configure(state = 'enable')
+        self.B3.configure(state = 'enable')
             
 class request_window(ttk.Frame):
     def __init__(self, parent, controller):
 
         tk.Frame.__init__(self, parent)
+        
+        self.Main = ttk.Frame(self)
 
         # Create an object of tkinter ImageTk
         self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB.jpg'
         self.img = Image.open(self.path)
-        self.img.thumbnail((150,150))
+        self.img.thumbnail((200,200))
         self.new_img = ImageTk.PhotoImage(self.img)
         # Create a Label Widget to display the text or Image
-        self.label = ttk.Label(self, image = self.new_img)
-        self.label.pack()
-
-        self.Main = ttk.Frame(self)
+        self.label = ttk.Label(self.Main, image = self.new_img)
+        self.label.grid(column = 0, row = 0, padx = 5, pady = 5)
 
         # ----- Section 1
         # pack options for section 1
-        s1options = {'padx' : 5, 'pady' : 5, 'side' : 'left'}
+        s1options = {'padx' : 5, 'pady' : 5}
 
-        self.section1 = ttk.Frame(self.Main)
+        self.section1 = ttk.Frame(self.Main, relief = 'groove')
  
-        self.L1 = ttk.Label(self.section1, text = "Name")
-        self.L1.pack(**s1options)
+        self.L1 = ttk.Label(self.section1, text = "Name:")
+        self.L1.grid(column = 0, row = 0, **s1options)
  
         self.E1 = ttk.Entry(self.section1)
-        self.E1.pack(**s1options)
+        self.E1.grid(column = 1, row = 0, **s1options)
  
-        self.L2 = ttk.Label(self.section1, text = "Vorname")
-        self.L2.pack(**s1options)
+        self.L2 = ttk.Label(self.section1, text = "Vorname:")
+        self.L2.grid(column = 2, row = 0, **s1options)
  
         self.E2 = ttk.Entry(self.section1)
-        self.E2.pack(**s1options)
+        self.E2.grid(column = 3, row = 0, **s1options)
 
-        self.L3 = ttk.Label(self.section1, text = "Abteilung")
-        self.L3.pack(**s1options)
+        self.L3 = ttk.Label(self.section1, text = "Abteilung:")
+        self.L3.grid(column = 4, row = 0, **s1options)
 
         self.E3 = ttk.Entry(self.section1)
-        self.E3.pack(**s1options)
+        self.E3.grid(column = 5, row = 0, **s1options)
         
          
-        self.section1.pack(padx = 5, pady = 5, expand = True, fill = 'x')
+        self.section1.grid(column = 0, row = 1, padx = 5, pady = 5)
  
         # ----- Section 1
  
 
         # ----- Section 2
         # pack options for section 2
-        s2options = {'padx' : 5, 'pady' : 5, 'side' : 'left'}
+        s2options = {'padx' : 5, 'pady' : 5}
 
-        self.section2 = ttk.Frame(self.Main)
+        self.section2 = ttk.Frame(self.Main, relief = 'groove')
         
         self.L4 = ttk.Label(self.section2, text = "Personal-Nr:")
-        self.L4.pack(**s2options)
+        self.L4.grid(column = 0, row = 0, **s2options)
         
         ## ---- nEmployee
        
         self.nEmployee = ttk.Entry(self.section2)
-        self.nEmployee.pack(**s2options)
+        self.nEmployee.grid(column = 1, row = 0, **s2options)
         
         ## ---- nEmployee
 
         self.L5 = ttk.Label(self.section2, text = "Stellvertreter:")
-        self.L5.pack(**s2options)
+        self.L5.grid(column = 2, row = 0, **s2options)
  
         self.E5 = ttk.Entry(self.section2)
-        self.E5.pack(**s2options)
+        self.E5.grid(column = 3, row = 0, **s2options)
  
         self.L6 = ttk.Label(self.section2, text = "Resturlaub:")
-        self.L6.pack(**s2options)
+        self.L6.grid(column = 4, row = 0, **s2options)
  
         self.E6 = ttk.Entry(self.section2)
-        self.E6.pack(**s2options)
+        self.E6.grid(column = 5, row = 0, **s2options)
         ## ---- nEmployee
 
-        self.section2.pack(padx = 5, pady = 5, expand = True, fill = 'x')
+        self.section2.grid(column = 0, row = 2, padx = 5, pady = 5)
  
         # ----- Section 2
 
 
         # ----- Section 3
         # pack options for section 3
-        s3options = {'padx' : 5, 'pady' : 5, 'side' : 'left'}
+        s3options = {'padx' : 5, 'pady' : 5}
 
-        self.section3 = ttk.Frame(self.Main)
+        self.section3 = ttk.Frame(self.Main, relief = 'groove')
     
         self.L7 = ttk.Label(self.section3, text = "Urlaub am/vom")
-        self.L7.pack(**s3options)
+        self.L7.grid(column = 0, row = 0, **s3options)
 
         ## ---- dDateStart
 
         self.dDateStart = ttk.Entry(self.section3)
-        self.dDateStart.pack(**s3options)
+        self.dDateStart.grid(column = 1, row = 0, **s3options)
 
         ## ---- dDateStart
 
         self.L8 = ttk.Label(self.section3, text = "bis einschl.")
-        self.L8.pack(**s3options)
+        self.L8.grid(column = 2, row = 0, **s3options)
         
         ## ---- dDateEnd
         
         self.dDateEnd = ttk.Entry(self.section3)
-        self.dDateEnd.pack(**s3options)
+        self.dDateEnd.grid(column = 3, row = 0, **s3options)
                
     
         ## ---- dDateEnd
         
         self.L9 = ttk.Label(self.section3, text = "Urlaubsdauer (Anzahl der  Arbeitstage)")
-        self.L9.pack(**s3options)
+        self.L9.grid(column = 4, row = 0, **s3options)
  
         self.E9 = ttk.Entry(self.section3, width = 6)
-        self.E9.pack(**s3options)
+        self.E9.grid(column = 5, row = 0, **s3options)
          
-        self.section3.pack(padx = 5, pady = 5, expand = True, fill = 'x')
+        self.section3.grid(column = 0, row = 3, padx = 5, pady = 5)
        
         # ----- Section 3
     
@@ -187,7 +239,7 @@ class request_window(ttk.Frame):
         
         ## ---- Section 4 sub-frame 1
 
-        self.section4_1 = ttk.Frame(self.section4)        
+        self.section4_1 = ttk.Frame(self.section4, relief = 'groove')        
  
         self.L10 = ttk.Label(self.section4_1, text = "Urlaubsgrund:")
         self.L10.pack(padx = 5, pady = 5)
@@ -202,7 +254,7 @@ class request_window(ttk.Frame):
  
         ## ---- Section 4 sub-frame 2
          
-        self.section4_2 = ttk.Frame(self.section4)        
+        self.section4_2 = ttk.Frame(self.section4, relief = 'groove')        
  
         self.L12 = ttk.Label(self.section4_2, text = "Nach Jahresplanung:")
         self.L12.pack(padx = 5, pady = 5)
@@ -218,19 +270,23 @@ class request_window(ttk.Frame):
          
         ## ---- Section 4 sub-frame 2
          
-        self.section4.pack(padx = 5, pady = 5, expand = True, fill = 'x')
+        self.section4.grid(column = 0 , row = 4, padx = 5, pady = 5)
         
         # ----- Section 4
+
+        self.bottom = ttk.Frame(self.Main)
         
-        self.B1 = ttk.Button(self.Main, text = "Submit", \
-            command = lambda : [controller.show_frame(loginbox), request_window.submit(self)])
+        self.B1 = ttk.Button(self.bottom, text = "Submit", \
+            command = lambda : request_window.submit(self))
         self.B1.pack(padx = 5, pady = 5, side = 'right')
         
-        self.B2 = ttk.Button(self.Main, text = "Return", \
-            command = lambda : controller.show_frame(emp_choose))
+        self.B2 = ttk.Button(self.bottom, text = "Return", \
+            command = lambda : controller.show_frame(loginbox))
         self.B2.pack(padx = 5, pady = 5, side = 'left')
+
+        self.bottom.grid(column = 0, row = 6)
  
-        self.Main.pack(padx = 5, pady = 5, expand = True, fill = 'x')
+        self.Main.pack(expand = True, fill = 'both')
 
     def submit(self):
         start_date = self.dDateStart.get().strip()
@@ -238,22 +294,32 @@ class request_window(ttk.Frame):
         if start_date or end_date:
             if end_date == '':
                 end_date = start_date
-            data = (start_date, end_date, self.nEmployee.get(), self.T1.get("1.0", "end"), "anhängig")
+            data = (start_date, end_date, self.nEmployee.get(), self.T1.get("1.0", "end"), "geplant")
         Controller.sub_new_info(data)
 
 class manager_view(ttk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
-        
+
         #setting the font for headers
         header_font = tkinter.font.Font(\
             family = "Helvertica", size = 16, weight = "bold", underline = 1)
-
+        
         #top frame for header widgets
         self.Headerframe = ttk.Frame(self)
         self.Headerframe.pack(side = 'top', fill = 'x')
         self.Headerframe.configure(relief = 'groove', \
             borderwidth = 2, padding = 5)
+
+        # Create an object of tkinter ImageTk
+        self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB.jpg'
+        self.img = Image.open(self.path)
+        self.img.thumbnail((200,200))
+        self.new_img = ImageTk.PhotoImage(self.img)
+        # Create a Label Widget to display the text or Image
+        self.label = ttk.Label(self.Headerframe, image = self.new_img)
+        self.label.grid(rowspan = 2, columnspan = 2, column = 4, row = 0, \
+            padx = 5, pady = 5)
 
         self.label = ttk.Label(self.Headerframe, text = "Manager Request Search")
         self.label.configure(font = header_font)
@@ -270,6 +336,10 @@ class manager_view(ttk.Frame):
         self.B1 = ttk.Button(self.Headerframe, text = "Search", \
             command = lambda : manager_view.search_by_employee(self))
         self.B1.grid(column = 2, row = 1)
+
+        self.Bhf2 = ttk.Button(self.Headerframe, text = "Load All", \
+            command = lambda : manager_view.all_view(self))
+        self.Bhf2.grid(column = 3, row = 1)
 
         #command frame for the buttons on the bottom
         self.F2 = ttk.Frame(self)
@@ -315,7 +385,7 @@ class manager_view(ttk.Frame):
         self.cf_E5.grid(column = 4, row = 2, **self.cf_options)
 
         self.B2 = ttk.Button(self.F2, text = "Return", \
-            command = lambda : controller.show_frame(emp_choose))
+            command = lambda : controller.show_frame(loginbox))
         self.B2.grid(column = 1, row = 3)
 
         self.B3 = ttk.Button(self.F2, text = "Update", \
@@ -330,8 +400,67 @@ class manager_view(ttk.Frame):
         self.F1 = VerticalScrolledFrame(self)
         self.F1.pack(fill = 'x')
 
+    def all_view(self):
+        Controller.search_all()
+        row_len = len(Controller.fetched_reqs)
+        #list necessary for entries
+        self.entries = []
+
+        #first clear the frame that the entry widgets will fill
+        for widget in self.F1.interior.winfo_children():
+            widget.destroy()
+
+        self.Nu = ttk.Label(self.F1.interior, text = 'Antragsnummer', \
+            borderwidth = 2, relief = 'solid', background = 'grey', \
+            foreground = 'white')
+        self.Nu.grid(column = 0, row = 0)
+        
+        self.L1 = ttk.Label(self.F1.interior, text = 'Startdatum', \
+            borderwidth = 2, relief = 'solid', background = 'grey', \
+            foreground = 'white')
+        self.L1.grid(column = 1, row = 0)
+
+        self.L2 = ttk.Label(self.F1.interior, text = 'Endedatum', \
+            borderwidth = 2, relief = 'solid', background = 'grey', \
+            foreground = 'white')
+        self.L2.grid(column = 2, row = 0)
+
+        self.L3 = ttk.Label(self.F1.interior, text = 'Personalnummer', \
+            borderwidth = 2, relief = 'solid', background = 'grey', \
+            foreground = 'white')
+        self.L3.grid(column = 3, row = 0)
+
+        self.L4 = ttk.Label(self.F1.interior, text = 'Grund', \
+            borderwidth = 2, relief = 'solid', background = 'grey', \
+            foreground = 'white')
+        self.L4.grid(column = 4, row = 0)
+
+        self.L5 = ttk.Label(self.F1.interior, text = 'Status', \
+            borderwidth = 2, relief = 'solid', background = 'grey', \
+            foreground = 'white')
+        self.L5.grid(column = 5, row = 0)
+
+        for i in range(0, row_len, 1):
+            for ii in range(0, 6, 1):
+                entry = Controller.fetched_reqs[i]
+                data = str(entry[ii])
+                self.entries.append(ttk.Entry(self.F1.interior))
+                self.entries[-1].insert(0, [data])
+                self.entries[-1].configure(state = 'disabled')
+                self.entries[-1].grid(row = i + 1 , column = ii, padx = 5, pady = 5)
+
     def search_by_employee(self):
-        #lists necessary for entries
+        Controller.search_emp(int(self.E1.get()))
+
+        #validating if the input personalnummer has entries associated with it
+        if not Controller.fetched_reqs:
+            messagebox.showerror('Error', 'No requests associated with this numnber.')
+        else:
+            manager_view.specific_view(self)
+
+    def specific_view(self):
+        row_len = len(Controller.fetched_reqs)
+        #list necessary for entries
         self.entries = []
 
         #first clear the frame that the entry widgets will fill
@@ -363,8 +492,6 @@ class manager_view(ttk.Frame):
             foreground = 'white')
         self.L5.grid(column = 4, row = 0)
 
-        Controller.search_emp(int(self.E1.get()))
-        row_len = len(Controller.fetched_reqs)
 
         for i in range(0, row_len, 1):
             for ii in range(0, 5, 1):
@@ -377,20 +504,23 @@ class manager_view(ttk.Frame):
 
     def search(self):
         Controller.search(int(self.cf_search.get()))
-        self.cf_E1.delete(0, 'end')
-        self.cf_E1.insert(0, [str(Controller.req_data[0])])
-        self.cf_E2.delete(0, 'end')
-        self.cf_E2.insert(0, [str(Controller.req_data[1])])
+        try:
+            self.cf_E1.delete(0, 'end')
+            self.cf_E1.insert(0, [str(Controller.req_data[0])])
+            self.cf_E2.delete(0, 'end')
+            self.cf_E2.insert(0, [str(Controller.req_data[1])])
 
-        self.cf_E3.config(state = 'enabled')
-        self.cf_E3.delete(0, 'end')
-        self.cf_E3.insert(0, [str(Controller.req_data[2])])
-        self.cf_E3.config(state = 'disabled')
+            self.cf_E3.config(state = 'enabled')
+            self.cf_E3.delete(0, 'end')
+            self.cf_E3.insert(0, [str(Controller.req_data[2])])
+            self.cf_E3.config(state = 'disabled')
 
-        self.cf_E4.delete(0, 'end')
-        self.cf_E4.insert(0, [str(Controller.req_data[3]).strip()])
-        self.cf_E5.delete(0, 'end')
-        self.cf_E5.insert(0, [str(Controller.req_data[4])])
+            self.cf_E4.delete(0, 'end')
+            self.cf_E4.insert(0, [str(Controller.req_data[3]).strip()])
+            self.cf_E5.delete(0, 'end')
+            self.cf_E5.insert(0, [str(Controller.req_data[4])])
+        except TypeError:
+            messagebox.showerror('Error', 'Invalid Antragsnummer')
 
     def update(self):
         start_date = self.cf_E1.get().strip()
@@ -425,7 +555,16 @@ class employee_req_view(ttk.Frame):
         self.Headerframe = ttk.Frame(self)
         self.Headerframe.pack(side = 'top', fill = 'x')
         self.Headerframe.configure(relief = 'groove', \
-            borderwidth = 2, padding = 5)
+            borderwidth = 2)
+
+        # Create an object of tkinter ImageTk
+        self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB.jpg'
+        self.img = Image.open(self.path)
+        self.img.thumbnail((200,200))
+        self.new_img = ImageTk.PhotoImage(self.img)
+        # Create a Label Widget to display the text or Image
+        self.label = ttk.Label(self.Headerframe, image = self.new_img)
+        self.label.grid(column = 2, row = 0, padx = 5, pady = 5)
 
         self.label = ttk.Label(self.Headerframe, text = "Your Requests:")
         self.label.configure(font = header_font)
@@ -433,7 +572,7 @@ class employee_req_view(ttk.Frame):
 
         self.B1 = ttk.Button(self.Headerframe, text = "Load", \
             command = lambda : employee_req_view.search_by_employee(self))
-        self.B1.grid(column = 1, row = 0)
+        self.B1.grid(column = 1, row = 0, padx = 5, pady = 5)
 
         #command frame for the buttons on the bottom
         self.F2 = ttk.Frame(self)
@@ -479,11 +618,11 @@ class employee_req_view(ttk.Frame):
         self.cf_E5.grid(column = 4, row = 2, **self.cf_options)
 
         self.B2 = ttk.Button(self.F2, text = "Return", \
-            command = lambda : controller.show_frame(emp_choose))
+            command = lambda : controller.show_frame(loginbox))
         self.B2.grid(column = 1, row = 3)
 
         self.B3 = ttk.Button(self.F2, text = "Update", \
-            command = lambda : manager_view.update(self))
+            command = lambda : employee_req_view.update(self))
         self.B3.grid(column = 3, row = 3)
 
         self.B4 = ttk.Button(self.F2, text = "Delete Request", \
@@ -527,7 +666,7 @@ class employee_req_view(ttk.Frame):
             foreground = 'white')
         self.L5.grid(column = 4, row = 0)
         
-        Controller.search_emp(int(logininfo))
+        Controller.search_emp(int(login_info))
         row_len = len(Controller.fetched_reqs)
 
         for i in range(0, row_len, 1):
@@ -540,24 +679,29 @@ class employee_req_view(ttk.Frame):
                 self.entries[-1].grid(row = i + 1 , column = ii, padx = 5, pady = 5)
 
     def search(self):
-        Controller.search(int(self.cf_search.get()))
-        self.cf_E1.delete(0, 'end')
-        self.cf_E1.insert(0, [str(Controller.req_data[0])])
-        self.cf_E2.delete(0, 'end')
-        self.cf_E2.insert(0, [str(Controller.req_data[1])])
+        #try except is necessary here instead of controller because the error
+        # arises as a result of this method, not because of the model used
+        try:
+            Controller.search(int(self.cf_search.get()))
+            self.cf_E1.delete(0, 'end')
+            self.cf_E1.insert(0, [str(Controller.req_data[0])])
+            self.cf_E2.delete(0, 'end')
+            self.cf_E2.insert(0, [str(Controller.req_data[1])])
 
-        self.cf_E3.config(state = 'enabled')
-        self.cf_E3.delete(0, 'end')
-        self.cf_E3.insert(0, [str(Controller.req_data[2])])
-        self.cf_E3.config(state = 'disabled')
-        
-        self.cf_E4.delete(0, 'end')
-        self.cf_E4.insert(0, [str(Controller.req_data[3]).strip()])
+            self.cf_E3.config(state = 'enabled')
+            self.cf_E3.delete(0, 'end')
+            self.cf_E3.insert(0, [str(Controller.req_data[2])])
+            self.cf_E3.config(state = 'disabled')
+            
+            self.cf_E4.delete(0, 'end')
+            self.cf_E4.insert(0, [str(Controller.req_data[3]).strip()])
 
-        self.cf_E5.config(state = 'enabled')
-        self.cf_E5.delete(0, 'end')
-        self.cf_E5.insert(0, [str(Controller.req_data[4])])
-        self.cf_E5.config(state = 'disabled')
+            self.cf_E5.config(state = 'enabled')
+            self.cf_E5.delete(0, 'end')
+            self.cf_E5.insert(0, [str(Controller.req_data[4])])
+            self.cf_E5.config(state = 'disabled')
+        except TypeError:
+            messagebox.showerror('Error', 'Invalid Antragsnummer')
 
     def update(self):
         start_date = self.cf_E1.get().strip()
@@ -620,9 +764,10 @@ class VerticalScrolledFrame(ttk.Frame):
         canvas.bind('<Configure>', _configure_canvas)
 
 #ERROR MESSAGE GUI
+"""
 class Error_message(tk.Toplevel):       
-        def __init__(self, parent, controller, error_str):
-            tk.Toplevel.__init__(self, parent)
+        def __init__(self, error_str):
+            tk.Toplevel.__init__(self, error_str)
 
             self.title('Error')
             self.geometry('200x100')
@@ -634,3 +779,4 @@ class Error_message(tk.Toplevel):
             self.button = ttk.Button(self, text = 'Back', 
                                 command = lambda: self.destroy())
             self.button.pack(pady = 10)
+"""

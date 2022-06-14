@@ -111,7 +111,6 @@ class Model:
         """Parameters
         -----------
         nEmployee : int"""
-        
         emp_searcher = """SELECT [dDateStart]
                         ,[dDateEnd]
                         ,[xnRequest]
@@ -122,4 +121,12 @@ class Model:
         
         def emp_search(nEmployee):
                 Model.cursor.execute(Model.emp_searcher, nEmployee)
-                
+        
+        #fetch all vacation requests
+        """Parameters
+        -----------
+        None"""
+        all_searcher = """SELECT *
+                        FROM [PulseCoreTest5].[dbo].[PC_VacationsRequests]"""
+        def all_search():
+                Model.cursor.execute(Model.all_searcher)

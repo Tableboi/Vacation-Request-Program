@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 import tkinter as tk
 from tkinter import ttk
 
-from views import loginbox, emp_choose, employee_req_view, request_window, manager_view
+from views import loginbox, employee_req_view, request_window, manager_view
 
 #this is the main window and application
 class App(tk.Tk):
@@ -28,7 +28,7 @@ class App(tk.Tk):
   
         # iterating through a tuple consisting
         # of the different page layouts
-        for F in (loginbox, emp_choose, employee_req_view, request_window, manager_view):
+        for F in (loginbox, employee_req_view, request_window, manager_view):
   
             frame = F(base, self)
   
@@ -45,7 +45,6 @@ class App(tk.Tk):
     def show_frame(self, cont):
         frame = self.frames[cont]
         frame.tkraise()
-
 
 # Driver Code
 app = App()
