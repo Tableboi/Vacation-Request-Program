@@ -18,8 +18,6 @@ cnxn_str = ("Driver={SQL Server Native Client 11.0};"
 cnxn = pyodbc.connect(cnxn_str)
 
 cursor = cnxn.cursor()
-
-cursor.execute("SELECT @@VERSION as version")
     
 
 
@@ -53,6 +51,14 @@ class Schedule():
         
         sqlgetholidays = """SELECT [Feiertag], [Datum] 
                             FROM [PulseCoreTest5].[dbo].[PC_Holidays]"""
+                            
+        sqlgetrequests = """SELECT [xnRequest] 
+                                ,[dDateStart]
+                                ,[dDateEnd]
+                                ,[nEmployee]
+                                ,[sReasons]
+                                ,[sStatus]
+                            FROM [PulseCoreTest5].[dbo].[PC_VacationsRequests]"""
         
         #get holidays
         cursor.execute(sqlgetholidays)
@@ -79,7 +85,8 @@ class Schedule():
                 newitem = item.replace('"', "")
                 columnlist.remove(columnlist[i])
                 columnlist.insert(i, int(newitem[0:-1]))
-                
+        
+        #get NULL list of emp numbers        
         cursor.execute(sqlgetnumbersnotingroups)
         columnlist = cursor.fetchall()
         columnlist.sort()
@@ -91,21 +98,14 @@ class Schedule():
                 columnlist.remove(columnlist[i])
                 columnlist.insert(i, int(newitem[0:-1]))
         listofnumberlists.append(columnlist)
-        print(listofnumberlists)
-        
-        sqlgetrequests = """SELECT [xnRequest] 
-                                ,[dDateStart]
-                                ,[dDateEnd]
-                                ,[nEmployee]
-                                ,[sReasons]
-                                ,[sStatus]
-                            FROM [PulseCoreTest5].[dbo].[PC_VacationsRequests]"""
         
         cursor.execute(sqlgetrequests)
         requestlistraw = cursor.fetchall()
        
+        #create request dictionary
         requestdictionary = {}
-          
+        
+        #necessary to make requests between start and end date  
         def date_range(start, end):
             delta = end - start
             days = [start + timedelta(days = i) for i in range(delta.days + 1)]
@@ -123,7 +123,6 @@ class Schedule():
                         for i in range(0, len(daterangelist)):
                             requestdictionary[item[0] + (i * .01)] = [selectedemployeenumber, 
                                                 daterangelist[i].strftime('%Y.' + '%m.' + '%d'), item[5]]
-        
                 else:
                     pass
         
