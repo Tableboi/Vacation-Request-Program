@@ -59,7 +59,7 @@ class Model:
         def fetch_request(xnRequest):
                 Model.cursor.execute(Model.request_fetcher, xnRequest)
 
-        #update the info of an existing request
+        #employee update an existing request
         """Parameters
         -----------
         dDateStart : date
@@ -70,7 +70,7 @@ class Model:
                            SET [dDateStart] = ?,
                            [dDateEnd] = ?,
                            [sReasons] = ?
-                           WHERE [xnRequest] = ?"""
+                           WHERE [xnRequest] = ? AND [nEmployee] = ?"""
         
         def update_request(updated_info):
                 Model.cursor.execute(Model.request_updater, updated_info)

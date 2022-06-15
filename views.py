@@ -349,7 +349,7 @@ class manager_view(ttk.Frame):
 
         self.cf_label = ttk.Label(self.F2, text = 'Update Requests:')
         self.cf_label.configure(font = header_font)
-        self.cf_label.grid(columnspan = 5, column = 0, row = 0)
+        self.cf_label.grid(columnspan = 1, column = 0, row = 0)
         
         self.cf_search_label = ttk.Label(self.F2, text = 'Antragsnummer:')
         self.cf_search_label.grid(column = 1, row = 1)
@@ -364,25 +364,33 @@ class manager_view(ttk.Frame):
 
         self.cf_options = {'padx' : 5, 'pady' : 5}
 
-        self.cf_E1_val = tk.StringVar()
-        self.cf_E1 = ttk.Entry(self.F2, textvariable = self.cf_E1_val)
-        self.cf_E1.grid(column = 0, row = 2, **self.cf_options)
+        self.cf_Eframe = ttk.Frame(self.F2)
+        self.cf_Eframe.grid(columnspan = 5, column = 0, row = 2)
 
-        self.cf_E2_val = tk.StringVar()
-        self.cf_E2 = ttk.Entry(self.F2, textvariable = self.cf_E2_val)
-        self.cf_E2.grid(column = 1, row = 2, **self.cf_options)
+        self.cf_E1_val = tk.StringVar(value = 'yyyy-mm-dd')
+        self.cf_E1 = ttk.Entry(self.cf_Eframe, textvariable = self.cf_E1_val)
+        self.cf_E1.config(foreground = 'grey')
+        self.cf_E1.grid(column = 0, row = 0, **self.cf_options)
 
-        self.cf_E3_val = tk.StringVar()
-        self.cf_E3 = ttk.Entry(self.F2, textvariable = self.cf_E3_val)
-        self.cf_E3.grid(column = 2, row = 2, **self.cf_options)
+        self.cf_E2_val = tk.StringVar(value = 'yyyy-mm-dd')
+        self.cf_E2 = ttk.Entry(self.cf_Eframe, textvariable = self.cf_E2_val)
+        self.cf_E2.config(foreground = 'grey')
+        self.cf_E2.grid(column = 1, row = 0, **self.cf_options)
 
-        self.cf_E4_val = tk.StringVar()
-        self.cf_E4 = ttk.Entry(self.F2, textvariable = self.cf_E4_val)
-        self.cf_E4.grid(column = 3, row = 2, **self.cf_options)
+        self.cf_E3_val = tk.StringVar(value = 'personalnummer')
+        self.cf_E3 = ttk.Entry(self.cf_Eframe, textvariable = self.cf_E3_val)
+        self.cf_E3.config(foreground = 'grey')
+        self.cf_E3.grid(column = 2, row = 0, **self.cf_options)
 
-        self.cf_E5_val = tk.StringVar()
-        self.cf_E5 = ttk.Entry(self.F2, textvariable = self.cf_E5_val)
-        self.cf_E5.grid(column = 4, row = 2, **self.cf_options)
+        self.cf_E4_val = tk.StringVar(value = 'grund')
+        self.cf_E4 = ttk.Entry(self.cf_Eframe, textvariable = self.cf_E4_val)
+        self.cf_E4.config(foreground = 'grey')
+        self.cf_E4.grid(column = 3, row = 0, **self.cf_options)
+
+        self.cf_E5_val = tk.StringVar(value = 'status')
+        self.cf_E5 = ttk.Entry(self.cf_Eframe, textvariable = self.cf_E5_val)
+        self.cf_E5.config(foreground = 'grey')
+        self.cf_E5.grid(column = 4, row = 0, **self.cf_options)
 
         self.B2 = ttk.Button(self.F2, text = "Return", \
             command = lambda : controller.show_frame(loginbox))
@@ -410,34 +418,24 @@ class manager_view(ttk.Frame):
         for widget in self.F1.interior.winfo_children():
             widget.destroy()
 
-        self.Nu = ttk.Label(self.F1.interior, text = 'Antragsnummer', \
-            borderwidth = 2, relief = 'solid', background = 'grey', \
-            foreground = 'white')
+        column_headers = {'borderwidth' : 2, 'relief' : 'solid', 'background' : 'grey', 'foreground' : 'white'}
+
+        self.Nu = ttk.Label(self.F1.interior, text = 'Antragsnummer', **column_headers)
         self.Nu.grid(column = 0, row = 0)
         
-        self.L1 = ttk.Label(self.F1.interior, text = 'Startdatum', \
-            borderwidth = 2, relief = 'solid', background = 'grey', \
-            foreground = 'white')
+        self.L1 = ttk.Label(self.F1.interior, text = 'Startdatum', **column_headers)
         self.L1.grid(column = 1, row = 0)
 
-        self.L2 = ttk.Label(self.F1.interior, text = 'Endedatum', \
-            borderwidth = 2, relief = 'solid', background = 'grey', \
-            foreground = 'white')
+        self.L2 = ttk.Label(self.F1.interior, text = 'Endedatum', **column_headers)
         self.L2.grid(column = 2, row = 0)
 
-        self.L3 = ttk.Label(self.F1.interior, text = 'Personalnummer', \
-            borderwidth = 2, relief = 'solid', background = 'grey', \
-            foreground = 'white')
+        self.L3 = ttk.Label(self.F1.interior, text = 'Personalnummer', **column_headers)
         self.L3.grid(column = 3, row = 0)
 
-        self.L4 = ttk.Label(self.F1.interior, text = 'Grund', \
-            borderwidth = 2, relief = 'solid', background = 'grey', \
-            foreground = 'white')
+        self.L4 = ttk.Label(self.F1.interior, text = 'Grund', **column_headers)
         self.L4.grid(column = 4, row = 0)
 
-        self.L5 = ttk.Label(self.F1.interior, text = 'Status', \
-            borderwidth = 2, relief = 'solid', background = 'grey', \
-            foreground = 'white')
+        self.L5 = ttk.Label(self.F1.interior, text = 'Status', **column_headers)
         self.L5.grid(column = 5, row = 0)
 
         for i in range(0, row_len, 1):
@@ -506,19 +504,27 @@ class manager_view(ttk.Frame):
         Controller.search(int(self.cf_search.get()))
         try:
             self.cf_E1.delete(0, 'end')
+            self.cf_E1.config(foreground = 'black')
             self.cf_E1.insert(0, [str(Controller.req_data[0])])
+
             self.cf_E2.delete(0, 'end')
+            self.cf_E2.config(foreground = 'black')
             self.cf_E2.insert(0, [str(Controller.req_data[1])])
 
             self.cf_E3.config(state = 'enabled')
             self.cf_E3.delete(0, 'end')
+            self.cf_E3.config(foreground = 'black')
             self.cf_E3.insert(0, [str(Controller.req_data[2])])
             self.cf_E3.config(state = 'disabled')
-
+            
             self.cf_E4.delete(0, 'end')
+            self.cf_E4.config(foreground = 'black')
             self.cf_E4.insert(0, [str(Controller.req_data[3]).strip()])
+
             self.cf_E5.delete(0, 'end')
+            self.cf_E5.config(foreground = 'black')
             self.cf_E5.insert(0, [str(Controller.req_data[4])])
+
         except TypeError:
             messagebox.showerror('Error', 'Invalid Antragsnummer')
 
@@ -589,6 +595,7 @@ class employee_req_view(ttk.Frame):
 
         self.cf_search_val = tk.StringVar()
         self.cf_search = ttk.Entry(self.F2, textvariable = self.cf_search_val)
+        self.cf_search.focus()
         self.cf_search.grid(column = 2, row = 1)
 
         self.cf_search_button = ttk.Button(self.F2, text = 'Search', \
@@ -597,25 +604,33 @@ class employee_req_view(ttk.Frame):
 
         self.cf_options = {'padx' : 5, 'pady' : 5}
 
-        self.cf_E1_val = tk.StringVar()
-        self.cf_E1 = ttk.Entry(self.F2, textvariable = self.cf_E1_val)
-        self.cf_E1.grid(column = 0, row = 2, **self.cf_options)
+        self.cf_Eframe = ttk.Frame(self.F2)
+        self.cf_Eframe.grid(columnspan = 5, column = 0, row = 2)
 
-        self.cf_E2_val = tk.StringVar()
-        self.cf_E2 = ttk.Entry(self.F2, textvariable = self.cf_E2_val)
-        self.cf_E2.grid(column = 1, row = 2, **self.cf_options)
+        self.cf_E1_val = tk.StringVar(value = 'yyyy-mm-dd')
+        self.cf_E1 = ttk.Entry(self.cf_Eframe, textvariable = self.cf_E1_val)
+        self.cf_E1.config(foreground = 'grey')
+        self.cf_E1.grid(column = 0, row = 0, **self.cf_options)
 
-        self.cf_E3_val = tk.StringVar()
-        self.cf_E3 = ttk.Entry(self.F2, textvariable = self.cf_E3_val)
-        self.cf_E3.grid(column = 2, row = 2, **self.cf_options)
+        self.cf_E2_val = tk.StringVar(value = 'yyyy-mm-dd')
+        self.cf_E2 = ttk.Entry(self.cf_Eframe, textvariable = self.cf_E2_val)
+        self.cf_E2.config(foreground = 'grey')
+        self.cf_E2.grid(column = 1, row = 0, **self.cf_options)
 
-        self.cf_E4_val = tk.StringVar()
-        self.cf_E4 = ttk.Entry(self.F2, textvariable = self.cf_E4_val)
-        self.cf_E4.grid(column = 3, row = 2, **self.cf_options)
+        self.cf_E3_val = tk.StringVar(value = 'personalnummer')
+        self.cf_E3 = ttk.Entry(self.cf_Eframe, textvariable = self.cf_E3_val)
+        self.cf_E3.config(foreground = 'grey')
+        self.cf_E3.grid(column = 2, row = 0, **self.cf_options)
 
-        self.cf_E5_val = tk.StringVar()
-        self.cf_E5 = ttk.Entry(self.F2, textvariable = self.cf_E5_val)
-        self.cf_E5.grid(column = 4, row = 2, **self.cf_options)
+        self.cf_E4_val = tk.StringVar(value = 'grund')
+        self.cf_E4 = ttk.Entry(self.cf_Eframe, textvariable = self.cf_E4_val)
+        self.cf_E4.config(foreground = 'grey')
+        self.cf_E4.grid(column = 3, row = 0, **self.cf_options)
+
+        self.cf_E5_val = tk.StringVar(value = 'status')
+        self.cf_E5 = ttk.Entry(self.cf_Eframe, textvariable = self.cf_E5_val)
+        self.cf_E5.config(foreground = 'grey')
+        self.cf_E5.grid(column = 4, row = 0, **self.cf_options)
 
         self.B2 = ttk.Button(self.F2, text = "Return", \
             command = lambda : controller.show_frame(loginbox))
@@ -625,13 +640,9 @@ class employee_req_view(ttk.Frame):
             command = lambda : employee_req_view.update(self))
         self.B3.grid(column = 3, row = 3)
 
-        self.B4 = ttk.Button(self.F2, text = "Delete Request", \
-            command = lambda : manager_view.delete(self))
-        self.B4.grid(column = 2, row = 3)
-
         #entry box master frame
         self.F1 = VerticalScrolledFrame(self)
-        self.F1.pack(fill = 'x')
+        self.F1.pack(fill = 'x')            
 
     def search_by_employee(self):        
         #lists necessary for entries
@@ -683,21 +694,28 @@ class employee_req_view(ttk.Frame):
         # arises as a result of this method, not because of the model used
         try:
             Controller.search(int(self.cf_search.get()))
+
             self.cf_E1.delete(0, 'end')
+            self.cf_E1.config(foreground = 'black')
             self.cf_E1.insert(0, [str(Controller.req_data[0])])
+
             self.cf_E2.delete(0, 'end')
+            self.cf_E2.config(foreground = 'black')
             self.cf_E2.insert(0, [str(Controller.req_data[1])])
 
             self.cf_E3.config(state = 'enabled')
             self.cf_E3.delete(0, 'end')
+            self.cf_E3.config(foreground = 'black')
             self.cf_E3.insert(0, [str(Controller.req_data[2])])
             self.cf_E3.config(state = 'disabled')
             
             self.cf_E4.delete(0, 'end')
+            self.cf_E4.config(foreground = 'black')
             self.cf_E4.insert(0, [str(Controller.req_data[3]).strip()])
 
             self.cf_E5.config(state = 'enabled')
             self.cf_E5.delete(0, 'end')
+            self.cf_E5.config(foreground = 'black')
             self.cf_E5.insert(0, [str(Controller.req_data[4])])
             self.cf_E5.config(state = 'disabled')
         except TypeError:
@@ -711,8 +729,11 @@ class employee_req_view(ttk.Frame):
         if start_date or end_date:
             if end_date == '':
                 end_date = start_date
-            updated = (start_date, end_date, new_reason, xnRequest)
-        Controller.update(updated)
+            updated = (start_date, end_date, new_reason, xnRequest, int(login_info))
+        if int(login_info) != Controller.req_data[2]:
+            messagebox.showerror('Error', 'Cannot edit requests associated with a different personalnummer.')
+        else:
+            Controller.update(updated)
     
     def delete(self):
         xnRequest = self.cf_search.get().strip()
@@ -762,21 +783,3 @@ class VerticalScrolledFrame(ttk.Frame):
                 # Update the inner frame's width to fill the canvas.
                 canvas.itemconfigure(interior_id, width=canvas.winfo_width())
         canvas.bind('<Configure>', _configure_canvas)
-
-#ERROR MESSAGE GUI
-"""
-class Error_message(tk.Toplevel):       
-        def __init__(self, error_str):
-            tk.Toplevel.__init__(self, error_str)
-
-            self.title('Error')
-            self.geometry('200x100')
-            self.create_Widgets(error_str)
-        
-        def create_Widgets(self, error_str):
-            self.label = ttk.Label(self, text = error_str)
-            self.label.pack(pady = 10)
-            self.button = ttk.Button(self, text = 'Back', 
-                                command = lambda: self.destroy())
-            self.button.pack(pady = 10)
-"""
