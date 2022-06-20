@@ -1,12 +1,13 @@
-#The View represents the GUI, which interact with the end
+#The view represents the GUI, which interact with the end
 #user. It represents the model's data to the user.
 import tkinter as tk
-from tkinter import ttk
+from tkinter import Toplevel, ttk
 import tkinter.font
 from tkinter import messagebox
 from datetime import date
 from PIL import Image, ImageTk
-
+import datetime
+from datetime import timedelta
 from controller import Controller
 
 class loginbox(ttk.Frame):
@@ -22,7 +23,7 @@ class loginbox(ttk.Frame):
         self.new_img = ImageTk.PhotoImage(self.img)
         # Create a Label Widget to display the text or Image
         self.label = ttk.Label(self, image = self.new_img)
-        self.label.pack(side = 'top', **pad_options)
+        self.label.pack(side = 'top', pady = 20)
 
         #setting the font types
         header_font = tkinter.font.Font(\
@@ -32,7 +33,7 @@ class loginbox(ttk.Frame):
             family = "Helvertica", size = 12, weight = "normal", underline = 0)
 
         self.F1 = ttk.Frame(self, relief = 'groove')
-        self.F1.pack()
+        self.F1.pack(pady = 20)
 
         self.label = ttk.Label(self.F1, text = "Einloggen")
         self.label.grid(column = 1, row = 0, **pad_options)
@@ -51,7 +52,6 @@ class loginbox(ttk.Frame):
         self.B1.grid(column = 2, row = 1, sticky = "", **pad_options)
 
         self.F2 = ttk.Frame(self, relief = 'groove')
-        #self.F2.pack()
 
         #self.label = ttk.Label(self.F2, text = "Options")
         #self.label.grid(columnspan = 3, column = 0, row = 0)
@@ -85,7 +85,7 @@ class loginbox(ttk.Frame):
 
     def submit(self):
         #reveal buttons
-        self.F2.pack()
+        self.F2.pack(pady = 10)
 
         #reset button states
         self.B1.configure(state = 'disable')
@@ -122,6 +122,12 @@ class request_window(ttk.Frame):
         
         self.Main = ttk.Frame(self)
 
+        header_font = tkinter.font.Font(\
+            family = "Helvertica", size = 16, weight = "bold", underline = 1)
+
+        self.title_label= ttk.Label(self.Main, text = 'Urlaubsantrag', font = header_font)
+        self.title_label.grid(column = 0, row = 0, padx = 5, pady = 5)
+
         # Create an object of tkinter ImageTk
         self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB.jpg'
         self.img = Image.open(self.path)
@@ -129,7 +135,7 @@ class request_window(ttk.Frame):
         self.new_img = ImageTk.PhotoImage(self.img)
         # Create a Label Widget to display the text or Image
         self.label = ttk.Label(self.Main, image = self.new_img)
-        self.label.grid(column = 0, row = 0, padx = 5, pady = 5)
+        self.label.grid(column = 1, row = 0, padx = 5, pady = 5)
 
         # ----- Section 1
         # pack options for section 1
@@ -156,7 +162,7 @@ class request_window(ttk.Frame):
         self.E3.grid(column = 5, row = 0, **s1options)
         
          
-        self.section1.grid(column = 0, row = 1, padx = 5, pady = 5)
+        self.section1.grid(columnspan = 2, column = 0, row = 1, padx = 5, pady = 5, sticky = 'ns')
  
         # ----- Section 1
  
@@ -190,7 +196,7 @@ class request_window(ttk.Frame):
         self.E6.grid(column = 5, row = 0, **s2options)
         ## ---- nEmployee
 
-        self.section2.grid(column = 0, row = 2, padx = 5, pady = 5)
+        self.section2.grid(columnspan = 2, column = 0, row = 2, padx = 5, pady = 5, sticky = 'ns')
  
         # ----- Section 2
 
@@ -228,7 +234,7 @@ class request_window(ttk.Frame):
         self.E9 = ttk.Entry(self.section3, width = 6)
         self.E9.grid(column = 5, row = 0, **s3options)
          
-        self.section3.grid(column = 0, row = 3, padx = 5, pady = 5)
+        self.section3.grid(columnspan = 2, column = 0, row = 3, padx = 5, pady = 5, sticky = 'ns')
        
         # ----- Section 3
     
@@ -270,7 +276,7 @@ class request_window(ttk.Frame):
          
         ## ---- Section 4 sub-frame 2
          
-        self.section4.grid(column = 0 , row = 4, padx = 5, pady = 5)
+        self.section4.grid(columnspan = 2, column = 0 , row = 4, padx = 5, pady = 5, sticky = 'ns')
         
         # ----- Section 4
 
@@ -284,9 +290,9 @@ class request_window(ttk.Frame):
             command = lambda : controller.show_frame(loginbox))
         self.B2.pack(padx = 5, pady = 5, side = 'left')
 
-        self.bottom.grid(column = 0, row = 6)
+        self.bottom.grid(columnspan = 2, column = 0, row = 6, sticky = 'ns')
  
-        self.Main.pack(expand = True, fill = 'both')
+        self.Main.pack(fill = 'y')
 
     def submit(self):
         start_date = self.dDateStart.get().strip()
@@ -310,6 +316,7 @@ class manager_view(ttk.Frame):
         self.Headerframe.pack(side = 'top', fill = 'x')
         self.Headerframe.configure(relief = 'groove', \
             borderwidth = 2, padding = 5)
+        self.Headerframe.columnconfigure(4, weight = 2)
 
         # Create an object of tkinter ImageTk
         self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB.jpg'
@@ -318,12 +325,12 @@ class manager_view(ttk.Frame):
         self.new_img = ImageTk.PhotoImage(self.img)
         # Create a Label Widget to display the text or Image
         self.label = ttk.Label(self.Headerframe, image = self.new_img)
-        self.label.grid(rowspan = 2, columnspan = 2, column = 4, row = 0, \
-            padx = 5, pady = 5)
+        self.label.grid(rowspan = 2, column = 5, row = 0, \
+            padx = 10, pady = 20, sticky = 'e')
 
         self.label = ttk.Label(self.Headerframe, text = "Manager Request Search")
         self.label.configure(font = header_font)
-        self.label.grid( columnspan = 2, column = 0, row = 0)
+        self.label.grid( columnspan = 2, column = 0, row = 0, padx = 10, pady = 20)
 
         self.E1_var = tk.StringVar()
         self.E1 = ttk.Entry(self.Headerframe, textvariable = self.E1_var)
@@ -340,6 +347,10 @@ class manager_view(ttk.Frame):
         self.Bhf2 = ttk.Button(self.Headerframe, text = "Load All", \
             command = lambda : manager_view.all_view(self))
         self.Bhf2.grid(column = 3, row = 1)
+        
+        self.Bhf3 = ttk.Button(self.Headerframe, text = "View Schedule", \
+            command = lambda : manager_view.open_schedule(self))
+        self.Bhf3.grid(column = 4, row = 1, padx = 10, pady = 10)
 
         #command frame for the buttons on the bottom
         self.F2 = ttk.Frame(self)
@@ -407,6 +418,9 @@ class manager_view(ttk.Frame):
         #entry box master frame
         self.F1 = VerticalScrolledFrame(self)
         self.F1.pack(fill = 'x')
+
+    def open_schedule(self):
+        schedule = Schedule()
 
     def all_view(self):
         Controller.search_all()
@@ -562,6 +576,7 @@ class employee_req_view(ttk.Frame):
         self.Headerframe.pack(side = 'top', fill = 'x')
         self.Headerframe.configure(relief = 'groove', \
             borderwidth = 2)
+        self.Headerframe.columnconfigure(2, weight = 4)
 
         # Create an object of tkinter ImageTk
         self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB.jpg'
@@ -570,11 +585,11 @@ class employee_req_view(ttk.Frame):
         self.new_img = ImageTk.PhotoImage(self.img)
         # Create a Label Widget to display the text or Image
         self.label = ttk.Label(self.Headerframe, image = self.new_img)
-        self.label.grid(column = 2, row = 0, padx = 5, pady = 5)
+        self.label.grid(column = 2, row = 0, padx = 10, pady = 20, sticky = 'e')
 
         self.label = ttk.Label(self.Headerframe, text = "Your Requests:")
         self.label.configure(font = header_font)
-        self.label.grid(column = 0, row = 0)
+        self.label.grid(column = 0, row = 0, padx = 10, pady = 20)
 
         self.B1 = ttk.Button(self.Headerframe, text = "Load", \
             command = lambda : employee_req_view.search_by_employee(self))
@@ -744,6 +759,214 @@ class employee_req_view(ttk.Frame):
         self.cf_E4.delete(0, 'end')
         self.cf_E5.delete(0, 'end')
 
+class Schedule(Toplevel):
+    def __init__(self):
+        super().__init__()
+        self.title('Schedule')
+        self.geometry('800x800')
+        self.Main = ttk.Frame(self)
+        self.Main.pack(fill = 'both')
+
+        #things to be initialized
+        Controller.get_holidays()
+        Controller.get_emp_list()
+        Controller.get_no_group_list()
+        Controller.get_requests()
+
+        #widgets
+        self.treeFrame = ttk.Frame(self.Main, height = 690, width = 800)
+        self.treeFrame.pack(side = 'bottom', expand = False)
+        
+        self.optionsFrame = ttk.Frame(self.Main, height = 140, width = 800)
+        self.optionsFrame.pack(side = 'top', expand = False)
+        
+        global PGvariable
+        PGvariable = tk.StringVar()
+        PGvariable.set(Controller.ProduktionsGruppe[0])
+        self.ProduktionsGruppeOptionMenu = ttk.OptionMenu(self.optionsFrame, PGvariable, 
+                    'Gruppe auswählen', *Controller.ProduktionsGruppe.values(), command = Schedule.select_PG)
+        self.ProduktionsGruppeOptionMenu.pack(pady = 10)
+        
+        global Monthvariable
+        Monthvariable = tk.StringVar()
+        Monthvariable.set(Controller.months[0])
+        self.MonthOptionMenu = ttk.OptionMenu(self.optionsFrame, Monthvariable, 
+                    'Monat auswählen', *Controller.months.values(), command = Schedule.select_month)
+        self.MonthOptionMenu.pack(pady = 10)
+        
+        global Yearvariable
+        Yearvariable = tk.StringVar()
+        Yearvariable.set(Controller.years[0])
+        self.YearOptionMenu = ttk.OptionMenu(self.optionsFrame, Yearvariable,
+                    'Jahr auswählen', *Controller.years.values(), command = Schedule.select_year)
+        self.YearOptionMenu.pack(pady = 10)
+
+        global tree
+        tree = ttk.Treeview(self.treeFrame, show = 'headings', height = 32)
+
+        #create scrollbar
+        hbar = tk.Scrollbar(self.treeFrame, orient = 'horizontal', command = tree.xview)
+        tree.configure(xscrollcommand = hbar.set)
+        hbar.pack(side = 'bottom', fill = 'x')
+
+        #zebra = 1
+        #if zebra:
+        #    style = ttk.Style()
+        #    aktualTheme = style.theme_use()
+        #    style.theme_create("dummy", parent=aktualTheme)
+        #    style.theme_use("dummy")
+        #    ttk.Style().configure('Treeview', background = 'white', foregound = 'white', fieldbackground = 'white')
+
+        self.select_PG()
+
+    def create_tree(self, columnlist):
+        tree.column('#0', anchor = 'center', stretch = 0, width = 100)
+        tree.heading('Date', text = 'Date')
+        for i, val in enumerate(columnlist):
+                tree.column(str(i), anchor = 'center', stretch = 0, width = 100)
+                tree.heading(columnlist[i], text = columnlist[i])
+
+        tree.pack(fill = 'both')    
+        
+        Schedule.select_year(self)
+    
+    def select_PG(self):
+        #delete existing tree
+        for i in tree.get_children():
+            tree.delete(i)
+        
+        #get production group selection
+        PGselection = PGvariable.get()
+        if PGselection != 'Gruppe auswählen':
+            global PGselectionint
+            PGselectionint = [k for k, v in Controller.ProduktionsGruppe.items() if v == PGselection][0]
+        else:
+            #for numlist in Controller.list_of_number_lists:
+            #    if empnum in numlist:
+            #        PGselectionint = Controller.list_of_number_lists.index(numlist)
+            #    else:
+            #        pass
+            PGselectionint = 0
+        PGvariable.set(Controller.ProduktionsGruppe[PGselectionint])
+        
+        #create tree with list of selected group's names as columns
+        treeview_columns = Controller.list_of_number_lists[PGselectionint]
+        tree['columns'] = treeview_columns
+        Schedule.create_tree(self, treeview_columns)
+    
+    def select_year(self):
+        Yearselection = Yearvariable.get()
+        if Yearselection != 'Jahr auswählen':
+            Yearselectionint = int(Yearselection)
+        else:
+            Yearselectionint = Controller.current_year
+        global year_shown
+        year_shown = Yearselectionint
+        Schedule.select_month(self)
+    
+    def select_month(self):
+        #clear existing tree
+        tree.delete(*tree.get_children())
+        
+        #get month selection
+        Monthselection = Monthvariable.get()
+        if Monthselection != 'Monat auswählen':
+            Monthselectionint = [k for k, v in Controller.months.items() if v == Monthselection][0] + 1
+        else:
+            Monthselectionint = Controller.current_month
+        
+        global month_shown
+        month_shown = Monthselectionint    
+        Monthvariable.set(Controller.months[Monthselectionint-1])
+        
+        #populate tree
+        for c in range (0, 31):
+            datebeingused = datetime.datetime(year_shown, month_shown, 1) + timedelta(days = c)
+            datevalue = datebeingused.strftime('%d' + ' %b' + ' %y' + ' %a')
+            
+            if c <= Controller.number_of_days[Monthselectionint - 1]-1:
+                weekend = set([5, 6])
+                numberofcolumns = len(Controller.list_of_number_lists[PGselectionint])
+                
+                if datebeingused.weekday() in weekend:    
+                    treevalueslist = [datevalue]
+                    for i in range (0, numberofcolumns):
+                        treevalueslist.append('Weekend')
+                    treevalues = tuple(treevalueslist)
+                    tree.insert('', index = c, iid = c + 1, text = '', values = treevalues, tags = ('weekend',))
+                    tree.tag_configure('weekend', background = 'light gray')
+                    
+                elif datebeingused.strftime('%Y.' + '%m.' + '%d') in Controller.list_of_holiday_dates:
+                    treevalueslist = [datevalue]
+                    for i in range (0, numberofcolumns):
+                        treevalueslist.append('Holiday')
+                    treevalues = tuple(treevalueslist)
+                    tree.insert('', index = c, iid = c + 1, text = '', values = treevalues, tags = ('holiday',))
+                    tree.tag_configure('holiday', background = 'light gray')
+                else:
+                    treevalueslist = [datevalue]
+                    for i in range (0, numberofcolumns):
+                        treevalueslist.append('--')
+                    treevalues = tuple(treevalueslist)
+                    tree.insert('', index = c, iid = c + 1, text = '', values = treevalues)
+            else:
+                pass
+        
+        Schedule.change_value(self)
+    
+    def change_value(self):
+        #get request value
+        for key, value in Controller.request_dictionary.items():
+            req_list = value
+            name_entered = req_list[0]
+            date_entered = req_list[1]
+            status = req_list[2]
+
+            #check if requests are in the selected production group
+            for item in Controller.list_of_number_lists:
+                if name_entered in Controller.list_of_number_lists[PGselectionint]:
+                    name_index = Controller.list_of_number_lists[PGselectionint].index(name_entered)
+                else:
+                    name_index = None
+            
+            #isolate day, month, year values
+            day_entered = (date_entered[8:10:1]).lstrip('0')
+            month_entered = (date_entered[5:7:1]).lstrip('0')
+            year_entered = date_entered[0:4:1]
+
+            #check if date is on the weekend
+            weekend = set([5, 6])
+            if datetime.datetime(int(year_entered), int(month_entered), int(day_entered)).weekday() in weekend:
+                pass
+            elif datetime.datetime(int(year_entered), int(month_entered), int(day_entered)).strftime('%Y.' \
+                + '%m.' + '%d') in Controller.list_of_holiday_dates:
+                pass
+            else:
+                #check if date is in shown month
+                if int(month_entered) == month_shown:
+                    if int(year_entered) == year_shown:
+                        #select day
+                        tree.selection_set(day_entered)
+                        for item in tree.selection():
+                            item_values = tree.item(item, "values")
+                        
+                        #update value and delete old value
+                        temp = list(item_values)
+                        if name_index is not None:
+                            if status == 'bestätigt':
+                                temp[name_index] = 'VACATION'
+                            if status == 'geplant':
+                                temp[name_index] = 'Requested'
+                            temp_tuple = tuple(temp)
+                            tree.delete(tree.selection()[0])
+                            tree.insert(parent = '', index = int(day_entered) - 1, iid = int(day_entered), text = '', values = temp_tuple)
+                        else:
+                            pass
+                    else:
+                        pass
+                else:
+                    pass
+
 #The below frame is needed for the manager_view and employee_req_view
 # scrollbar frames
 class VerticalScrolledFrame(ttk.Frame):
@@ -753,18 +976,20 @@ class VerticalScrolledFrame(ttk.Frame):
         # Create a canvas object and a vertical scrollbar for scrolling it.
         vscrollbar = ttk.Scrollbar(self, orient='vertical')
         vscrollbar.pack(fill = 'y', side = 'right', expand = False)
-        canvas = tk.Canvas(self, bd=0, highlightthickness=0,
+        self.canvas = tk.Canvas(self, bd=0, highlightthickness=0,
                            yscrollcommand=vscrollbar.set)
-        canvas.pack(side = 'left', fill = 'both', expand = True)
-        vscrollbar.config(command=canvas.yview)
+        self.canvas.pack(side = 'left', fill = 'both', expand = True)
+        vscrollbar.config(command=self.canvas.yview)
 
-        # Reset the view
-        canvas.xview_moveto(0)
-        canvas.yview_moveto(0)
+        self.canvas.bind_all("<MouseWheel>", self._on_mousewheel)
+
+        # Reset the View
+        self.canvas.xview_moveto(0)
+        self.canvas.yview_moveto(0)
 
         # Create a frame inside the canvas which will be scrolled with it.
-        self.interior = interior = ttk.Frame(canvas)
-        interior_id = canvas.create_window(0, 0, window=interior,
+        self.interior = interior = ttk.Frame(self.canvas)
+        interior_id = self.canvas.create_window(0, 0, window=interior,
                                            anchor='nw')
 
         # Track changes to the canvas and frame width and sync them,
@@ -772,14 +997,17 @@ class VerticalScrolledFrame(ttk.Frame):
         def _configure_interior(event):
             # Update the scrollbars to match the size of the inner frame.
             size = (interior.winfo_reqwidth(), interior.winfo_reqheight())
-            canvas.config(scrollregion="0 0 %s %s" % size)
-            if interior.winfo_reqwidth() != canvas.winfo_width():
+            self.canvas.config(scrollregion="0 0 %s %s" % size)
+            if interior.winfo_reqwidth() != self.canvas.winfo_width():
                 # Update the canvas's width to fit the inner frame.
-                canvas.config(width=interior.winfo_reqwidth())
+                self.canvas.config(width=interior.winfo_reqwidth())
         interior.bind('<Configure>', _configure_interior)
 
         def _configure_canvas(event):
-            if interior.winfo_reqwidth() != canvas.winfo_width():
+            if interior.winfo_reqwidth() != self.canvas.winfo_width():
                 # Update the inner frame's width to fill the canvas.
-                canvas.itemconfigure(interior_id, width=canvas.winfo_width())
-        canvas.bind('<Configure>', _configure_canvas)
+                self.canvas.itemconfigure(interior_id, width=self.canvas.winfo_width())
+        self.canvas.bind('<Configure>', _configure_canvas)
+
+    def _on_mousewheel(self, event):
+            self.canvas.yview_scroll(int(-1*(event.delta/120)), "units")

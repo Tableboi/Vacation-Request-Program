@@ -130,3 +130,35 @@ class Model:
                         FROM [PulseCoreTest5].[dbo].[PC_VacationsRequests]"""
         def all_search():
                 Model.cursor.execute(Model.all_searcher)
+        
+        #SCHEDULE QUERIES
+        number_getter = """SELECT [nEmployee]
+                            FROM [PulseCoreTest5].[dbo].[PO_employee]
+                            WHERE [nProduktionsGruppe] = ?"""
+        
+        no_group_getter = """ SELECT [nEmployee]
+                                        FROM [PulseCoreTest5].[dbo].[PO_employee]
+                                        WHERE [nProduktionsGruppe] IS NULL"""
+        
+        holiday_getter = """SELECT [Feiertag], [Datum] 
+                                FROM [PulseCoreTest5].[dbo].[PC_Holidays]"""
+                                
+        request_getter = """SELECT [xnRequest] 
+                                ,[dDateStart]
+                                ,[dDateEnd]
+                                ,[nEmployee]
+                                ,[sReasons]
+                                ,[sStatus]
+                                FROM [PulseCoreTest5].[dbo].[PC_VacationsRequests]"""
+        
+        def get_holidays():
+                Model.cursor.execute(Model.holiday_getter)
+
+        def get_emp_list(produktionsgruppe):
+                Model.cursor.execute(Model.number_getter, produktionsgruppe)
+        
+        def get_no_group_list():
+                Model.cursor.execute(Model.no_group_getter)
+        
+        def get_requests():
+                Model.cursor.execute(Model.request_getter)

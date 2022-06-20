@@ -15,6 +15,8 @@ class App(tk.Tk):
          
         # __init__ function for class Tk
         tk.Tk.__init__(self, *args, **kwargs)
+
+        self.geometry('850x550')
          
         # creating a container
         base = ttk.Frame(self)
