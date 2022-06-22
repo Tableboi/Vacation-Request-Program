@@ -300,7 +300,7 @@ class request_window(ttk.Frame):
         if start_date or end_date:
             if end_date == '':
                 end_date = start_date
-            data = (start_date, end_date, self.nEmployee.get(), self.T1.get("1.0", "end"), "geplant", self.E5.get(), "bevorstehend")
+            data = (start_date, end_date, self.nEmployee.get(), self.T1.get("1.0", "end"), "geplant")
         Controller.sub_new_info(data)
 
 class manager_view(ttk.Frame):
