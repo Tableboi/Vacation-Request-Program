@@ -215,7 +215,7 @@ class request_window(ttk.Frame):
         if start_date or end_date:
             if end_date == '':
                 end_date = start_date
-            data = (start_date, end_date, self.nEmployee.get(), self.T1.get("1.0", "end"), "anhängig")
+            data = (start_date, end_date, self.nEmployee.get(), self.T1.get("1.0", "end"), "anhängig", self.E5.get(), " bevorstehend")
         Controller.sub_new_info(data)
      
     def click_me(self):
