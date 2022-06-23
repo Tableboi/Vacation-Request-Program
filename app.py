@@ -5,6 +5,8 @@ from datetime import datetime, timedelta
 import tkinter as tk
 from tkinter import ttk
 
+from ttkthemes import ThemedStyle
+
 from views import loginbox, employee_req_view, request_window, manager_view
 
 #this is the main window and application
@@ -16,8 +18,11 @@ class App(tk.Tk):
         # __init__ function for class Tk
         tk.Tk.__init__(self, *args, **kwargs)
 
-        self.geometry('850x550')
-         
+        self.geometry('925x550')
+        
+        self.style = ThemedStyle()
+        self.style.theme_use('clearlooks')
+
         # creating a container
         base = ttk.Frame(self)
         base.pack(side = "top", fill = "both", expand = True)

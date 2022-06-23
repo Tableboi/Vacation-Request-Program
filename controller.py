@@ -8,16 +8,114 @@ from tkinter import messagebox
 from models import Model
 
 class Controller:
-    #Variables called by the views
-    req_data = [] #this is for the employee_req_view
-    user_id = int()
-    fetched_reqs = []
+
+    def __init__(self, model, view):
+        self.model = model
+        self.view = view
 
     current_date = datetime.datetime.now()
     current_month = int(current_date.strftime('%m'))
     current_year = int(current_date.strftime('%Y'))
 
-    #lists for schedule
+    # ---- loginbox
+
+    #submit button
+    user_id = int()
+    def login(login_info):
+        try:
+            Model.infofetch(login_info)
+            user_info = Model.cursor.fetchone()
+            Controller.user_id = user_info[2]
+        except pyodbc.Error as error:
+            messagebox.showerror('Error', f'{error}')
+    
+    # ---- loginbox
+
+    # ---- request_window
+
+    #submit
+    def sub_new_info(new_info):
+        try:
+            Model.submit_request(new_info)
+        except pyodbc.DataError as error:
+            messagebox.showerror('Error', 'Invalid date format')
+        except pyodbc.DatabaseError as error:
+            messagebox.showerror('Error', f'{error}')
+
+    #update vacation days
+    days_left = int()
+    def get_days_left(login_info):
+        Model.get_days_left(login_info)
+        Controller.days_left = Model.cursor.fetchone()
+    
+    # ---- request_window
+
+    # ---- manager_view
+
+    #load all
+    fetched_reqs = []
+    def search_all():
+        try:
+            Model.all_search()
+            Controller.fetched_reqs = Model.cursor.fetchall()
+        except pyodbc.Error as error:
+            messagebox.showerror('Error', f'{error}')
+    
+    #search by employee, also used in the employee_req_view
+    def search_emp(nEmployee):
+        try:
+            Model.emp_search(nEmployee)
+            Controller.fetched_reqs = Model.cursor.fetchall()
+        except pyodbc.Error as error:
+            messagebox.showerror('Error', f'{error}')
+    
+    #search by antragnummer, also used in the employee_req_view
+    req_data = []
+    def search(xnRequest):
+        try:
+            Model.fetch_request(xnRequest)
+            Controller.req_data = Model.cursor.fetchone()
+        except pyodbc.Error as error:
+            messagebox.showerror('Error', f'{error}')
+
+    #update
+    def man_update(man_info):
+        try:
+            Model.man_update(man_info)
+        except pyodbc.DataError as error:
+            messagebox.showerror('Error', f'{error}')
+        except pyodbc.Error as error:
+            messagebox.showerror('Error', f'{error}')
+
+    #delete
+    def delete(xnRequest):
+        try:
+            Model.delete_request(xnRequest)
+        except pyodbc.Error as error:
+            messagebox.showerror('Error', f'{error}')
+
+    # ---- manager_view
+
+    # ---- employee_req_view
+
+    #search by employee, see search_emp in the manager_view section above
+
+    #search by antragsnummer, see search in the manager_view section above
+
+    #update
+    def update(updated_info):
+        try:
+            Model.update_request(updated_info)
+        except pyodbc.DataError:
+            messagebox.showerror('Error', 'Invalid date format')
+        except pyodbc.Error as error:
+            messagebox.showerror('Error', f'{error}')
+
+    # ---- employee_req_view
+
+    # ---- schedule
+
+    #initialization list
     ProduktionsGruppe = {0:'Wissenträger', 1:'Produktions Gruppe 1', 2:'Produktions Gruppe 2', 
                      3:'Produktions Gruppe 3', 4:'Produktions Gruppe 4', 5:'Produktionsunterstützung',
                      6: 'Keine Gruppe'}
@@ -35,78 +133,7 @@ class Controller:
     request_list_raw = []
     request_dictionary = {}
 
-    def __init__(self, model, view):
-        self.model = model
-        self.view = view
-
-    #for the loginbox submit button
-    def login(login_info):
-        try:
-            Model.infofetch(login_info)
-            user_info = Model.cursor.fetchone()
-            Controller.user_id = user_info[2]
-        except pyodbc.Error as error:
-            messagebox.showerror('Error', f'{error}')
-
-    #for the request_window submit button
-    def sub_new_info(new_info):
-        try:
-            Model.submit_request(new_info)
-        except pyodbc.DataError as error:
-            messagebox.showerror('Error', 'Invalid date format')
-        except pyodbc.DatabaseError as error:
-            messagebox.showerror('Error', f'{error}')
-    
-    #for the employee_req_view search button
-    def search(xnRequest):
-        try:
-            Model.fetch_request(xnRequest)
-            Controller.req_data = Model.cursor.fetchone()
-        except pyodbc.Error as error:
-            messagebox.showerror('Error', f'{error}')
-
-    #for the employee_req_view update button
-    def update(updated_info):
-        try:
-            Model.update_request(updated_info)
-        except pyodbc.DataError:
-            messagebox.showerror('Error', 'Invalid date format')
-        except pyodbc.Error as error:
-            messagebox.showerror('Error', f'{error}')
-    
-    #for the manager_view update button
-    def man_update(man_info):
-        try:
-            Model.man_update(man_info)
-        except pyodbc.DataError:
-            messagebox.showerror('Error', 'Invalid date format')
-        except pyodbc.Error as error:
-            messagebox.showerror('Error', f'{error}')
-    
-    #for the employee_req_view delete button
-    def delete(xnRequest):
-        try:
-            Model.delete_request(xnRequest)
-        except pyodbc.Error as error:
-            messagebox.showerror('Error', f'{error}')
-    
-    #for the manager_view and emp_req_view search by employee
-    def search_emp(nEmployee):
-        try:
-            Model.emp_search(nEmployee)
-            Controller.fetched_reqs = Model.cursor.fetchall()
-        except pyodbc.Error as error:
-            messagebox.showerror('Error', f'{error}')
-
-    def search_all():
-        try:
-            Model.all_search()
-            Controller.fetched_reqs = Model.cursor.fetchall()
-        except pyodbc.Error as error:
-            messagebox.showerror('Error', f'{error}')
-    
-    #FOR SCHEDULE STUFF
-    #get holidays
+    #methods
     def get_holidays():
         Model.get_holidays()
         holidays = Model.cursor.fetchall()
@@ -114,7 +141,6 @@ class Controller:
             holiday_date = holiday[1]
             Controller.list_of_holiday_dates.append(holiday_date.strftime('%Y.' + '%m.' + '%d'))
     
-    #get lists of emp numbers
     def get_emp_list():
         for i in range(0, 6, 1):
             Model.get_emp_list(i)
@@ -130,8 +156,7 @@ class Controller:
                 new_item = item.replace('""',"")
                 column_list.remove(column_list[i])
                 column_list.insert(i, int(new_item[0:-1]))
-    
-    #get Null list of emp numbers
+
     def get_no_group_list():
         Model.get_no_group_list()
         column_list = Model.cursor.fetchall()
@@ -144,8 +169,7 @@ class Controller:
             column_list.remove(column_list[i])
             column_list.insert(i, int(new_item[0:-1]))
         Controller.list_of_number_lists.append(column_list)
-
-    #get requests
+    
     def get_requests():
         Model.get_requests()
         Controller.request_list_raw = Model.cursor.fetchall()
@@ -169,3 +193,5 @@ class Controller:
                                                 date_range_list[i].strftime('%Y.' + '%m.' + '%d'), item[5]]
                 else:
                     pass
+
+    # ---- schedule

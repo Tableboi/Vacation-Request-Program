@@ -12,12 +12,10 @@ class Model:
         cnxn = pyodbc.connect(cnxn_str)
 
         cursor = cnxn.cursor()
-    
-        #for infofetch in loginbox
-        """Parameters
-        -----------
-        nEmployee : int
-        - single element tuple"""
+
+        # ---- loginbox
+
+        #infofetch
         infofetcher = """SELECT [sFirstName]
                         ,[sName]
                         ,[nEmployee]
@@ -25,95 +23,72 @@ class Model:
                         ,[nProduktionsGruppe]
                         FROM [PulseCoreTest5].[dbo].[PO_employee]
                         WHERE [nEmployee] = ?"""
+        """Parameters
+        -----------
+        nEmployee : int
+        - single element tuple"""
 
         def infofetch(login_info):
                 Model.cursor.execute(Model.infofetcher, login_info)
         
-        #for submit in request_window
+        # ---- loginbox
+
+        # ---- request_window
+        
+        #submit
+        new_info = """INSERT INTO dbo.PC_VacationsRequests (dDateStart, dDateEnd, nEmployee, sReasons, sStatus, sStellvertreter)
+            VALUES (?, ?, ?, ?, ?, ?)"""
         """Parameters
         -----------
         dDateStart : date
         dDateEnd : date
         nEmployee : int
         sReasons : str
-        sStatus : str"""
-        new_info = """INSERT INTO dbo.PC_VacationsRequests (dDateStart, dDateEnd, nEmployee, sReasons, sStatus)
-            VALUES (?, ?, ?, ?, ?)"""
+        sStatus : str
+        sStellvertreter : str"""
 
         def submit_request(new_info):
                 Model.cursor.execute(Model.new_info, new_info)
                 Model.cnxn.commit()
 
-        #fetch a request by its request number
+        #fetch remaining vacation days
         """Parameters
-        -----------
-        xnRequest : int"""
+        ---------
+        nEmployee : int"""
+        days_left_getter = """SELECT [nDaysLeft] FROM [PulseCoreTest5].[dbo].[PO_employee]
+                        WHERE [nEmployee] = ?"""
+
+        def get_days_left(login_info):
+                Model.cursor.execute(Model.days_left_getter, login_info)
+
+        # ---- request_window
+
+        # ---- manager_view
+
+        #fetch a request by its request number
         request_fetcher = """SELECT [dDateStart]
                                 ,[dDateEnd]
                                 ,[nEmployee]
                                 ,[sReasons]
                                 ,[sStatus]
+                                ,[sStellvertreter]
                                 FROM [PulseCoreTest5].[dbo].[PC_VacationsRequests]
                                 WHERE [xnRequest] = ?"""
+        """Parameters
+        -----------
+        xnRequest : int"""
         
         def fetch_request(xnRequest):
                 Model.cursor.execute(Model.request_fetcher, xnRequest)
 
-        #employee update an existing request
-        """Parameters
-        -----------
-        dDateStart : date
-        dDateEnd : date
-        sReasons : str
-        xnRequest : int"""
-        request_updater = """UPDATE [PulseCoreTest5].[dbo].[PC_VacationsRequests]
-                           SET [dDateStart] = ?,
-                           [dDateEnd] = ?,
-                           [sReasons] = ?
-                           WHERE [xnRequest] = ? AND [nEmployee] = ?"""
-        
-        def update_request(updated_info):
-                Model.cursor.execute(Model.request_updater, updated_info)
-                Model.cnxn.commit()
-
-        #manager update, includes sStatus
-        """Parameters
-        -----------
-        dDateStart : date
-        dDateEnd : date
-        sReasons : str
-        xnRequest : int
-        sStatus : str"""
-        man_updater = """UPDATE [PulseCoreTest5].[dbo].[PC_VacationsRequests]
-                           SET [dDateStart] = ?,
-                           [dDateEnd] = ?,
-                           [sReasons] = ?,
-                           [sStatus] = ?
-                           WHERE [xnRequest] = ?"""
-        
-        def man_update(man_info):
-                Model.cursor.execute(Model.man_updater, man_info)
-                Model.cnxn.commit()
-
-
-        #delete an existing request
-        """Parameters
-        -----------
-        xnRequest : int"""
-        request_deleter = """DELETE FROM [PulseCoreTest5].[dbo].[PC_VacationsRequests]
-                          WHERE [xnRequest] = ?"""
-
-        def delete_request(xnRequest):
-                Model.cursor.execute(Model.request_deleter, xnRequest)
-                Model.cnxn.commit()
-        
         #search all vacation requests by nEmployee
         """Parameters
         -----------
         nEmployee : int"""
-        emp_searcher = """SELECT [dDateStart]
+        emp_searcher = """SELECT [xnRequest]
+                        ,[dDateStart]
                         ,[dDateEnd]
-                        ,[xnRequest]
+                        ,[sStellvertreter]
                         ,[sReasons]
                         ,[sStatus]
                         FROM [PulseCoreTest5].[dbo].[PC_VacationsRequests]
@@ -123,13 +98,80 @@ class Model:
                 Model.cursor.execute(Model.emp_searcher, nEmployee)
         
         #fetch all vacation requests
+        all_searcher = """SELECT [xnRequest]
+                        ,[dDateStart]
+                        ,[dDateEnd]
+                        ,[sStellvertreter]
+                        ,[sReasons]
+                        ,[sStatus]
+                        ,[nEmployee]
+                        FROM [PulseCoreTest5].[dbo].[PC_VacationsRequests]"""
         """Parameters
         -----------
         None"""
-        all_searcher = """SELECT *
-                        FROM [PulseCoreTest5].[dbo].[PC_VacationsRequests]"""
         def all_search():
                 Model.cursor.execute(Model.all_searcher)
+
+        #update
+        man_updater = """UPDATE [PulseCoreTest5].[dbo].[PC_VacationsRequests]
+                           SET [dDateStart] = ?,
+                           [dDateEnd] = ?,
+                           [sReasons] = ?,
+                           [sStatus] = ?,
+                           [sStellvertreter] = ?
+                           WHERE [xnRequest] = ?"""
+        """Parameters
+        -----------
+        dDateStart : date
+        dDateEnd : date
+        sReasons : str
+        xnRequest : int
+        sStatus : str
+        sStellvertreter : str"""
+        
+        def man_update(man_info):
+                Model.cursor.execute(Model.man_updater, man_info)
+                Model.cnxn.commit()
+
+        #delete
+        request_deleter = """DELETE FROM [PulseCoreTest5].[dbo].[PC_VacationsRequests]
+                          WHERE [xnRequest] = ?"""
+        """Parameters
+        -----------
+        xnRequest : int"""
+
+        def delete_request(xnRequest):
+                Model.cursor.execute(Model.request_deleter, xnRequest)
+                Model.cnxn.commit()
+
+        # ---- manager_view
+
+        # ---- employee_req_view
+
+        #search by employee, see search_emp in the manager_view section above
+
+        #search by antragsnummer, see search in the manager_view section above
+
+        #update
+        request_updater = """UPDATE [PulseCoreTest5].[dbo].[PC_VacationsRequests]
+                           SET [dDateStart] = ?,
+                           [dDateEnd] = ?,
+                           [sReasons] = ?,
+                           [sStellvertreter] = ?
+                           WHERE [xnRequest] = ? AND [nEmployee] = ?"""
+        """Parameters
+        -----------
+        dDateStart : date
+        dDateEnd : date
+        sReasons : str
+        xnRequest : int
+        sStellvertreter : str"""
+        
+        def update_request(updated_info):
+                Model.cursor.execute(Model.request_updater, updated_info)
+                Model.cnxn.commit()
+
+        # ---- employee_req_view
         
         #SCHEDULE QUERIES
         number_getter = """SELECT [nEmployee]
