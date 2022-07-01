@@ -1,0 +1,160 @@
+
+from calendar import month
+from msilib.schema import ComboBox
+from PyQt5.QtWidgets import QTableWidgetItem
+from PyQt5.QtCore import Qt
+from PyQt5 import QtCore, QtGui, QtWidgets
+from mvcfortable import Model, Controller, TableModel
+
+class Ui_Form(object):
+    def __init__(self):
+        Form.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+    def setupUi(self, Form, empnum):
+        Form.setObjectName("Form")
+        Form.resize(917, 743)
+        self.layoutWidget = QtWidgets.QWidget(Form)
+        self.layoutWidget.setGeometry(QtCore.QRect(10, 10, 901, 721))
+        self.layoutWidget.setObjectName("layoutWidget")
+        self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.layoutWidget)
+        self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout_2.setObjectName("verticalLayout_2")
+        self.horizontalLayout = QtWidgets.QHBoxLayout()
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.label = QtWidgets.QLabel(self.layoutWidget)
+        self.label.setObjectName("label")
+        self.horizontalLayout.addWidget(self.label)
+        self.verticalLayout_2.addLayout(self.horizontalLayout)
+        self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
+        self.verticalLayout_2.addLayout(self.horizontalLayout_2)
+        self.verticalLayout = QtWidgets.QVBoxLayout()
+        self.verticalLayout.setObjectName("verticalLayout")
+        self.comboBox = QtWidgets.QComboBox(self.layoutWidget)
+        self.comboBox.setObjectName("comboBox")
+        self.comboBox.addItem("")
+        self.comboBox.addItem("")
+        self.comboBox.addItem("")
+        self.comboBox.addItem("")
+        self.comboBox.addItem("")
+        self.comboBox.addItem("")
+        self.comboBox.addItem("")
+        self.verticalLayout.addWidget(self.comboBox)
+        self.comboBox_2 = QtWidgets.QComboBox(self.layoutWidget)
+        self.comboBox_2.setObjectName("comboBox_2")
+        self.comboBox_2.addItem("")
+        self.comboBox_2.addItem("")
+        self.comboBox_2.addItem("")
+        self.comboBox_2.addItem("")
+        self.comboBox_2.addItem("")
+        self.comboBox_2.addItem("")
+        self.comboBox_2.addItem("")
+        self.comboBox_2.addItem("")
+        self.comboBox_2.addItem("")
+        self.comboBox_2.addItem("")
+        self.comboBox_2.addItem("")
+        self.comboBox_2.addItem("")
+        self.verticalLayout.addWidget(self.comboBox_2)
+        self.comboBox_3 = QtWidgets.QComboBox(self.layoutWidget)
+        self.comboBox_3.setLayoutDirection(QtCore.Qt.LeftToRight)
+        self.comboBox_3.setEditable(False)
+        self.comboBox_3.setSizeAdjustPolicy(QtWidgets.QComboBox.AdjustToContentsOnFirstShow)
+        self.comboBox_3.setObjectName("comboBox_3")
+        self.comboBox_3.addItem("")
+        self.comboBox_3.addItem("")
+        self.comboBox_3.addItem("")
+        self.comboBox_3.addItem("")
+        self.comboBox_3.addItem("")
+        self.verticalLayout.addWidget(self.comboBox_3)
+        
+        #inserting my code for my table from another file
+        
+        #connect comboboxes to methods
+        self.comboBox.activated[str].connect(self.change_group) 
+        self.comboBox_2.activated[str].connect(self.change_month)
+        self.comboBox_3.activated[str].connect(self.change_year)
+        
+        #use empnum to bring up production group
+        Controller.get_group_from_empnum(empnum)
+        print(Controller.selected_group)
+        #create custom table  
+        self.tableWidget = QtWidgets.QTableView(self.layoutWidget) 
+        self.tableWidget.setObjectName("tableWidget")
+        data = Controller.data_values
+        self.model = TableModel(data) 
+        self.verticalLayout.addWidget(self.tableWidget) 
+        self.verticalLayout_2.addLayout(self.verticalLayout) 
+        self.tableWidget.setModel(self.model) 
+        self.model.setHeaderData(2, QtCore.Qt.Horizontal, 'hello', QtCore.Qt.DisplayRole)
+
+        self.retranslateUi(Form)
+        QtCore.QMetaObject.connectSlotsByName(Form)
+
+    def retranslateUi(self, Form):
+        _translate = QtCore.QCoreApplication.translate
+        Form.setWindowTitle(_translate("Form", "Form"))
+        self.label.setText(_translate("Form", "TextLabel"))
+        self.comboBox.setItemText(0, _translate("Form", "Wissenträger"))
+        self.comboBox.setItemText(1, _translate("Form", "Produktions Gruppe 1"))
+        self.comboBox.setItemText(2, _translate("Form", "Produktions Gruppe 2"))
+        self.comboBox.setItemText(3, _translate("Form", "Produktions Gruppe 3"))
+        self.comboBox.setItemText(4, _translate("Form", "Produktions Gruppe 4"))
+        self.comboBox.setItemText(5, _translate("Form", "Produktionsunterstützung"))
+        self.comboBox.setItemText(6, _translate("Form", "Keine Gruppe"))
+        self.comboBox.setCurrentIndex(Controller.selected_group[0])
+        self.comboBox_2.setItemText(0, _translate("Form", "Jan"))
+        self.comboBox_2.setItemText(1, _translate("Form", "Feb"))
+        self.comboBox_2.setItemText(2, _translate("Form", "Mar"))
+        self.comboBox_2.setItemText(3, _translate("Form", "Apr"))
+        self.comboBox_2.setItemText(4, _translate("Form", "May"))
+        self.comboBox_2.setItemText(5, _translate("Form", "Jun"))
+        self.comboBox_2.setItemText(6, _translate("Form", "Jul"))
+        self.comboBox_2.setItemText(7, _translate("Form", "Aug"))
+        self.comboBox_2.setItemText(8, _translate("Form", "Sep"))
+        self.comboBox_2.setItemText(9, _translate("Form", "Oct"))
+        self.comboBox_2.setItemText(10, _translate("Form", "Nov"))
+        self.comboBox_2.setItemText(11, _translate("Form", "Dec"))
+        self.comboBox_2.setCurrentIndex(Controller.selected_month[0] - 1)
+        self.comboBox_3.setItemText(0, _translate("Form", str(Controller.years[0])))
+        self.comboBox_3.setItemText(1, _translate("Form", str(Controller.years[1])))
+        self.comboBox_3.setItemText(2, _translate("Form", str(Controller.years[2])))
+        self.comboBox_3.setItemText(3, _translate("Form", str(Controller.years[3])))
+        self.comboBox_3.setItemText(4, _translate("Form", str(Controller.years[4])))
+        
+        
+    def change_group(self):
+        group_selection = int(self.comboBox.currentIndex())
+        data = Controller.data_values
+        Controller.selected_group.clear()
+        Controller.selected_group.append(group_selection)
+        self.model = TableModel(data)
+        self.tableWidget.setModel(self.model) #needed to put table into frame
+        print('changing group')
+         
+    def change_month(self):
+        month_selection = int(self.comboBox_2.currentIndex()) + 1
+        data = Controller.data_values
+        Controller.selected_month.clear()
+        Controller.selected_month.append(month_selection)
+        self.model = TableModel(data)
+        self.tableWidget.setModel(self.model) #needed to put table into frame
+        print('changing month')
+        
+    def change_year(self):
+        year_selection = int(self.comboBox_3.currentText())
+        print(year_selection)
+        data = Controller.data_values
+        Controller.selected_year.clear()
+        Controller.selected_year.append(year_selection)
+        self.model = TableModel(data)
+        self.tableWidget.setModel(self.model)
+        print('changing year')
+        
+
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    Form = QtWidgets.QWidget()
+    ui = Ui_Form()
+    ui.setupUi(Form, empnum = 1325)
+    Form.show()
+    sys.exit(app.exec_())
