@@ -24,13 +24,13 @@ class loginbox(ttk.Frame):
         self.top_frame.pack(side = 'top', fill = 'x')
 
         # Create an object of tkinter ImageTk
-        self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB.jpg'
-        self.img = Image.open(self.path)
-        self.img.thumbnail((200,200))
-        self.new_img = ImageTk.PhotoImage(self.img)
+        #self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB.jpg'
+        #self.img = Image.open(self.path)
+        #self.img.thumbnail((200,200))
+        #self.new_img = ImageTk.PhotoImage(self.img)
         # Create a Label Widget to display the text or Image
-        self.label = ttk.Label(self.top_frame, image = self.new_img)
-        self.label.pack(side = 'right')
+        #self.label = ttk.Label(self.top_frame, image = self.new_img)
+        #self.label.pack(side = 'right')
 
         #setting the font types
         header_font = tkinter.font.Font(\
@@ -263,13 +263,13 @@ class request_window(ttk.Frame):
         self.title_label.grid(column = 0, row = 0, padx = 5, pady = 5)
 
         # Create an object of tkinter ImageTk
-        self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB.jpg'
-        self.img = Image.open(self.path)
-        self.img.thumbnail((200,200))
-        self.new_img = ImageTk.PhotoImage(self.img)
+        #self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB.jpg'
+        #self.img = Image.open(self.path)
+        #self.img.thumbnail((200,200))
+        #self.new_img = ImageTk.PhotoImage(self.img)
         # Create a Label Widget to display the text or Image
-        self.label = ttk.Label(self.Main, image = self.new_img)
-        self.label.grid(column = 1, row = 0, padx = 5, pady = 5)
+        #self.label = ttk.Label(self.Main, image = self.new_img)
+        #self.label.grid(column = 1, row = 0, padx = 5, pady = 5)
 
         # ----- Section 1
         # pack options for section 1
@@ -480,14 +480,14 @@ class manager_view(ttk.Frame):
         self.Headerframe.columnconfigure(6, weight = 2)
 
         # Create an object of tkinter ImageTk
-        self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB.jpg'
-        self.img = Image.open(self.path)
-        self.img.thumbnail((200,200))
-        self.new_img = ImageTk.PhotoImage(self.img)
+        #self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB.jpg'
+        #self.img = Image.open(self.path)
+        #self.img.thumbnail((200,200))
+        #self.new_img = ImageTk.PhotoImage(self.img)
         # Create a Label Widget to display the text or Image
-        self.label = ttk.Label(self.Headerframe, image = self.new_img)
-        self.label.grid(rowspan = 2, column = 6, row = 0, \
-            padx = 10, pady = 20, sticky = 'e')
+        #self.label = ttk.Label(self.Headerframe, image = self.new_img)
+        #self.label.grid(rowspan = 2, column = 6, row = 0, \
+            #padx = 10, pady = 20, sticky = 'e')
 
         self.label = ttk.Label(self.Headerframe, text = "Manager Request Search")
         self.label.configure(font = header_font)
@@ -916,7 +916,7 @@ class manager_view(ttk.Frame):
             delete_button_list[i].grid(row = i + 1, column = 8, **pad_options)
 
 class Schedule(Toplevel):
-    def __init__(self):
+    def __init__(self, empnum):
         super().__init__()
         self.title('Schedule')
 
@@ -944,6 +944,8 @@ class Schedule(Toplevel):
         self.ProduktionsGruppeOptionMenu = ttk.OptionMenu(self.optionsFrame, PGvariable, 
                     'Gruppe auswählen', *Controller.ProduktionsGruppe.values(), command = Schedule.select_PG)
         self.ProduktionsGruppeOptionMenu.pack(pady = 10)
+        if empnum != 905: 
+            self.ProduktionsGruppeOptionMenu.configure(state = 'disabled')
         
         global Monthvariable
         Monthvariable = tk.StringVar()
@@ -967,7 +969,7 @@ class Schedule(Toplevel):
         tree.configure(xscrollcommand = hbar.set)
         hbar.pack(side = 'bottom', fill = 'x')
 
-        self.select_PG()
+        self.select_PG(empnum)
 
     def _on_mousewheel(self, event):
             self.canvas.xview_scroll(int(-1*(event.delta/120)), "units")
@@ -983,7 +985,7 @@ class Schedule(Toplevel):
         
         Schedule.select_year(self)
     
-    def select_PG(self):
+    def select_PG(self, empnum):
         #delete existing tree
         for i in tree.get_children():
             tree.delete(i)
@@ -994,11 +996,9 @@ class Schedule(Toplevel):
             global PGselectionint
             PGselectionint = [k for k, v in Controller.ProduktionsGruppe.items() if v == PGselection][0]
         else:
-            #for numlist in Controller.list_of_number_lists:
-            #    if empnum in numlist:
-            #        PGselectionint = Controller.list_of_number_lists.index(numlist)
-            #    else:
-            #        pass
+            for numlist in Controller.list_of_number_lists:
+                if empnum in numlist:
+                    PGselectionint = Controller.list_of_number_lists.index(numlist)
             PGselectionint = 0
         PGvariable.set(Controller.ProduktionsGruppe[PGselectionint])
         
