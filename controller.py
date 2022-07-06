@@ -21,13 +21,35 @@ class Controller:
 
     #submit button
     user_id = int()
+    user_name = str
+    user_info = []
     def login(login_info):
         try:
             Model.infofetch(login_info)
             user_info = Model.cursor.fetchone()
             Controller.user_id = user_info[2]
+            Controller.user_name = user_info[1]
         except pyodbc.Error as error:
             messagebox.showerror('Error', f'{error}')
+    
+
+    #get stellvertreter personalnummer
+    stell_reqs = []
+    def get_stell():
+        try:
+            Model.check_stell(Controller.user_name)
+            Controller.stell_reqs = Model.cursor.fetchall()
+        except pyodbc.Error as error:
+            messagebox.showerror('Error', f'{error}')
+
+    #update stell status
+    def update_stell(nStellStatus, xnRequest):
+        try:
+            Model.update_stell(nStellStatus, xnRequest)
+        except pyodbc.Error as error:
+            messagebox.showerror('Error', f'{error}')
+            
+
     
     # ---- loginbox
 
@@ -46,7 +68,8 @@ class Controller:
     days_left = int()
     def get_days_left(login_info):
         Model.get_days_left(login_info)
-        Controller.days_left = Model.cursor.fetchone()
+        days_left_row = Model.cursor.fetchone()
+        Controller.days_left = days_left_row[0]
     
     # ---- request_window
 
@@ -83,7 +106,7 @@ class Controller:
         try:
             Model.man_update(man_info)
         except pyodbc.DataError as error:
-            messagebox.showerror('Error', f'{error}')
+            messagebox.showerror('Error', f'Incorrect Formatting \n\nError: {error}')
         except pyodbc.Error as error:
             messagebox.showerror('Error', f'{error}')
 
@@ -91,6 +114,21 @@ class Controller:
     def delete(xnRequest):
         try:
             Model.delete_request(xnRequest)
+        except pyodbc.Error as error:
+            messagebox.showerror('Error', f'{error}')
+    
+    #load unseen
+    def get_unseen():
+        try:
+            Model.get_unseen()
+            Controller.fetched_reqs = Model.cursor.fetchall()
+        except pyodbc.Error as error:
+            messagebox.showerror('Error', f'{error}')
+    
+    #mark as seen
+    def set_seen(xnRequest):
+        try:
+            Model.set_seen(xnRequest)
         except pyodbc.Error as error:
             messagebox.showerror('Error', f'{error}')
 
@@ -195,3 +233,8 @@ class Controller:
                     pass
 
     # ---- schedule
+
+    #dont know yet
+
+    def reduce_days(nDaysLeft):
+        Model.reduce_days(nDaysLeft, Controller.user_id)
