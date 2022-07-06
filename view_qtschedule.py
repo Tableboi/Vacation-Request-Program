@@ -535,7 +535,7 @@ class manager_view(ttk.Frame):
         schedule = Ui_Form()
         schedule.setupUi(Form, empnum = int(login_info))
         Form.show()
-        sys.exit(app.exec_())
+        app.exec_()
 
     def all_view(self):
         Controller.search_all()
