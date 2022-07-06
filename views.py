@@ -916,7 +916,7 @@ class manager_view(ttk.Frame):
             delete_button_list[i].grid(row = i + 1, column = 8, **pad_options)
 
 class Schedule(Toplevel):
-    def __init__(self, empnum):
+    def __init__(self, empnum = None):
         super().__init__()
         self.title('Schedule')
 
@@ -944,7 +944,7 @@ class Schedule(Toplevel):
         self.ProduktionsGruppeOptionMenu = ttk.OptionMenu(self.optionsFrame, PGvariable, 
                     'Gruppe auswählen', *Controller.ProduktionsGruppe.values(), command = Schedule.select_PG)
         self.ProduktionsGruppeOptionMenu.pack(pady = 10)
-        if empnum != 905: 
+        if empnum is not None: 
             self.ProduktionsGruppeOptionMenu.configure(state = 'disabled')
         
         global Monthvariable
@@ -985,21 +985,24 @@ class Schedule(Toplevel):
         
         Schedule.select_year(self)
     
-    def select_PG(self, empnum):
+    def select_PG(self, empnum = None):
         #delete existing tree
         for i in tree.get_children():
             tree.delete(i)
         
         #get production group selection
         PGselection = PGvariable.get()
-        if PGselection != 'Gruppe auswählen':
-            global PGselectionint
-            PGselectionint = [k for k, v in Controller.ProduktionsGruppe.items() if v == PGselection][0]
+        if empnum is None:
+            if PGselection != 'Gruppe auswählen':
+                global PGselectionint
+                PGselectionint = [k for k, v in Controller.ProduktionsGruppe.items() if v == PGselection][0]
+            else:
+                PGselectionint = 0    
         else:
             for numlist in Controller.list_of_number_lists:
                 if empnum in numlist:
                     PGselectionint = Controller.list_of_number_lists.index(numlist)
-            PGselectionint = 0
+            
         PGvariable.set(Controller.ProduktionsGruppe[PGselectionint])
         
         #create tree with list of selected group's names as columns
