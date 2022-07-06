@@ -59,7 +59,7 @@ class Model:
         # ---- request_window
         
         #submit
-        new_info = """INSERT INTO dbo.PC_VacationsRequests (dDateStart, dDateEnd, nEmployee, sReasons, sStatus, sStellvertreter)
+        request_submitter = """INSERT INTO dbo.PC_VacationsRequests (dDateStart, dDateEnd, nEmployee, sReasons, sStatus, sStellvertreter)
             VALUES (?, ?, ?, ?, ?, ?)"""
         """Parameters
         -----------
@@ -71,7 +71,7 @@ class Model:
         sStellvertreter : str"""
 
         def submit_request(new_info):
-                Model.cursor.execute(Model.new_info, new_info)
+                Model.cursor.execute(Model.request_submitter, new_info)
                 Model.cnxn.commit()
 
         #fetch remaining vacation days

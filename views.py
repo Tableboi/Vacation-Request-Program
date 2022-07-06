@@ -405,12 +405,12 @@ class request_window(ttk.Frame):
  
         self.nEmployee = ttk.Entry(self.section1)
         self.nEmployee.pack(side = 'left', **s1options)
- 
 
         self.L2 = ttk.Label(self.section1, text = "Urlaub am/vom")
         self.L2.pack(side = 'left', **s1options)
- 
-        self.dDateStart = ttk.Entry(self.section1)
+
+        self.dDateStart = ttk.Entry(self.section1, foreground = 'grey')
+        self.dDateStart.insert(0, 'YYYY-MM-DD')
         self.dDateStart.pack(side = 'left', **s1options)
          
         self.section1.grid(columnspan = 2, column = 0, row = 1, padx = 5, pady = 5, sticky = 'ns')
@@ -427,9 +427,9 @@ class request_window(ttk.Frame):
         self.L3 = ttk.Label(self.section2, text = "bis einschl.")
         self.L3.pack(side = 'left', **s2options)
 
-        self.dDateEnd = ttk.Entry(self.section2)
+        self.dDateEnd = ttk.Entry(self.section2, foreground = 'grey')
+        self.dDateEnd.insert(0, 'YYYY-MM-DD')
         self.dDateEnd.pack(side = 'left', **s2options)
-        
 
         self.L4 = ttk.Label(self.section2, text = "Stellvertreter")
         self.L4.pack(side = 'left', **s2options)

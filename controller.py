@@ -48,8 +48,6 @@ class Controller:
             Model.update_stell(nStellStatus, xnRequest)
         except pyodbc.Error as error:
             messagebox.showerror('Error', f'{error}')
-            
-
     
     # ---- loginbox
 
@@ -59,6 +57,7 @@ class Controller:
     def sub_new_info(new_info):
         try:
             Model.submit_request(new_info)
+            messagebox.showinfo("Success", "Your submission was recorded!")
         except pyodbc.DataError as error:
             messagebox.showerror('Error', 'Invalid date format')
         except pyodbc.DatabaseError as error:
