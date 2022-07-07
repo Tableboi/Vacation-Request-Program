@@ -31,12 +31,35 @@ class Model:
         def infofetch(login_info):
                 Model.cursor.execute(Model.infofetcher, login_info)
         
+        #check for sName and sStellstatus
+        stell_checker = """SELECT * FROM [PulseCoreTest5].[dbo].[PC_VacationsRequests]
+                        WHERE [sStellvertreter] = ? AND [nStellStatus] = 0"""
+        """Parameters
+        ---------
+        sName = str"""
+
+        def check_stell(sName):
+                Model.cursor.execute(Model.stell_checker, sName)
+
+        #update stellstatus
+        stell_updater = """UPDATE [PulseCoreTest5].[dbo].[PC_VacationsRequests]
+                        SET [nStellStatus] = ? WHERE [xnRequest] = ?"""
+        """Parameters
+        ---------
+        nStellStatus = int (0-2)
+        xnRequest = int
+        """
+        
+        def update_stell(nStellStatus, xnRequest):
+                Model.cursor.execute(Model.stell_updater, nStellStatus, xnRequest)
+                Model.cnxn.commit()
+        
         # ---- loginbox
 
         # ---- request_window
         
         #submit
-        new_info = """INSERT INTO dbo.PC_VacationsRequests (dDateStart, dDateEnd, nEmployee, sReasons, sStatus, sStellvertreter)
+        request_submitter = """INSERT INTO dbo.PC_VacationsRequests (dDateStart, dDateEnd, nEmployee, sReasons, sStatus, sStellvertreter)
             VALUES (?, ?, ?, ?, ?, ?)"""
         """Parameters
         -----------
@@ -48,7 +71,7 @@ class Model:
         sStellvertreter : str"""
 
         def submit_request(new_info):
-                Model.cursor.execute(Model.new_info, new_info)
+                Model.cursor.execute(Model.request_submitter, new_info)
                 Model.cnxn.commit()
 
         #fetch remaining vacation days
@@ -187,8 +210,7 @@ class Model:
         request_updater = """UPDATE [PulseCoreTest5].[dbo].[PC_VacationsRequests]
                            SET [dDateStart] = ?,
                            [dDateEnd] = ?,
-                           [sReasons] = ?,
-                           [sStellvertreter] = ?
+                           [sReasons] = ?
                            WHERE [xnRequest] = ? AND [nEmployee] = ?"""
         """Parameters
         -----------
@@ -217,18 +239,23 @@ class Model:
         no_group_getter = """ SELECT [nEmployee]
                                                 FROM [PulseCoreTest5].[dbo].[PO_employee]
                                                 WHERE [nProduktionsGruppe] IS NULL"""
-                
-                                        
+        
         request_getter = """SELECT [xnRequest] 
                                         ,[dDateStart]
                                         ,[dDateEnd]
                                         ,[nEmployee]
                                         ,[sReasons]
                                         ,[sStatus]
+                                        ,[sStellvertreter]
+                                        ,[nStellStatus]
                                         FROM [PulseCoreTest5].[dbo].[PC_VacationsRequests]"""
+        
+        empnum_from_name_getter = """SELECT [nEmployee]
+                                                FROM [PulseCoreTest5].[dbo].[PO_employee]
+                                                WHERE [sName] = ?""" 
                                         
         holiday_getter = """SELECT [Feiertag], [Datum] 
-                                        FROM [PulseCoreTest5].[dbo].[PC_Holidays]"""
+                                        FROM [PulseCoreTest5].[dbo].[PC_holidays]"""
         
         def get_group_from_empnum(empnum):
                 Model.cursor.execute(Model.group_from_empnum_getter, empnum)
@@ -238,6 +265,8 @@ class Model:
                 Model.cursor.execute(Model.no_group_getter)
         def get_requests():
                 Model.cursor.execute(Model.request_getter)
+        def get_stellvertreter_info(stell_name):
+                Model.cursor.execute(Model.empnum_from_name_getter, stell_name)
         def get_holidays():
                 Model.cursor.execute(Model.holiday_getter)
 
