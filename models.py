@@ -210,8 +210,7 @@ class Model:
         request_updater = """UPDATE [PulseCoreTest5].[dbo].[PC_VacationsRequests]
                            SET [dDateStart] = ?,
                            [dDateEnd] = ?,
-                           [sReasons] = ?,
-                           [sStellvertreter] = ?
+                           [sReasons] = ?
                            WHERE [xnRequest] = ? AND [nEmployee] = ?"""
         """Parameters
         -----------

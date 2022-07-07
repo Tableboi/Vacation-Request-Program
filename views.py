@@ -8,6 +8,7 @@ from datetime import date
 from PIL import Image, ImageTk
 import datetime
 from datetime import timedelta
+import re
 
 from controller import Controller
 
@@ -224,8 +225,10 @@ class loginbox(ttk.Frame):
 
             status_list.append(tk.Entry(self.vert_frame.interior, width = 15, relief = 'ridge'))
 
+            antrags_list[i].config(state = 'normal')
             antrags_list[i].insert(0, str(self.entry[0]))
             antrags_list[i].grid(row = i + 1, column = 0, **pad_options)
+            antrags_list[i].config(state = 'readonly')
 
             start_list[i].insert(0, str(self.entry[1]))
             start_list[i].grid(row = i + 1, column = 1, **pad_options)
@@ -255,14 +258,13 @@ class loginbox(ttk.Frame):
             def update_button(i):
                 start_date = start_list[i].get().strip()
                 end_date = end_list[i].get().strip()
-                sStellvertreter = stell_list[i].get().strip()
                 new_reason = grund_list[i].get().strip()
                 xnRequest = antrags_list[i].get().strip()
 
                 if start_date or end_date:
                     if end_date == '':
                         end_date = start_date
-                    updated = (start_date, end_date, new_reason, sStellvertreter, xnRequest, int(login_info))
+                    updated = (start_date, end_date, new_reason, xnRequest, int(login_info))
                     Controller.update(updated)
 
             button_list.append(ttk.Button(self.vert_frame.interior, text = 'Update', width = 15, \
@@ -400,11 +402,11 @@ class request_window(ttk.Frame):
 
         self.section1 = ttk.Frame(self.Main, **frame_options)
 
-        self.L1 = ttk.Label(self.section1, text = "Personal-Nr")
+        """self.L1 = ttk.Label(self.section1, text = "Personal-Nr")
         self.L1.pack(side = 'left', **s1options)
  
         self.nEmployee = ttk.Entry(self.section1)
-        self.nEmployee.pack(side = 'left', **s1options)
+        self.nEmployee.pack(side = 'left', **s1options)"""
 
         self.L2 = ttk.Label(self.section1, text = "Urlaub am/vom")
         self.L2.pack(side = 'left', **s1options)
@@ -412,6 +414,13 @@ class request_window(ttk.Frame):
         self.dDateStart = ttk.Entry(self.section1, foreground = 'grey')
         self.dDateStart.insert(0, 'YYYY-MM-DD')
         self.dDateStart.pack(side = 'left', **s1options)
+
+        self.L3 = ttk.Label(self.section1, text = "bis einschl.")
+        self.L3.pack(side = 'left', **s1options)
+
+        self.dDateEnd = ttk.Entry(self.section1, foreground = 'grey')
+        self.dDateEnd.insert(0, 'YYYY-MM-DD')
+        self.dDateEnd.pack(side = 'left', **s1options)
          
         self.section1.grid(columnspan = 2, column = 0, row = 1, padx = 5, pady = 5, sticky = 'ns')
  
@@ -423,40 +432,21 @@ class request_window(ttk.Frame):
         s2options = {'padx' : 5, 'pady' : 5}
 
         self.section2 = ttk.Frame(self.Main, **frame_options)
-        
-        self.L3 = ttk.Label(self.section2, text = "bis einschl.")
-        self.L3.pack(side = 'left', **s2options)
-
-        self.dDateEnd = ttk.Entry(self.section2, foreground = 'grey')
-        self.dDateEnd.insert(0, 'YYYY-MM-DD')
-        self.dDateEnd.pack(side = 'left', **s2options)
 
         self.L4 = ttk.Label(self.section2, text = "Stellvertreter")
-        self.L4.pack(side = 'left', **s2options)
+        self.L4.grid(column = 0, row = 0, **s2options)
        
         self.E4 = ttk.Entry(self.section2)
-        self.E4.pack(side = 'left', **s2options)
+        self.E4.grid(column = 0, row = 1, **s2options)
+
+        self.L5 = ttk.Label(self.section2, text = "Urlaubsgrund")
+        self.L5.grid(column = 1, row = 0, **s2options)
+
+        self.T1 = ttk.Entry(self.section2, width = 20)
+        self.T1.grid(column = 1, row = 1, **s2options)
 
         self.section2.grid(columnspan = 2, column = 0, row = 2, padx = 5, pady = 5, sticky = 'ns')
- 
         # ----- Section 2
-
-
-        # ----- Section 3
-        # pack options for section 3
-        s3options = {'padx' : 5, 'pady' : 5}
-
-        self.section3 = ttk.Frame(self.Main, **frame_options)
-    
-        self.L5 = ttk.Label(self.section3, text = "Urlaubsgrund")
-        self.L5.pack(**s3options)
-
-        self.T1 = ttk.Entry(self.section3, width = 20)
-        self.T1.pack(expand = True, fill = 'x', **s3options)
-         
-        self.section3.grid(columnspan = 2, column = 0, row = 3, padx = 5, pady = 5, sticky = 'ns')
-
-        # ----- Section 3
 
         self.bottom = ttk.Frame(self.Main)
         
@@ -475,29 +465,40 @@ class request_window(ttk.Frame):
     def update_nDaysLeft(self):
         start_str = self.dDateStart.get().strip()
         end_str = self.dDateEnd.get().strip()
-        if end_str == '':
+        if end_str == '' or 'YYYY-MM-DD':
             end_str = start_str
 
-        start_date = datetime.datetime.strptime(start_str, "%Y-%m-%d").date()
-        end_date = datetime.datetime.strptime(end_str, "%Y-%m-%d").date()
-        self.delta = (end_date - start_date).days
+        try:
+            start_date = datetime.datetime.strptime(start_str, "%Y-%m-%d").date()
+            end_date = datetime.datetime.strptime(end_str, "%Y-%m-%d").date()
+            self.delta = (end_date - start_date).days
+            Controller.get_days_left(login_info)
+            self.nDaysLeft = Controller.days_left - (self.delta + 1)
 
-        Controller.get_days_left(login_info)
-        self.nDaysLeft = Controller.days_left - (self.delta + 1)
+            Controller.reduce_days(self.nDaysLeft)
 
-        Controller.reduce_days(self.nDaysLeft)
+            Controller.get_days_left(login_info)
 
-        Controller.get_days_left(login_info)
-
-        messagebox.showinfo(title = None, message = f'Resturlaub : {Controller.days_left} Tage')
+            messagebox.showinfo(title = None, message = f'Resturlaub : {Controller.days_left} Tage')
+        
+        except ValueError as error:
+            messagebox.showerror('Error', f'Date must be in YYYY-MM-DD format.\n\nError: {error}')
 
     def submit(self):
         start_date = self.dDateStart.get().strip()
         end_date = self.dDateEnd.get().strip()
         if start_date or end_date:
-            if end_date == '':
+            if end_date == '' or 'YYYY-MM-DD':
                 end_date = start_date
-            data = (start_date, end_date, self.nEmployee.get(), self.T1.get(), "geplant", self.E4.get())
+            data = (start_date, end_date, int(login_info), self.T1.get(), "geplant", self.E4.get())
+
+        if type(self.T1.get()) != str:
+            messagebox.showerror('Error', 'Invalid Grund Format')
+        if type(self.E4.get()) != str:
+            messagebox.showerror('Error', 'Invalid Stellvertreter Format')
+        else:
+            pass
+
         Controller.sub_new_info(data)
 
 class manager_view(ttk.Frame):

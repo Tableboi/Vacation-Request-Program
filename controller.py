@@ -58,8 +58,8 @@ class Controller:
         try:
             Model.submit_request(new_info)
             messagebox.showinfo("Success", "Your submission was recorded!")
-        except pyodbc.DataError as error:
-            messagebox.showerror('Error', 'Invalid date format')
+        except pyodbc.DataError:
+            messagebox.showerror('Error', 'Formatting Error')
         except pyodbc.DatabaseError as error:
             messagebox.showerror('Error', f'{error}')
 
