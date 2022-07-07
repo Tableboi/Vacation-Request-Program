@@ -8,15 +8,15 @@ from datetime import date
 from PIL import Image, ImageTk
 import datetime
 from datetime import timedelta
-
-from numpy import pad
-from controller import Controller
+import re
 
 from calendar import month
 from msilib.schema import ComboBox
 from PyQt5.QtWidgets import QTableWidgetItem
 from PyQt5.QtCore import Qt
 from PyQt5 import QtCore, QtGui, QtWidgets
+
+from controller import Controller
 
 class loginbox(ttk.Frame):
     def __init__(self, parent, controller):
@@ -30,13 +30,13 @@ class loginbox(ttk.Frame):
         self.top_frame.pack(side = 'top', fill = 'x')
 
         # Create an object of tkinter ImageTk
-        self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB.jpg'
-        self.img = Image.open(self.path)
-        self.img.thumbnail((200,200))
-        self.new_img = ImageTk.PhotoImage(self.img)
+        #self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB.jpg'
+        #self.img = Image.open(self.path)
+        #self.img.thumbnail((200,200))
+        #self.new_img = ImageTk.PhotoImage(self.img)
         # Create a Label Widget to display the text or Image
-        self.label = ttk.Label(self.top_frame, image = self.new_img)
-        self.label.pack(side = 'right')
+        #self.label = ttk.Label(self.top_frame, image = self.new_img)
+        #self.label.pack(side = 'right')
 
         #setting the font types
         header_font = tkinter.font.Font(\
@@ -66,7 +66,15 @@ class loginbox(ttk.Frame):
         self.B1.bind('<Button-1>', self.submit)
         self.B1.grid(column = 2, row = 1, sticky = "", **pad_options)
 
-        self.vert_frame = VerticalScrolledFrame(self)
+        self.vert_frame_cont = ttk.Labelframe(self, text = 'Current Requests', \
+            labelanchor = 'n', borderwidth = 4)
+        self.vert_frame = VerticalScrolledFrame(self.vert_frame_cont)
+        self.vert_frame.pack(fill = 'x')
+
+        self.vert_frame2_cont = ttk.Labelframe(self, text = 'Pending Stellvertreter Status', \
+            labelanchor = 'n', borderwidth = 4)
+        self.vert_frame2 = VerticalScrolledFrame(self.vert_frame2_cont)
+        self.vert_frame2.pack(fill = 'x')
 
         self.F2 = ttk.Frame(self.top_frame, relief = 'groove', \
             borderwidth = 2, padding = 5)
@@ -82,6 +90,10 @@ class loginbox(ttk.Frame):
                     state = 'disabled')
         self.B4.grid(column = 1, row = 0, rowspan = 2, **pad_options)
 
+        self.B5 = ttk.Button(self.F2, text = 'Schedule', \
+                command = lambda : manager_view.open_schedule(self))
+        self.B5.grid(column = 3, row = 0, rowspan = 2, **pad_options)
+                
         self.Ltage = ttk.Label(self.F2, text = 'Resturlaub:')
         self.Ltage.configure(font = subheader_font)
         self.Ltage.grid(column = 2, row = 0, **pad_options)
@@ -122,7 +134,11 @@ class loginbox(ttk.Frame):
         self.search_by_employee()
 
         #reveal vert window
-        self.vert_frame.pack(fill = 'both', expand = True)
+        self.vert_frame_cont.pack(fill = 'x')
+
+        self.start_stell_stuff()
+
+        self.vert_frame2_cont.pack(fill = 'x')
     
     def enable_empbuttons(self):
         self.B3.configure(state = 'enable')
@@ -133,7 +149,6 @@ class loginbox(ttk.Frame):
     
     def search_by_employee(self, event = None):
         Controller.search_emp(self.E1.get())
-
         #validating if the input personalnummer has entries associated with it
         if not Controller.fetched_reqs:
             for widget in self.vert_frame.interior.winfo_children():
@@ -143,6 +158,18 @@ class loginbox(ttk.Frame):
             self.LE.grid(column = 0, row = 0)
         else:
             self.search_emp()
+    
+    def start_stell_stuff(self):
+        Controller.get_stell()
+        #validating if the anyone has the user as stellvertreter
+        if not Controller.stell_reqs:
+            for widget in self.vert_frame2.interior.winfo_children():
+                widget.destroy()
+            self.LE = ttk.Label(self.vert_frame2.interior, text = \
+                    'You are not listed as Stellvertreter.')
+            self.LE.grid(column = 0, row = 0)
+        else:
+            self.stell_stuff()
     
     def search_emp(self):        
         #lists necessary for entries
@@ -208,8 +235,10 @@ class loginbox(ttk.Frame):
 
             status_list.append(tk.Entry(self.vert_frame.interior, width = 15, relief = 'ridge'))
 
+            antrags_list[i].config(state = 'normal')
             antrags_list[i].insert(0, str(self.entry[0]))
             antrags_list[i].grid(row = i + 1, column = 0, **pad_options)
+            antrags_list[i].config(state = 'readonly')
 
             start_list[i].insert(0, str(self.entry[1]))
             start_list[i].grid(row = i + 1, column = 1, **pad_options)
@@ -239,19 +268,119 @@ class loginbox(ttk.Frame):
             def update_button(i):
                 start_date = start_list[i].get().strip()
                 end_date = end_list[i].get().strip()
-                sStellvertreter = stell_list[i].get().strip()
                 new_reason = grund_list[i].get().strip()
                 xnRequest = antrags_list[i].get().strip()
 
                 if start_date or end_date:
                     if end_date == '':
                         end_date = start_date
-                    updated = (start_date, end_date, new_reason, sStellvertreter, xnRequest, int(login_info))
+                    updated = (start_date, end_date, new_reason, xnRequest, int(login_info))
                     Controller.update(updated)
 
             button_list.append(ttk.Button(self.vert_frame.interior, text = 'Update', width = 15, \
                 command = lambda i=i : update_button(i)))
             button_list[i].grid(row = i + 1, column = 6, **pad_options)
+    
+    def stell_stuff(self):
+        #lists necessary for entries
+        self.entries = []
+
+        #first clear the frame that the entry widgets will fill
+        for widget in self.vert_frame2.interior.winfo_children():
+            widget.destroy()
+
+        column_headers = {'borderwidth' : 1, 'relief' : 'flat', 'background' : 'white', 'foreground' : 'black'}
+        column_font = tkinter.font.Font(family = "Helvetica", size = 11)
+
+        self.L1 = ttk.Label(self.vert_frame2.interior, text = 'Antragsnummer', **column_headers)
+        self.L1.config(font = column_font)
+        self.L1.grid(column = 0, row = 0)
+
+        self.L2 = ttk.Label(self.vert_frame2.interior, text = 'Startdatum', **column_headers)
+        self.L2.config(font = column_font)
+        self.L2.grid(column = 1, row = 0)
+
+        self.L3 = ttk.Label(self.vert_frame2.interior, text = 'Endedatum', **column_headers)
+        self.L3.config(font = column_font)
+        self.L3.grid(column = 2, row = 0)
+
+        self.L4 = ttk.Label(self.vert_frame2.interior, text = 'Antragssteller', **column_headers)
+        self.L4.config(font = column_font)
+        self.L4.grid(column = 3, row = 0)
+
+        self.L5 = ttk.Label(self.vert_frame2.interior, text = 'Grund', **column_headers)
+        self.L5.config(font = column_font)
+        self.L5.grid(column = 4, row = 0)
+
+        self.L6 = ttk.Label(self.vert_frame2.interior, text = 'Status', **column_headers)
+        self.L6.config(font = column_font)
+        self.L6.grid(column = 5, row = 0)
+        
+        #Controller.search_emp(int(login_info))
+        row_len = len(Controller.stell_reqs)
+
+        antrags_list = []
+        start_list = []
+        end_list = []
+        stell_list = []
+        grund_list = []
+        status_list = []
+        yesbutton_list = []
+        nobutton_list = []
+
+        for i in range(0, row_len, 1):
+            pad_options = {'padx' : 5, 'pady' : 5}
+            self.entry = Controller.stell_reqs[i]
+            
+            #must use tk.Entry instead of ttk because background and foreground
+            # colors are not changable with ttk
+            antrags_list.append(tk.Entry(self.vert_frame2.interior, width = 15, relief = 'ridge'))
+
+            start_list.append(tk.Entry(self.vert_frame2.interior, width = 15, relief = 'ridge'))
+
+            end_list.append(tk.Entry(self.vert_frame2.interior, width = 15, relief = 'ridge'))
+            
+            stell_list.append(tk.Entry(self.vert_frame2.interior, width = 15, relief = 'ridge'))
+
+            grund_list.append(tk.Entry(self.vert_frame2.interior, width = 15, relief = 'ridge'))
+
+            status_list.append(tk.Entry(self.vert_frame2.interior, width = 15, relief = 'ridge'))
+
+            antrags_list[i].insert(0, str(self.entry[0]))
+            antrags_list[i].grid(row = i + 1, column = 0, **pad_options)
+
+            start_list[i].insert(0, str(self.entry[1]))
+            start_list[i].grid(row = i + 1, column = 1, **pad_options)
+
+            end_list[i].insert(0, str(self.entry[2]))
+            end_list[i].grid(row = i +1, column = 2, **pad_options)
+
+            stell_list[i].insert(0, str(self.entry[3]))
+            stell_list[i].grid(row = i + 1, column = 3, **pad_options)
+
+            grund_list[i].insert(0, str(self.entry[4]))
+            grund_list[i].grid(row = i + 1, column = 4, **pad_options)
+
+            status_list[i].insert(0, str(self.entry[5]))
+            if str(self.entry[5]) == 'bestätigt':
+                status_list[i].config(background = '#90EE90')
+            elif str(self.entry[5]) == 'geplant':
+                status_list[i].config(background = 'yellow')
+            status_list[i].grid(row = i + 1, column = 5, **pad_options)
+
+            def stell_status_button(i, sStellStatus):
+                xnRequest = antrags_list[i].get().strip()
+                Controller.update_stell(sStellStatus, xnRequest)
+                self.start_stell_stuff()
+
+            yesbutton_list.append(ttk.Button(self.vert_frame2.interior, text = 'Confirm', width = 15, \
+                command = lambda i=i : stell_status_button(i, 1)))
+            yesbutton_list[i].grid(row = i + 1, column = 6, **pad_options)
+
+            nobutton_list.append(ttk.Button(self.vert_frame2.interior, text = 'Deny', width = 15, \
+                command = lambda i=i : stell_status_button(i, 2)))
+            nobutton_list[i].grid(row = i + 1, column = 7, **pad_options)
+
             
 class request_window(ttk.Frame):
     def __init__(self, parent, controller):
@@ -269,38 +398,39 @@ class request_window(ttk.Frame):
         self.title_label.grid(column = 0, row = 0, padx = 5, pady = 5)
 
         # Create an object of tkinter ImageTk
-        self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB.jpg'
-        self.img = Image.open(self.path)
-        self.img.thumbnail((200,200))
-        self.new_img = ImageTk.PhotoImage(self.img)
+        #self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB.jpg'
+        #self.img = Image.open(self.path)
+        #self.img.thumbnail((200,200))
+        #self.new_img = ImageTk.PhotoImage(self.img)
         # Create a Label Widget to display the text or Image
-        self.label = ttk.Label(self.Main, image = self.new_img)
-        self.label.grid(column = 1, row = 0, padx = 5, pady = 5)
+        #self.label = ttk.Label(self.Main, image = self.new_img)
+        #self.label.grid(column = 1, row = 0, padx = 5, pady = 5)
 
         # ----- Section 1
         # pack options for section 1
         s1options = {'padx' : 5, 'pady' : 5}
 
         self.section1 = ttk.Frame(self.Main, **frame_options)
- 
-        self.L1 = ttk.Label(self.section1, text = "Name:")
-        self.L1.grid(column = 0, row = 0, **s1options)
- 
-        self.E1 = ttk.Entry(self.section1)
-        self.E1.grid(column = 1, row = 0, **s1options)
- 
-        self.L2 = ttk.Label(self.section1, text = "Vorname:")
-        self.L2.grid(column = 2, row = 0, **s1options)
- 
-        self.E2 = ttk.Entry(self.section1)
-        self.E2.grid(column = 3, row = 0, **s1options)
 
-        self.L3 = ttk.Label(self.section1, text = "Abteilung:")
-        self.L3.grid(column = 4, row = 0, **s1options)
+        """self.L1 = ttk.Label(self.section1, text = "Personal-Nr")
+        self.L1.pack(side = 'left', **s1options)
+ 
+        self.nEmployee = ttk.Entry(self.section1)
+        self.nEmployee.pack(side = 'left', **s1options)"""
 
-        self.E3 = ttk.Entry(self.section1)
-        self.E3.grid(column = 5, row = 0, **s1options)
-        
+        self.L2 = ttk.Label(self.section1, text = "Urlaub am/vom")
+        self.L2.pack(side = 'left', **s1options)
+
+        self.dDateStart = ttk.Entry(self.section1, foreground = 'grey')
+        self.dDateStart.insert(0, 'YYYY-MM-DD')
+        self.dDateStart.pack(side = 'left', **s1options)
+
+        self.L3 = ttk.Label(self.section1, text = "bis einschl.")
+        self.L3.pack(side = 'left', **s1options)
+
+        self.dDateEnd = ttk.Entry(self.section1, foreground = 'grey')
+        self.dDateEnd.insert(0, 'YYYY-MM-DD')
+        self.dDateEnd.pack(side = 'left', **s1options)
          
         self.section1.grid(columnspan = 2, column = 0, row = 1, padx = 5, pady = 5, sticky = 'ns')
  
@@ -312,115 +442,21 @@ class request_window(ttk.Frame):
         s2options = {'padx' : 5, 'pady' : 5}
 
         self.section2 = ttk.Frame(self.Main, **frame_options)
-        
-        self.L4 = ttk.Label(self.section2, text = "Personal-Nr:")
-        self.L4.grid(column = 0, row = 0, **s2options)
-        
-        ## ---- nEmployee
-       
-        self.nEmployee = ttk.Entry(self.section2)
-        self.nEmployee.grid(column = 1, row = 0, **s2options)
-        
-        ## ---- nEmployee
 
-        self.L5 = ttk.Label(self.section2, text = "Stellvertreter:")
-        self.L5.grid(column = 2, row = 0, **s2options)
- 
-        self.E5 = ttk.Entry(self.section2)
-        self.E5.grid(column = 3, row = 0, **s2options)
- 
-        self.L6 = ttk.Label(self.section2, text = "Resturlaub:")
-        self.L6.grid(column = 4, row = 0, **s2options)
- 
-        self.E6 = ttk.Entry(self.section2)
-        self.E6.grid(column = 5, row = 0, **s2options)
-        ## ---- nEmployee
+        self.L4 = ttk.Label(self.section2, text = "Stellvertreter")
+        self.L4.grid(column = 0, row = 0, **s2options)
+       
+        self.E4 = ttk.Entry(self.section2)
+        self.E4.grid(column = 0, row = 1, **s2options)
+
+        self.L5 = ttk.Label(self.section2, text = "Urlaubsgrund")
+        self.L5.grid(column = 1, row = 0, **s2options)
+
+        self.T1 = ttk.Entry(self.section2, width = 20)
+        self.T1.grid(column = 1, row = 1, **s2options)
 
         self.section2.grid(columnspan = 2, column = 0, row = 2, padx = 5, pady = 5, sticky = 'ns')
- 
         # ----- Section 2
-
-
-        # ----- Section 3
-        # pack options for section 3
-        s3options = {'padx' : 5, 'pady' : 5}
-
-        self.section3 = ttk.Frame(self.Main, **frame_options)
-    
-        self.L7 = ttk.Label(self.section3, text = "Urlaub am/vom")
-        self.L7.grid(column = 0, row = 0, **s3options)
-
-        ## ---- dDateStart
-
-        self.dDateStart = ttk.Entry(self.section3)
-        self.dDateStart.grid(column = 1, row = 0, **s3options)
-
-        ## ---- dDateStart
-
-        self.L8 = ttk.Label(self.section3, text = "bis einschl.")
-        self.L8.grid(column = 2, row = 0, **s3options)
-        
-        ## ---- dDateEnd
-        
-        self.dDateEnd = ttk.Entry(self.section3)
-        self.dDateEnd.grid(column = 3, row = 0, **s3options)
-               
-    
-        ## ---- dDateEnd
-        
-        self.L9 = ttk.Label(self.section3, text = "Urlaubsdauer (Anzahl der  Arbeitstage)")
-        self.L9.grid(column = 4, row = 0, **s3options)
- 
-        self.E9 = ttk.Entry(self.section3, width = 6)
-        self.E9.grid(column = 5, row = 0, **s3options)
-         
-        self.section3.grid(columnspan = 2, column = 0, row = 3, padx = 5, pady = 5, sticky = 'ns')
-       
-        # ----- Section 3
-    
-       
-        # ------ Section 4
-        # pad options for section 4
-        s4options = {'padx' : 5, 'pady' : 5}
-
-        self.section4 = ttk.Frame(self.Main)
-        
-        ## ---- Section 4 sub-frame 1
-
-        self.section4_1 = ttk.Frame(self.section4, **frame_options)        
- 
-        self.L10 = ttk.Label(self.section4_1, text = "Urlaubsgrund:")
-        self.L10.pack(padx = 5, pady = 5)
-
-        self.T1 = tk.Text(self.section4_1, height = 2, width = 20)
-        self.T1.pack(padx =5, pady = 5, expand = True, fill = 'x')
-
-        self.section4_1.grid(column = 0, row = 0, **s4options)
- 
-        ## ---- Section 4 sub-frame 1
- 
- 
-        ## ---- Section 4 sub-frame 2
-         
-        self.section4_2 = ttk.Frame(self.section4, **frame_options)        
- 
-        self.L12 = ttk.Label(self.section4_2, text = "Nach Jahresplanung:")
-        self.L12.pack(padx = 5, pady = 5)
-              
-        self.Rvar2 = tk.IntVar()
-
-        self.R3 = ttk.Radiobutton(self.section4_2, text = "Ja", variable = self.Rvar2, value = 3)
-        self.R3.pack(padx = 5, pady = 5)
-        self.R4 = ttk.Radiobutton(self.section4_2, text = "Nein", variable = self.Rvar2, value = 4)
-        self.R4.pack(padx = 5, pady = 5)
-      
-        self.section4_2.grid(column = 1, row = 0, **s4options)
-         
-        ## ---- Section 4 sub-frame 2
-
-        self.section4.grid(columnspan = 2, column = 0 , row = 4, padx = 5, pady = 5, sticky = 'ns')
-
-        ## ----- Section 4
 
         self.bottom = ttk.Frame(self.Main)
         
@@ -432,41 +468,47 @@ class request_window(ttk.Frame):
             command = lambda : controller.show_frame(loginbox))
         self.B2.pack(padx = 5, pady = 5, side = 'left')
 
-        self.bottom.grid(columnspan = 2, column = 0, row = 6, sticky = 'ns')
+        self.bottom.grid(columnspan = 2, column = 0, row = 4, sticky = 'ns')
  
         self.Main.pack(fill = 'y')
 
     def update_nDaysLeft(self):
         start_str = self.dDateStart.get().strip()
         end_str = self.dDateEnd.get().strip()
-        if end_str == '':
+        if end_str == '' or 'YYYY-MM-DD':
             end_str = start_str
 
-        start_date = datetime.datetime.strptime(start_str, "%Y-%m-%d").date()
-        end_date = datetime.datetime.strptime(end_str, "%Y-%m-%d").date()
-        self.delta = (end_date - start_date).days
+        try:
+            start_date = datetime.datetime.strptime(start_str, "%Y-%m-%d").date()
+            end_date = datetime.datetime.strptime(end_str, "%Y-%m-%d").date()
+            self.delta = (end_date - start_date).days
+            Controller.get_days_left(login_info)
+            self.nDaysLeft = Controller.days_left - (self.delta + 1)
 
-        Controller.get_days_left(login_info)
-        self.nDaysLeft = Controller.days_left - (self.delta + 1)
+            Controller.reduce_days(self.nDaysLeft)
 
-        Controller.reduce_days(self.nDaysLeft)
+            Controller.get_days_left(login_info)
 
-        Controller.get_days_left(login_info)
-
-        """self.E10.config(state = 'enabled')
-        self.E10.delete(0, "end")
-        self.E10.insert(0, [Controller.days_left])
-        self.E10.config(state = 'disabled')"""
-
-        messagebox.showinfo(title = None, message = f'Resturlaub : {Controller.days_left} Tage')
+            messagebox.showinfo(title = None, message = f'Resturlaub : {Controller.days_left} Tage')
+        
+        except ValueError as error:
+            messagebox.showerror('Error', f'Date must be in YYYY-MM-DD format.\n\nError: {error}')
 
     def submit(self):
         start_date = self.dDateStart.get().strip()
         end_date = self.dDateEnd.get().strip()
         if start_date or end_date:
-            if end_date == '':
+            if end_date == '' or 'YYYY-MM-DD':
                 end_date = start_date
-            data = (start_date, end_date, self.nEmployee.get(), self.T1.get("1.0", "end"), "geplant", self.E5.get())
+            data = (start_date, end_date, int(login_info), self.T1.get(), "geplant", self.E4.get())
+
+        if type(self.T1.get()) != str:
+            messagebox.showerror('Error', 'Invalid Grund Format')
+        if type(self.E4.get()) != str:
+            messagebox.showerror('Error', 'Invalid Stellvertreter Format')
+        else:
+            pass
+
         Controller.sub_new_info(data)
 
 class manager_view(ttk.Frame):
@@ -486,14 +528,14 @@ class manager_view(ttk.Frame):
         self.Headerframe.columnconfigure(6, weight = 2)
 
         # Create an object of tkinter ImageTk
-        self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB.jpg'
-        self.img = Image.open(self.path)
-        self.img.thumbnail((200,200))
-        self.new_img = ImageTk.PhotoImage(self.img)
+        #self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB.jpg'
+        #self.img = Image.open(self.path)
+        #self.img.thumbnail((200,200))
+        #self.new_img = ImageTk.PhotoImage(self.img)
         # Create a Label Widget to display the text or Image
-        self.label = ttk.Label(self.Headerframe, image = self.new_img)
-        self.label.grid(rowspan = 2, column = 6, row = 0, \
-            padx = 10, pady = 20, sticky = 'e')
+        #self.label = ttk.Label(self.Headerframe, image = self.new_img)
+        #self.label.grid(rowspan = 2, column = 7, row = 0, \
+        #    padx = 10, pady = 20, sticky = 'e')
 
         self.label = ttk.Label(self.Headerframe, text = "Manager Request Search")
         self.label.configure(font = header_font)
@@ -523,6 +565,10 @@ class manager_view(ttk.Frame):
         self.Bhf3 = ttk.Button(self.Headerframe, text = "View Schedule", \
             command = lambda : manager_view.open_schedule(self))
         self.Bhf3.grid(column = 5, row = 1, padx = 10, pady = 10)
+        
+        self.Bhf4 = ttk.Button(self.Headerframe, text = 'Return', \
+            command = lambda : controller.show_frame(loginbox))
+        self.Bhf4.grid(column = 6, row = 1, padx = 10, pady = 10)
 
         #entry box master frame
         self.F1 = VerticalScrolledFrame(self)
@@ -664,6 +710,10 @@ class manager_view(ttk.Frame):
             delete_button_list[i].grid(row = i + 1, column = 8, **pad_options)
     
     def unseen_view(self):
+        #first clear the frame that the entry widgets will fill
+        for widget in self.F1.interior.winfo_children():
+            widget.destroy()
+        
         Controller.get_unseen()
 
         if not Controller.fetched_reqs:
@@ -675,10 +725,6 @@ class manager_view(ttk.Frame):
         row_len = len(Controller.fetched_reqs)
         #list necessary for entries
         self.entries = []
-
-        #first clear the frame that the entry widgets will fill
-        for widget in self.F1.interior.winfo_children():
-            widget.destroy()
 
         column_headers = {'borderwidth' : 1, 'relief' : 'flat', 'background' : 'white', 'foreground' : 'black'}
         column_font = tkinter.font.Font(family = "Helvetica", size = 11)
@@ -719,7 +765,7 @@ class manager_view(ttk.Frame):
         status_list = []
         emp_list = []
         button_list = []
-        delete_button_list = []
+        mark_seen_button_list = []
 
         for i in range(0, row_len, 1):
             pad_options = {'padx' : 5, 'pady' : 5}
@@ -792,9 +838,9 @@ class manager_view(ttk.Frame):
                 Controller.set_seen(int(antrags_list[i].get()))
                 self.unseen_view()
             
-            delete_button_list.append(ttk.Button(self.F1.interior, text = 'Mark as Seen', \
+            mark_seen_button_list.append(ttk.Button(self.F1.interior, text = 'Mark as Seen', \
                 width = 15, command = lambda i=i : mark_seen_button(i)))
-            delete_button_list[i].grid(row = i + 1, column = 8, **pad_options)
+            mark_seen_button_list[i].grid(row = i + 1, column = 8, **pad_options)
             
 
 
@@ -927,7 +973,56 @@ class manager_view(ttk.Frame):
                 width = 10, command = lambda i=i : delete_button(i)))
             delete_button_list[i].grid(row = i + 1, column = 8, **pad_options)
 
-#schedule using pyqt5
+class TableModel(QtCore.QAbstractTableModel):
+    def __init__(self, data):
+        super(TableModel, self).__init__()
+        self._data = data
+        Controller.create_table()
+    
+    def data(self, index, role):
+        #index gives location in the table for which info is currently being requested. .row() and .column()
+        #role describes what kind of info the method should return on thi call. QtDisplayRole expects a str.
+        if role == Qt.DisplayRole:
+            #.row() indexes into the outer list
+            #.column() indexes into the sub-list
+            value = self._data[index.row()][index.column()]
+            return value
+            #if isinstance(value, datetime.datetime):
+                #return value.strftime('%d-%m-%Y')
+        if role == Qt.BackgroundRole:
+            value = self._data[index.row()][index.column()]
+            if value == 'Wochenende':
+                return QtGui.QColor('light gray')
+            if value == 'Feiertag':
+                return QtGui.QColor('light blue')
+            if value == 'geplant':
+                return QtGui.QColor('yellow')
+            if value == 'bestätigt':
+                return QtGui.QColor('light green')
+            if value == 'Stellvertreter':
+                return QtGui.QColor('#dcd0ff')
+            if value == 'Stellvertreter?':
+                return QtGui.QColor('#ffb6c1')
+            else:
+                return value
+            #return value #default anything else
+        #if role == Qt.BackgroundRole:
+            #return QtGui.QColor('gray')
+         
+    def rowCount(self, index):
+        return len(Controller.list_of_emp_numbers)
+        
+    
+    def columnCount(self, index = None):
+        return len(Controller.headers)
+    
+    def headerData(self, section, orientation, role = QtCore.Qt.DisplayRole):
+        if orientation == QtCore.Qt.Horizontal and role == QtCore.Qt.DisplayRole:
+            return Controller.headers[section]
+        if orientation == QtCore.Qt.Vertical and role == QtCore.Qt.DisplayRole:
+            return 'Employee {}'.format(Controller.list_of_emp_numbers[section])
+        return QtCore.QAbstractTableModel.headerData(self, section, orientation, role)
+    
 class Ui_Form(object):
     #def __init__(self):
         #Form.setAttribute(QtCore.Qt.WA_DeleteOnClose)
@@ -999,7 +1094,8 @@ class Ui_Form(object):
         if empnum not in Controller.manager_empnums:
             Controller.get_group_from_empnum(empnum)
         if empnum in Controller.manager_empnums:
-            Controller.selected_group.append(0)  
+            Controller.selected_group.append(0)
+          
         self.tableWidget = QtWidgets.QTableView(self.layoutWidget) 
         self.tableWidget.setObjectName("tableWidget")
         
@@ -1009,7 +1105,7 @@ class Ui_Form(object):
         self.verticalLayout_2.addLayout(self.verticalLayout) 
         self.tableWidget.setModel(self.model) 
         for i in range(TableModel.columnCount(TableModel)):
-            self.tableWidget.setColumnWidth(i, 55)
+            self.tableWidget.setColumnWidth(i, 80)
         self.model.setHeaderData(2, QtCore.Qt.Horizontal, 'hello', QtCore.Qt.DisplayRole)
         
         
@@ -1072,54 +1168,13 @@ class Ui_Form(object):
         
     def change_year(self):
         year_selection = int(self.comboBox_3.currentText())
-        print(year_selection)
+        #print(year_selection)
         data = Controller.data_values
         Controller.selected_year.clear()
         Controller.selected_year.append(year_selection)
         self.model = TableModel(data)
         self.tableWidget.setModel(self.model)
         #print('changing year')
-        
-class TableModel(QtCore.QAbstractTableModel):
-    def __init__(self, data):
-        super(TableModel, self).__init__()
-        self._data = data
-        Controller.create_table()
-    
-    def data(self, index, role):
-        #index gives location in the table for which info is currently being requested. .row() and .column()
-        #role describes what kind of info the method should return on thi call. QtDisplayRole expects a str.
-        if role == Qt.DisplayRole:
-            #.row() indexes into the outer list
-            #.column() indexes into the sub-list
-            value = self._data[index.row()][index.column()]
-            return value
-        if role == Qt.BackgroundRole:
-            value = self._data[index.row()][index.column()]
-            if value == 'weekend':
-                return QtGui.QColor('light gray')
-            if value == 'holiday':
-                return QtGui.QColor('light blue')
-            if value == 'geplant':
-                return QtGui.QColor('yellow')
-            if value == 'bestätigt':
-                return QtGui.QColor('light green')
-            else:
-                return value
-         
-    def rowCount(self, index):
-        return len(Controller.list_of_emp_numbers)
-        
-    
-    def columnCount(self, index = None):
-        return len(Controller.headers)
-    
-    def headerData(self, section, orientation, role = QtCore.Qt.DisplayRole):
-        if orientation == QtCore.Qt.Horizontal and role == QtCore.Qt.DisplayRole:
-            return Controller.headers[section]
-        if orientation == QtCore.Qt.Vertical and role == QtCore.Qt.DisplayRole:
-            return 'Employee {}'.format(Controller.list_of_emp_numbers[section])
-        return QtCore.QAbstractTableModel.headerData(self, section, orientation, role)
 
 #The below frame is needed for the manager_view and employee_req_view
 # scrollbar frames
