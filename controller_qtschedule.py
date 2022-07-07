@@ -3,9 +3,9 @@ import pyodbc
 import datetime
 from datetime import timedelta
 import re
-from calendar import month
 
 from tkinter import messagebox
+from calendar import  month
 
 from models import Model
 
@@ -23,11 +23,31 @@ class Controller:
 
     #submit button
     user_id = int()
+    user_name = str
+    user_info = []
     def login(login_info):
         try:
             Model.infofetch(login_info)
             user_info = Model.cursor.fetchone()
             Controller.user_id = user_info[2]
+            Controller.user_name = user_info[1]
+        except pyodbc.Error as error:
+            messagebox.showerror('Error', f'{error}')
+    
+
+    #get stellvertreter personalnummer
+    stell_reqs = []
+    def get_stell():
+        try:
+            Model.check_stell(Controller.user_name)
+            Controller.stell_reqs = Model.cursor.fetchall()
+        except pyodbc.Error as error:
+            messagebox.showerror('Error', f'{error}')
+
+    #update stell status
+    def update_stell(nStellStatus, xnRequest):
+        try:
+            Model.update_stell(nStellStatus, xnRequest)
         except pyodbc.Error as error:
             messagebox.showerror('Error', f'{error}')
     
@@ -39,8 +59,9 @@ class Controller:
     def sub_new_info(new_info):
         try:
             Model.submit_request(new_info)
-        except pyodbc.DataError as error:
-            messagebox.showerror('Error', 'Invalid date format')
+            messagebox.showinfo("Success", "Your submission was recorded!")
+        except pyodbc.DataError:
+            messagebox.showerror('Error', 'Formatting Error')
         except pyodbc.DatabaseError as error:
             messagebox.showerror('Error', f'{error}')
 
@@ -134,24 +155,15 @@ class Controller:
     # ---- schedule
 
     #initialization list
-    
     current_date = datetime.datetime.now()    
     current_month = datetime.datetime.now().month
     current_year = datetime.datetime.now().year
-    
+
     ProduktionsGruppe = {0:'Wissenträger', 1:'Produktions Gruppe 1', 2:'Produktions Gruppe 2', 
                      3:'Produktions Gruppe 3', 4:'Produktions Gruppe 4', 5:'Produktionsunterstützung',
                      6: 'Keine Gruppe'}
-        
-    #months = {0:'Januar', 1:'Februar', 2:'März', 3:'April', 4:'Mai', 5:'Juni', 
-        #6:'Juli', 7:'August', 8:'September', 9:'Oktober', 10:'November', 11:'Dezember'}
-    
     years = {0:current_year, 1:current_year + 1, 2: current_year + 2, 3: current_year + 3, 
                  4:current_year + 4, 5:current_year + 5}
-
-    #number_of_days = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-    
-    #list_of_number_lists = []
     list_of_holiday_dates = []
     list_of_emp_numbers = []
     headers = []
@@ -162,13 +174,16 @@ class Controller:
     request_list_raw = []
     request_dictionary = {}
 
+    login_empnum = []
     manager_empnums = [905] 
     
-    #methods
+    def __init__(self, model, view):
+        self.model = model
+        self.view = view    
+        
     def get_group_from_empnum(empnum):
         Model.get_group_from_empnum(empnum)
         pyodbc_row = Model.cursor.fetchall()
-        #print(pyodbc_row)
         if (str(pyodbc_row)[2]) == 'N':
             Controller.selected_group.append(6)
         else:
@@ -212,17 +227,29 @@ class Controller:
         Controller.request_list_raw = Model.cursor.fetchall()
         for item in Controller.request_list_raw:
             selected_employee_number = item[3]
-            if selected_employee_number in Controller.list_of_emp_numbers:
-                        Controller.request_dictionary[item[0]] = [selected_employee_number, item[1].strftime('%Y.' + '%m.' + '%d')]
-                        start_date = item[1]
-                        end_date = item[2]
-                        daterangelist = Controller.date_range(start_date, end_date)
-                
-                        for i in range(0, len(daterangelist)):
-                            Controller.request_dictionary[item[0] + (i * .01)] = [selected_employee_number, 
-                                                daterangelist[i].strftime('%Y.' + '%m.' + '%d'), item[5]]
+            if item[6] is None:
+                pass
+            elif item[6] == 'None':
+                pass
             else:
-                    pass
+                Model.get_stellvertreter_info(item[6])
+                selected_stellvertreter_info = str(Model.cursor.fetchall())
+                selected_stellvertreter_numberstr = ''
+                for m in selected_stellvertreter_info:
+                    if m.isdigit():
+                        selected_stellvertreter_numberstr = selected_stellvertreter_numberstr + m
+                        selected_stellvertreter_number = int(selected_stellvertreter_numberstr)         
+                if selected_employee_number in Controller.list_of_emp_numbers:
+                            Controller.request_dictionary[item[0]] = [selected_employee_number, item[1].strftime('%Y.' + '%m.' + '%d')]
+                            start_date = item[1]
+                            end_date = item[2]
+                            daterangelist = Controller.date_range(start_date, end_date)
+                            for i in range(0, len(daterangelist)):
+                                Controller.request_dictionary[item[0] + (i * .01)] = [selected_employee_number, 
+                                                    daterangelist[i].strftime('%Y.' + '%m.' + '%d'), item[5], 
+                                                    selected_stellvertreter_number, item[7]]
+                else:
+                        pass
         
     def get_dates_for_headers():    
         Controller.headers.clear()
@@ -241,10 +268,10 @@ class Controller:
         for ii in range(0, len(Controller.list_of_emp_numbers)):
             data_list = []
             for i in range(0, len(Controller.headers)):
-                weekend = set([5, 6])
+                Wochenende = set([5, 6])
                 if datetime.datetime(int(Controller.selected_year[0]), 
-                                     int(Controller.selected_month[0]), i + 1).weekday() in weekend:
-                    data_list.append('weekend')
+                                     int(Controller.selected_month[0]), i + 1).weekday() in Wochenende:
+                    data_list.append('Wochenende')
                 else:
                     data_list.append(' ')
             
@@ -254,7 +281,7 @@ class Controller:
                 yearentered = item[0:4:1]
                 if int(monthentered) == Controller.selected_month[0]:
                     if int(yearentered) == Controller.selected_year[0]:
-                        data_list[int(dayentered) - 1] = 'holiday'
+                        data_list[int(dayentered) - 1] = 'Feiertag'
             data_tuple = tuple(data_list)
             Controller.data_values.append(data_tuple)
        
@@ -264,6 +291,8 @@ class Controller:
             number_entered = req_list[0]
             dateentered = req_list[1]
             status = req_list[2]
+            stell_num = req_list[3]
+            stell_status = req_list[4]
             
             dayentered = (dateentered[8:10:1]).lstrip('0')
             monthentered = (dateentered[5:7:1]).lstrip('0')
@@ -285,6 +314,27 @@ class Controller:
                         pass
                 else:
                     pass
+                if stell_num == item:
+                    nameindex = Controller.list_of_emp_numbers.index(stell_num)    
+                else:
+                    nameindex = None
+                if int(monthentered) == Controller.selected_month[0] and int(
+                    yearentered) == Controller.selected_year[0] and nameindex != None:
+                    data_list = list(Controller.data_values[nameindex])
+                    if data_list[int(dayentered) - 1] == ' ':
+                        if stell_status == 1:
+                            data_list[int(dayentered) - 1] = 'Stellvertreter'  
+                        elif stell_status == 0:
+                            data_list[int(dayentered) - 1] = 'Stellvertreter?'
+                        else:
+                            pass
+                        data_tuple = tuple(data_list)
+                        Controller.data_values[nameindex] = data_tuple
+                    else:
+                        pass
+                else:
+                    pass 
+
     # ---- schedule
 
     #dont know yet
