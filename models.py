@@ -228,47 +228,36 @@ class Model:
         # ---- employee_req_view
         
         # ---- schedule
-        group_from_empnum_getter = """SELECT [nProduktionsGruppe]
-                            FROM [PulseCoreTest5].[dbo].[PO_employee]
-                            WHERE [nEmployee] = ?""" 
-                                   
         number_getter = """SELECT [nEmployee]
-                                FROM [PulseCoreTest5].[dbo].[PO_employee]
-                                        WHERE [nProduktionsGruppe] = ?"""
-                                        
+                            FROM [PulseCoreTest5].[dbo].[PO_employee]
+                            WHERE [nProduktionsGruppe] = ?"""
+        
         no_group_getter = """ SELECT [nEmployee]
-                                                FROM [PulseCoreTest5].[dbo].[PO_employee]
-                                                WHERE [nProduktionsGruppe] IS NULL"""
+                                        FROM [PulseCoreTest5].[dbo].[PO_employee]
+                                        WHERE [nProduktionsGruppe] IS NULL"""
         
-        request_getter = """SELECT [xnRequest] 
-                                        ,[dDateStart]
-                                        ,[dDateEnd]
-                                        ,[nEmployee]
-                                        ,[sReasons]
-                                        ,[sStatus]
-                                        ,[sStellvertreter]
-                                        ,[nStellStatus]
-                                        FROM [PulseCoreTest5].[dbo].[PC_VacationsRequests]"""
-        
-        empnum_from_name_getter = """SELECT [nEmployee]
-                                                FROM [PulseCoreTest5].[dbo].[PO_employee]
-                                                WHERE [sName] = ?""" 
-                                        
         holiday_getter = """SELECT [Feiertag], [Datum] 
-                                        FROM [PulseCoreTest5].[dbo].[PC_holidays]"""
+                                FROM [PulseCoreTest5].[dbo].[PC_Holidays]"""
+                                
+        request_getter = """SELECT [xnRequest] 
+                                ,[dDateStart]
+                                ,[dDateEnd]
+                                ,[nEmployee]
+                                ,[sReasons]
+                                ,[sStatus]
+                                FROM [PulseCoreTest5].[dbo].[PC_VacationsRequests]"""
         
-        def get_group_from_empnum(empnum):
-                Model.cursor.execute(Model.group_from_empnum_getter, empnum)
-        def get_emp_list(produktionsgruppe):
-                Model.cursor.execute(Model.number_getter, produktionsgruppe)
-        def get_no_group_list():
-                Model.cursor.execute(Model.no_group_getter)
-        def get_requests():
-                Model.cursor.execute(Model.request_getter)
-        def get_stellvertreter_info(stell_name):
-                Model.cursor.execute(Model.empnum_from_name_getter, stell_name)
         def get_holidays():
                 Model.cursor.execute(Model.holiday_getter)
+
+        def get_emp_list(produktionsgruppe):
+                Model.cursor.execute(Model.number_getter, produktionsgruppe)
+        
+        def get_no_group_list():
+                Model.cursor.execute(Model.no_group_getter)
+        
+        def get_requests():
+                Model.cursor.execute(Model.request_getter)
 
         # ---- schedule
 
