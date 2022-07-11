@@ -10,6 +10,12 @@ import datetime
 from datetime import timedelta
 import re
 
+from calendar import month
+from msilib.schema import ComboBox
+from PyQt5.QtWidgets import QTableWidgetItem
+from PyQt5.QtCore import Qt
+from PyQt5 import QtCore, QtGui, QtWidgets
+
 from controller import Controller
 
 class loginbox(ttk.Frame):
@@ -28,7 +34,7 @@ class loginbox(ttk.Frame):
         self.img = Image.open(self.path)
         self.img.thumbnail((200,200))
         self.new_img = ImageTk.PhotoImage(self.img)
-        # Create a Label Widget to display the text or Image
+        #Create a Label Widget to display the text or Image
         self.label = ttk.Label(self.top_frame, image = self.new_img)
         self.label.pack(side = 'right')
 
@@ -84,6 +90,10 @@ class loginbox(ttk.Frame):
                     state = 'disabled')
         self.B4.grid(column = 1, row = 0, rowspan = 2, **pad_options)
 
+        self.B5 = ttk.Button(self.F2, text = 'Schedule', \
+                command = lambda : manager_view.open_schedule(self))
+        self.B5.grid(column = 3, row = 0, rowspan = 2, **pad_options)
+                
         self.Ltage = ttk.Label(self.F2, text = 'Resturlaub:')
         self.Ltage.configure(font = subheader_font)
         self.Ltage.grid(column = 2, row = 0, **pad_options)
@@ -565,7 +575,13 @@ class manager_view(ttk.Frame):
         self.F1.pack(fill = 'both', expand = True)
 
     def open_schedule(self):
-        schedule = Schedule()
+        import sys
+        app = QtWidgets.QApplication(sys.argv)
+        Form = QtWidgets.QWidget()
+        schedule = Ui_Form()
+        schedule.setupUi(Form, empnum = int(login_info))
+        Form.show()
+        app.exec_()
 
     def all_view(self):
         Controller.search_all()
@@ -957,210 +973,208 @@ class manager_view(ttk.Frame):
                 width = 10, command = lambda i=i : delete_button(i)))
             delete_button_list[i].grid(row = i + 1, column = 8, **pad_options)
 
-class Schedule(Toplevel):
-    def __init__(self):
-        super().__init__()
-        self.title('Schedule')
-
-        self.geometry('800x900')
-
-        self.Main = ttk.Frame(self)
-        self.Main.pack(fill = 'both')
-
-        #things to be initialized
-        Controller.get_holidays()
-        Controller.get_emp_list()
-        Controller.get_no_group_list()
-        Controller.get_requests()
-
-        #widgets
-        self.treeFrame = ttk.Frame(self.Main, height = 690, width = 800)
-        self.treeFrame.pack(side = 'bottom', expand = False)
-        
-        self.optionsFrame = ttk.Frame(self.Main, height = 140, width = 800)
-        self.optionsFrame.pack(side = 'top', expand = False)
-        
-        global PGvariable
-        PGvariable = tk.StringVar()
-        PGvariable.set(Controller.ProduktionsGruppe[0])
-        self.ProduktionsGruppeOptionMenu = ttk.OptionMenu(self.optionsFrame, PGvariable, 
-                    'Gruppe auswählen', *Controller.ProduktionsGruppe.values(), command = Schedule.select_PG)
-        self.ProduktionsGruppeOptionMenu.pack(pady = 10)
-        
-        global Monthvariable
-        Monthvariable = tk.StringVar()
-        Monthvariable.set(Controller.months[0])
-        self.MonthOptionMenu = ttk.OptionMenu(self.optionsFrame, Monthvariable, 
-                    'Monat auswählen', *Controller.months.values(), command = Schedule.select_month)
-        self.MonthOptionMenu.pack(pady = 10)
-        
-        global Yearvariable
-        Yearvariable = tk.StringVar()
-        Yearvariable.set(Controller.years[0])
-        self.YearOptionMenu = ttk.OptionMenu(self.optionsFrame, Yearvariable,
-                    'Jahr auswählen', *Controller.years.values(), command = Schedule.select_year)
-        self.YearOptionMenu.pack(pady = 10)
-
-        global tree
-        tree = ttk.Treeview(self.treeFrame, show = 'headings', height = 32)
-
-        #create scrollbar
-        hbar = ttk.Scrollbar(self.treeFrame, orient = 'horizontal', command = tree.xview)
-        tree.configure(xscrollcommand = hbar.set)
-        hbar.pack(side = 'bottom', fill = 'x')
-
-        self.select_PG()
-
-    def _on_mousewheel(self, event):
-            self.canvas.xview_scroll(int(-1*(event.delta/120)), "units")
-
-    def create_tree(self, columnlist):
-        tree.column('#0', anchor = 'center', stretch = 0, width = 100)
-        tree.heading('Date', text = 'Date')
-        for i, val in enumerate(columnlist):
-                tree.column(str(i), anchor = 'center', stretch = 0, width = 100)
-                tree.heading(columnlist[i], text = columnlist[i])
-
-        tree.pack(fill = 'both')    
-        
-        Schedule.select_year(self)
+class TableModel(QtCore.QAbstractTableModel):
+    def __init__(self, data):
+        super(TableModel, self).__init__()
+        self._data = data
+        Controller.create_table()
     
-    def select_PG(self):
-        #delete existing tree
-        for i in tree.get_children():
-            tree.delete(i)
-        
-        #get production group selection
-        PGselection = PGvariable.get()
-        if PGselection != 'Gruppe auswählen':
-            global PGselectionint
-            PGselectionint = [k for k, v in Controller.ProduktionsGruppe.items() if v == PGselection][0]
-        else:
-            #for numlist in Controller.list_of_number_lists:
-            #    if empnum in numlist:
-            #        PGselectionint = Controller.list_of_number_lists.index(numlist)
-            #    else:
-            #        pass
-            PGselectionint = 0
-        PGvariable.set(Controller.ProduktionsGruppe[PGselectionint])
-        
-        #create tree with list of selected group's names as columns
-        treeview_columns = Controller.list_of_number_lists[PGselectionint]
-        tree['columns'] = treeview_columns
-        Schedule.create_tree(self, treeview_columns)
-    
-    def select_year(self):
-        Yearselection = Yearvariable.get()
-        if Yearselection != 'Jahr auswählen':
-            Yearselectionint = int(Yearselection)
-        else:
-            Yearselectionint = Controller.current_year
-        global year_shown
-        year_shown = Yearselectionint
-        Schedule.select_month(self)
-    
-    def select_month(self):
-        #clear existing tree
-        tree.delete(*tree.get_children())
-        
-        #get month selection
-        Monthselection = Monthvariable.get()
-        if Monthselection != 'Monat auswählen':
-            Monthselectionint = [k for k, v in Controller.months.items() if v == Monthselection][0] + 1
-        else:
-            Monthselectionint = Controller.current_month
-        
-        global month_shown
-        month_shown = Monthselectionint    
-        Monthvariable.set(Controller.months[Monthselectionint-1])
-        
-        #populate tree
-        for c in range (0, 31):
-            datebeingused = datetime.datetime(year_shown, month_shown, 1) + timedelta(days = c)
-            datevalue = datebeingused.strftime('%d' + ' %b' + ' %y' + ' %a')
-            
-            if c <= Controller.number_of_days[Monthselectionint - 1]-1:
-                weekend = set([5, 6])
-                numberofcolumns = len(Controller.list_of_number_lists[PGselectionint])
-                
-                if datebeingused.weekday() in weekend:    
-                    treevalueslist = [datevalue]
-                    for i in range (0, numberofcolumns):
-                        treevalueslist.append('Weekend')
-                    treevalues = tuple(treevalueslist)
-                    tree.insert('', index = c, iid = c + 1, text = '', values = treevalues, tags = ('weekend',))
-                    tree.tag_configure('weekend', background = 'light gray')
-                    
-                elif datebeingused.strftime('%Y.' + '%m.' + '%d') in Controller.list_of_holiday_dates:
-                    treevalueslist = [datevalue]
-                    for i in range (0, numberofcolumns):
-                        treevalueslist.append('Holiday')
-                    treevalues = tuple(treevalueslist)
-                    tree.insert('', index = c, iid = c + 1, text = '', values = treevalues, tags = ('holiday',))
-                    tree.tag_configure('holiday', background = 'light gray')
-                else:
-                    treevalueslist = [datevalue]
-                    for i in range (0, numberofcolumns):
-                        treevalueslist.append('--')
-                    treevalues = tuple(treevalueslist)
-                    tree.insert('', index = c, iid = c + 1, text = '', values = treevalues)
+    def data(self, index, role):
+        #index gives location in the table for which info is currently being requested. .row() and .column()
+        #role describes what kind of info the method should return on thi call. QtDisplayRole expects a str.
+        if role == Qt.DisplayRole:
+            #.row() indexes into the outer list
+            #.column() indexes into the sub-list
+            value = self._data[index.row()][index.column()]
+            return value
+            #if isinstance(value, datetime.datetime):
+                #return value.strftime('%d-%m-%Y')
+        if role == Qt.BackgroundRole:
+            value = self._data[index.row()][index.column()]
+            if value == 'Wochenende':
+                return QtGui.QColor('light gray')
+            if value == 'Feiertag':
+                return QtGui.QColor('light blue')
+            if value == 'geplant':
+                return QtGui.QColor('yellow')
+            if value == 'bestätigt':
+                return QtGui.QColor('light green')
+            if value == 'Stellvertreter':
+                return QtGui.QColor('#dcd0ff')
+            if value == 'Stellvertreter?':
+                return QtGui.QColor('#ffb6c1')
             else:
-                pass
+                return value
+            #return value #default anything else
+        #if role == Qt.BackgroundRole:
+            #return QtGui.QColor('gray')
+         
+    def rowCount(self, index):
+        return len(Controller.list_of_emp_numbers)
         
-        Schedule.change_value(self)
     
-    def change_value(self):
-        #get request value
-        for key, value in Controller.request_dictionary.items():
-            req_list = value
-            name_entered = req_list[0]
-            date_entered = req_list[1]
-            status = req_list[2]
+    def columnCount(self, index = None):
+        return len(Controller.headers)
+    
+    def headerData(self, section, orientation, role = QtCore.Qt.DisplayRole):
+        if orientation == QtCore.Qt.Horizontal and role == QtCore.Qt.DisplayRole:
+            return Controller.headers[section]
+        if orientation == QtCore.Qt.Vertical and role == QtCore.Qt.DisplayRole:
+            return 'Employee {}'.format(Controller.list_of_emp_numbers[section])
+        return QtCore.QAbstractTableModel.headerData(self, section, orientation, role)
+    
+class Ui_Form(object):
+    #def __init__(self):
+        #Form.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+    def setupUi(self, Form, empnum):
+        Form.setObjectName("Form")
+        Form.resize(917, 743)
+        self.layoutWidget = QtWidgets.QWidget(Form)
+        self.layoutWidget.setGeometry(QtCore.QRect(10, 10, 901, 721))
+        self.layoutWidget.setObjectName("layoutWidget")
+        self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.layoutWidget)
+        self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout_2.setObjectName("verticalLayout_2")
+        self.horizontalLayout = QtWidgets.QHBoxLayout()
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.label = QtWidgets.QLabel(self.layoutWidget)
+        self.label.setObjectName("label")
+        self.horizontalLayout.addWidget(self.label)
+        self.verticalLayout_2.addLayout(self.horizontalLayout)
+        self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
+        self.verticalLayout_2.addLayout(self.horizontalLayout_2)
+        self.verticalLayout = QtWidgets.QVBoxLayout()
+        self.verticalLayout.setObjectName("verticalLayout")
+        self.comboBox = QtWidgets.QComboBox(self.layoutWidget)
+        self.comboBox.setObjectName("comboBox")
+        self.comboBox.addItem("")
+        self.comboBox.addItem("")
+        self.comboBox.addItem("")
+        self.comboBox.addItem("")
+        self.comboBox.addItem("")
+        self.comboBox.addItem("")
+        self.comboBox.addItem("")
+        self.horizontalLayout.addWidget(self.comboBox)
+        self.comboBox_2 = QtWidgets.QComboBox(self.layoutWidget)
+        self.comboBox_2.setObjectName("comboBox_2")
+        self.comboBox_2.addItem("")
+        self.comboBox_2.addItem("")
+        self.comboBox_2.addItem("")
+        self.comboBox_2.addItem("")
+        self.comboBox_2.addItem("")
+        self.comboBox_2.addItem("")
+        self.comboBox_2.addItem("")
+        self.comboBox_2.addItem("")
+        self.comboBox_2.addItem("")
+        self.comboBox_2.addItem("")
+        self.comboBox_2.addItem("")
+        self.comboBox_2.addItem("")
+        self.horizontalLayout.addWidget(self.comboBox_2)
+        self.comboBox_3 = QtWidgets.QComboBox(self.layoutWidget)
+        self.comboBox_3.setLayoutDirection(QtCore.Qt.LeftToRight)
+        self.comboBox_3.setEditable(False)
+        self.comboBox_3.setSizeAdjustPolicy(QtWidgets.QComboBox.AdjustToContentsOnFirstShow)
+        self.comboBox_3.setObjectName("comboBox_3")
+        self.comboBox_3.addItem("")
+        self.comboBox_3.addItem("")
+        self.comboBox_3.addItem("")
+        self.comboBox_3.addItem("")
+        self.comboBox_3.addItem("")
+        self.horizontalLayout.addWidget(self.comboBox_3)
+        
+        #inserting my code for my table from another file
+        
+        #connect comboboxes to methods
+        self.comboBox.activated[str].connect(self.change_group) 
+        self.comboBox_2.activated[str].connect(self.change_month)
+        self.comboBox_3.activated[str].connect(self.change_year)
+        
+        #use empnum to bring up production group
+        if empnum not in Controller.manager_empnums:
+            Controller.get_group_from_empnum(empnum)
+        if empnum in Controller.manager_empnums:
+            Controller.selected_group.append(0)
+          
+        self.tableWidget = QtWidgets.QTableView(self.layoutWidget) 
+        self.tableWidget.setObjectName("tableWidget")
+        
+        data = Controller.data_values
+        self.model = TableModel(data) 
+        self.verticalLayout.addWidget(self.tableWidget) 
+        self.verticalLayout_2.addLayout(self.verticalLayout) 
+        self.tableWidget.setModel(self.model) 
+        for i in range(TableModel.columnCount(TableModel)):
+            self.tableWidget.setColumnWidth(i, 80)
+        self.model.setHeaderData(2, QtCore.Qt.Horizontal, 'hello', QtCore.Qt.DisplayRole)
+        
+        
+        self.retranslateUi(Form, empnum)
+        QtCore.QMetaObject.connectSlotsByName(Form)
 
-            #check if requests are in the selected production group
-            for item in Controller.list_of_number_lists:
-                if name_entered in Controller.list_of_number_lists[PGselectionint]:
-                    name_index = Controller.list_of_number_lists[PGselectionint].index(name_entered)
-                else:
-                    name_index = None
-            
-            #isolate day, month, year values
-            day_entered = (date_entered[8:10:1]).lstrip('0')
-            month_entered = (date_entered[5:7:1]).lstrip('0')
-            year_entered = date_entered[0:4:1]
-
-            #check if date is on the weekend
-            weekend = set([5, 6])
-            if datetime.datetime(int(year_entered), int(month_entered), int(day_entered)).weekday() in weekend:
-                pass
-            elif datetime.datetime(int(year_entered), int(month_entered), int(day_entered)).strftime('%Y.' \
-                + '%m.' + '%d') in Controller.list_of_holiday_dates:
-                pass
-            else:
-                #check if date is in shown month
-                if int(month_entered) == month_shown:
-                    if int(year_entered) == year_shown:
-                        #select day
-                        tree.selection_set(day_entered)
-                        for item in tree.selection():
-                            item_values = tree.item(item, "values")
-                        
-                        #update value and delete old value
-                        temp = list(item_values)
-                        if name_index is not None:
-                            if status == 'bestätigt':
-                                temp[name_index] = 'VACATION'
-                            if status == 'geplant':
-                                temp[name_index] = 'Requested'
-                            temp_tuple = tuple(temp)
-                            tree.delete(tree.selection()[0])
-                            tree.insert(parent = '', index = int(day_entered) - 1, iid = int(day_entered), text = '', values = temp_tuple)
-                        else:
-                            pass
-                    else:
-                        pass
-                else:
-                    pass
+    def retranslateUi(self, Form, empnum):
+        _translate = QtCore.QCoreApplication.translate
+        Form.setWindowTitle(_translate("Form", "Form"))
+        self.label.setText(_translate("Form", "Schedule"))
+        self.comboBox.setItemText(0, _translate("Form", "Wissenträger"))
+        self.comboBox.setItemText(1, _translate("Form", "Produktions Gruppe 1"))
+        self.comboBox.setItemText(2, _translate("Form", "Produktions Gruppe 2"))
+        self.comboBox.setItemText(3, _translate("Form", "Produktions Gruppe 3"))
+        self.comboBox.setItemText(4, _translate("Form", "Produktions Gruppe 4"))
+        self.comboBox.setItemText(5, _translate("Form", "Produktionsunterstützung"))
+        self.comboBox.setItemText(6, _translate("Form", "Keine Gruppe"))
+        self.comboBox.setCurrentIndex(Controller.selected_group[0])
+        self.comboBox_2.setItemText(0, _translate("Form", "Jan"))
+        self.comboBox_2.setItemText(1, _translate("Form", "Feb"))
+        self.comboBox_2.setItemText(2, _translate("Form", "Mar"))
+        self.comboBox_2.setItemText(3, _translate("Form", "Apr"))
+        self.comboBox_2.setItemText(4, _translate("Form", "May"))
+        self.comboBox_2.setItemText(5, _translate("Form", "Jun"))
+        self.comboBox_2.setItemText(6, _translate("Form", "Jul"))
+        self.comboBox_2.setItemText(7, _translate("Form", "Aug"))
+        self.comboBox_2.setItemText(8, _translate("Form", "Sep"))
+        self.comboBox_2.setItemText(9, _translate("Form", "Oct"))
+        self.comboBox_2.setItemText(10, _translate("Form", "Nov"))
+        self.comboBox_2.setItemText(11, _translate("Form", "Dec"))
+        self.comboBox_2.setCurrentIndex(Controller.selected_month[0] - 1)
+        self.comboBox_3.setItemText(0, _translate("Form", str(Controller.years[0])))
+        self.comboBox_3.setItemText(1, _translate("Form", str(Controller.years[1])))
+        self.comboBox_3.setItemText(2, _translate("Form", str(Controller.years[2])))
+        self.comboBox_3.setItemText(3, _translate("Form", str(Controller.years[3])))
+        self.comboBox_3.setItemText(4, _translate("Form", str(Controller.years[4])))
+        
+        if empnum not in Controller.manager_empnums:
+            self.comboBox.setEnabled(False)
+        if empnum in Controller.manager_empnums:
+            pass
+        
+    def change_group(self):
+        group_selection = int(self.comboBox.currentIndex())
+        data = Controller.data_values
+        Controller.selected_group.clear()
+        Controller.selected_group.append(group_selection)
+        self.model = TableModel(data)
+        self.tableWidget.setModel(self.model) #needed to put table into frame
+        #print('changing group')
+         
+    def change_month(self):
+        month_selection = int(self.comboBox_2.currentIndex()) + 1
+        data = Controller.data_values
+        Controller.selected_month.clear()
+        Controller.selected_month.append(month_selection)
+        self.model = TableModel(data)
+        self.tableWidget.setModel(self.model) #needed to put table into frame
+        #print('changing month')
+        
+    def change_year(self):
+        year_selection = int(self.comboBox_3.currentText())
+        #print(year_selection)
+        data = Controller.data_values
+        Controller.selected_year.clear()
+        Controller.selected_year.append(year_selection)
+        self.model = TableModel(data)
+        self.tableWidget.setModel(self.model)
+        #print('changing year')
 
 #The below frame is needed for the manager_view and employee_req_view
 # scrollbar frames
@@ -1206,47 +1220,3 @@ class VerticalScrolledFrame(ttk.Frame):
 
     def _on_mousewheel(self, event):
             self.canvas.yview_scroll(int(-1*(event.delta/100)), "units")
-
-#below is for scrolling horizontally in the Schedule treeview
-class HorizontalScrolledFrame(ttk.Frame):
-    def __init__(self, parent, *args, **kw):
-        ttk.Frame.__init__(self, parent, *args, **kw)
-
-        # Create a canvas object and a vertical scrollbar for scrolling it.
-        hscrollbar = ttk.Scrollbar(self, orient='horizontal')
-        hscrollbar.pack(fill = 'y', side = 'bottom', expand = False)
-        self.canvas = tk.Canvas(self, bd=0, highlightthickness=0,
-                           xscrollcommand=hscrollbar.set)
-        self.canvas.pack(side = 'left', fill = 'both', expand = True)
-        hscrollbar.config(command=self.canvas.xview)
-
-        self.canvas.bind_all("<MouseWheel>", self._on_mousewheel)
-
-        # Reset the View
-        self.canvas.xview_moveto(0)
-        self.canvas.yview_moveto(0)
-
-        # Create a frame inside the canvas which will be scrolled with it.
-        self.interior = interior = ttk.Frame(self.canvas)
-        interior_id = self.canvas.create_window(0, 0, window=interior,
-                                           anchor='nw')
-
-        # Track changes to the canvas and frame width and sync them,
-        # also updating the scrollbar.
-        def _configure_interior(event):
-            # Update the scrollbars to match the size of the inner frame.
-            size = (interior.winfo_reqwidth(), interior.winfo_reqheight())
-            self.canvas.config(scrollregion="0 0 %s %s" % size)
-            if interior.winfo_reqwidth() != self.canvas.winfo_width():
-                # Update the canvas's width to fit the inner frame.
-                self.canvas.config(width=interior.winfo_reqwidth())
-        interior.bind('<Configure>', _configure_interior)
-
-        def _configure_canvas(event):
-            if interior.winfo_reqwidth() != self.canvas.winfo_width():
-                # Update the inner frame's width to fill the canvas.
-                self.canvas.itemconfigure(interior_id, width=self.canvas.winfo_width())
-        self.canvas.bind('<Configure>', _configure_canvas)
-
-    def _on_mousewheel(self, event):
-            self.canvas.xview_scroll(int(-1*(event.delta/120)), "units")
