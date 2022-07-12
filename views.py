@@ -46,8 +46,7 @@ class loginbox(ttk.Frame):
         subheader_font = tkinter.font.Font(\
             family = "Helvertica", size = 12, weight = "normal", underline = 0)
 
-        self.F1 = ttk.Frame(self.top_frame, relief = 'groove', \
-            borderwidth = 2, padding = 5)
+        self.F1 = ttk.Frame(self.top_frame, padding = 5)
         self.F1.pack(side = 'left', pady = 20)
 
         self.login_label = ttk.Label(self.F1, text = "Einloggen")
@@ -77,8 +76,7 @@ class loginbox(ttk.Frame):
         self.vert_frame2 = VerticalScrolledFrame(self.vert_frame2_cont)
         self.vert_frame2.pack(fill = 'x')
 
-        self.F2 = ttk.Frame(self.top_frame, relief = 'groove', \
-            borderwidth = 2, padding = 5)
+        self.F2 = ttk.Frame(self.top_frame, padding = 5)
         self.F2.pack(pady = 20)
 
         self.tage_label = ttk.Label(self.F2, text = 'Resturlaub:')
@@ -189,7 +187,7 @@ class loginbox(ttk.Frame):
         for widget in self.vert_frame.interior.winfo_children():
             widget.destroy()
 
-        column_headers = {'borderwidth' : 1, 'relief' : 'flat', 'background' : 'white', 'foreground' : 'black'}
+        column_headers = {'borderwidth' : 1, 'relief' : 'flat'}
         column_font = tkinter.font.Font(family = "Helvetica", size = 11)
 
         self.antrags_label = ttk.Label(self.vert_frame.interior, text = 'Antragsnummer', **column_headers)
@@ -243,12 +241,11 @@ class loginbox(ttk.Frame):
 
             grund_list.append(tk.Entry(self.vert_frame.interior, width = 15, relief = 'groove'))
 
-            status_list.append(tk.Label(self.vert_frame.interior, width = 15, relief = 'groove'))
+            status_list.append(tk.Label(self.vert_frame.interior, width = 15))
 
-            antrags_list[i].config(state = 'normal')
             antrags_list[i].insert(0, str(self.entry[0]))
             antrags_list[i].grid(row = i + 1, column = 0, **pad_options)
-            antrags_list[i].config(state = 'readonly')
+            antrags_list[i].config(state = 'disabled')
 
             start_list[i].insert(0, str(self.entry[1]))
             start_list[i].grid(row = i + 1, column = 1, **pad_options)
@@ -257,12 +254,13 @@ class loginbox(ttk.Frame):
             end_list[i].grid(row = i +1, column = 2, **pad_options)
 
             stell_list[i].insert(0, str(self.entry[3]))
+            stell_list[i].config(foreground = 'black')
             if int(self.entry[6]) == 0:
-                stell_list[i].config(background = 'yellow')
+                stell_list[i].config(background = '#d4ef64')
             elif int(self.entry[6]) == 1:
-                stell_list[i].config(background = '#90EE90')
+                stell_list[i].config(background = '#64ef7f')
             elif int(self.entry[6]) == 2:
-                stell_list[i].config(background = 'red')
+                stell_list[i].config(background = '#ef7f64')
             stell_list[i].grid(row = i + 1, column = 3, **pad_options)
 
             grund_list[i].insert(0, str(self.entry[4]))
@@ -270,11 +268,11 @@ class loginbox(ttk.Frame):
 
             status_list[i].config(text =  f'{self.entry[5]}')
             if str(self.entry[5]) == 'bestätigt':
-                status_list[i].config(background = '#90EE90', foreground = 'black')
+                status_list[i].config(background = '#64ef7f', foreground = 'black')
             elif str(self.entry[5]) == 'geplant':
-                status_list[i].config(background = 'yellow', foreground = 'black')
+                status_list[i].config(background = '#d4ef64', foreground = 'black')
             elif str(self.entry[5]) == 'denied':
-                status_list[i].config(background = 'red', foreground = 'white')
+                status_list[i].config(background = '#ef7f64', foreground = 'white')
             status_list[i].grid(row = i + 1, column = 5, **pad_options)
 
             def update_button(i):
@@ -301,7 +299,7 @@ class loginbox(ttk.Frame):
         for widget in self.vert_frame2.interior.winfo_children():
             widget.destroy()
 
-        column_headers = {'borderwidth' : 1, 'relief' : 'flat', 'background' : 'white', 'foreground' : 'black'}
+        column_headers = {'borderwidth' : 1, 'relief' : 'flat'}
         column_font = tkinter.font.Font(family = "Helvetica", size = 11)
 
         self.antrags_label = ttk.Label(self.vert_frame2.interior, text = 'Antragsnummer', **column_headers)
@@ -356,10 +354,11 @@ class loginbox(ttk.Frame):
 
             grund_list.append(tk.Entry(self.vert_frame2.interior, width = 15, relief = 'ridge'))
 
-            status_list.append(tk.Entry(self.vert_frame2.interior, width = 15, relief = 'ridge'))
+            status_list.append(tk.Label(self.vert_frame2.interior, width = 15))
 
             antrags_list[i].insert(0, str(self.entry[0]))
             antrags_list[i].grid(row = i + 1, column = 0, **pad_options)
+            antrags_list[i].config(state = 'disabled')
 
             start_list[i].insert(0, str(self.entry[1]))
             start_list[i].grid(row = i + 1, column = 1, **pad_options)
@@ -373,11 +372,13 @@ class loginbox(ttk.Frame):
             grund_list[i].insert(0, str(self.entry[4]))
             grund_list[i].grid(row = i + 1, column = 4, **pad_options)
 
-            status_list[i].insert(0, str(self.entry[5]))
+            status_list[i].config(text =  f'{self.entry[5]}')
             if str(self.entry[5]) == 'bestätigt':
-                status_list[i].config(background = '#90EE90')
+                status_list[i].config(background = '#64ef7f', foreground = 'black')
             elif str(self.entry[5]) == 'geplant':
-                status_list[i].config(background = 'yellow')
+                status_list[i].config(background = '#d4ef64', foreground = 'black')
+            elif str(self.entry[5]) == 'denied':
+                status_list[i].config(background = '#ef7f64', foreground = 'white')
             status_list[i].grid(row = i + 1, column = 5, **pad_options)
 
             def stell_status_button(i, sStellStatus):
@@ -597,7 +598,7 @@ class manager_view(ttk.Frame):
         for widget in self.F1.interior.winfo_children():
             widget.destroy()
 
-        column_headers = {'borderwidth' : 1, 'relief' : 'flat', 'background' : 'white', 'foreground' : 'black'}
+        column_headers = {'borderwidth' : 1, 'relief' : 'flat'}
         column_font = tkinter.font.Font(family = "Helvetica", size = 11)
         
         self.antrags_label = ttk.Label(self.F1.interior, text = 'Antragsnummer', **column_headers)
@@ -657,6 +658,7 @@ class manager_view(ttk.Frame):
 
             antrags_list[i].insert(0, str(self.entry[0]))
             antrags_list[i].grid(row = i + 1, column = 0, **pad_options)
+            antrags_list[i].config(state = 'disabled')
 
             start_list[i].insert(0, str(self.entry[1]))
             start_list[i].grid(row = i + 1, column = 1, **pad_options)
@@ -665,12 +667,13 @@ class manager_view(ttk.Frame):
             end_list[i].grid(row = i +1, column = 2, **pad_options)
 
             stell_list[i].insert(0, str(self.entry[3]))
+            stell_list[i].config(foreground = 'black')
             if int(self.entry[7]) == 0:
-                stell_list[i].config(background = 'yellow')
+                stell_list[i].config(background = '#d4ef64')
             elif int(self.entry[7]) == 1:
-                stell_list[i].config(background = '#90EE90')
+                stell_list[i].config(background = '#64ef7f')
             elif int(self.entry[7]) == 2:
-                stell_list[i].config(background = 'red')
+                stell_list[i].config(background = '#ef7f64')
             stell_list[i].grid(row = i + 1, column = 3, **pad_options)
 
             grund_list[i].insert(0, str(self.entry[4]))
@@ -681,31 +684,31 @@ class manager_view(ttk.Frame):
 
             def cycle_status_val(i):
                 if status_val_list[i] == 2:
-                    status_list[i].config(background = 'yellow', foreground = 'black', \
+                    status_list[i].config(background = '#d4ef64', foreground = 'black', \
                         text = 'geplant')
                     status_val_list[i] = 1
                 elif status_val_list[i] == 1:
-                    status_list[i].config(background = 'red', foreground = 'white', \
+                    status_list[i].config(background = '#ef7f64', foreground = 'white', \
                         text = 'denied')
                     status_val_list[i] = 0
                 elif status_val_list[i] == 0:
-                    status_list[i].config(background = '#90EE90', foreground = 'black', \
+                    status_list[i].config(background = '#64ef7f', foreground = 'black', \
                         text = 'bestätigt')
                     status_val_list[i] = 2
 
-            status_list.append(tk.Button(self.F1.interior, width = 10, relief = 'groove', \
+            status_list.append(tk.Button(self.F1.interior, width = 10, \
                 command = lambda i=i :cycle_status_val(i)))
             status_val_list.append(int)
             if str(self.entry[5]) == 'bestätigt':
-                status_list[i].config(background = '#90EE90', foreground = 'black', \
+                status_list[i].config(background = '#64ef7f', foreground = 'black', \
                     text = 'bestätigt')
                 status_val_list[i] = 2
             elif str(self.entry[5]) == 'geplant':
-                status_list[i].config(background = 'yellow', foreground = 'black', \
+                status_list[i].config(background = '#d4ef64', foreground = 'black', \
                     text = 'geplant')
                 status_val_list[i] = 1
             elif str(self.entry [5]) =='denied':
-                status_list[i].config(background = 'red', foreground = 'white', \
+                status_list[i].config(background = '#ef7f64', foreground = 'white', \
                     text = 'denied')
                 status_val_list[i] = 0
             status_list[i].grid(row = i + 1, column = 5, **pad_options)
@@ -760,7 +763,7 @@ class manager_view(ttk.Frame):
         #list necessary for entries
         self.entries = []
 
-        column_headers = {'borderwidth' : 1, 'relief' : 'flat', 'background' : 'white', 'foreground' : 'black'}
+        column_headers = {'borderwidth' : 1, 'relief' : 'flat'}
         column_font = tkinter.font.Font(family = "Helvetica", size = 11)
         
         self.antrags_label = ttk.Label(self.F1.interior, text = 'Antragsnummer', **column_headers)
@@ -820,6 +823,7 @@ class manager_view(ttk.Frame):
 
             antrags_list[i].insert(0, str(self.entry[0]))
             antrags_list[i].grid(row = i + 1, column = 0, **pad_options)
+            antrags_list[i].config(state = 'disabled')
 
             start_list[i].insert(0, str(self.entry[1]))
             start_list[i].grid(row = i + 1, column = 1, **pad_options)
@@ -828,12 +832,13 @@ class manager_view(ttk.Frame):
             end_list[i].grid(row = i +1, column = 2, **pad_options)
 
             stell_list[i].insert(0, str(self.entry[3]))
+            stell_list[i].config(foreground = 'black')
             if int(self.entry[7]) == 0:
-                stell_list[i].config(background = 'yellow')
+                stell_list[i].config(background = '#d4ef64')
             elif int(self.entry[7]) == 1:
-                stell_list[i].config(background = '#90EE90')
+                stell_list[i].config(background = '#64ef7f')
             elif int(self.entry[7]) == 2:
-                stell_list[i].config(background = 'red')
+                stell_list[i].config(background = '#ef7f64')
             stell_list[i].grid(row = i + 1, column = 3, **pad_options)
 
             grund_list[i].insert(0, str(self.entry[4]))
@@ -844,31 +849,31 @@ class manager_view(ttk.Frame):
 
             def cycle_status_val(i):
                 if status_val_list[i] == 2:
-                    status_list[i].config(background = 'yellow', foreground = 'black', \
+                    status_list[i].config(background = '#d4ef64', foreground = 'black', \
                         text = 'geplant')
                     status_val_list[i] = 1
                 elif status_val_list[i] == 1:
-                    status_list[i].config(background = 'red', foreground = 'white', \
+                    status_list[i].config(background = '#ef7f64', foreground = 'white', \
                         text = 'denied')
                     status_val_list[i] = 0
                 elif status_val_list[i] == 0:
-                    status_list[i].config(background = '#90EE90', foreground = 'black', \
+                    status_list[i].config(background = '#64ef7f', foreground = 'black', \
                         text = 'bestätigt')
                     status_val_list[i] = 2
 
-            status_list.append(tk.Button(self.F1.interior, width = 10, relief = 'groove', \
+            status_list.append(tk.Button(self.F1.interior, width = 10, \
                 command = lambda i=i :cycle_status_val(i)))
             status_val_list.append(int)
             if str(self.entry[5]) == 'bestätigt':
-                status_list[i].config(background = '#90EE90', foreground = 'black', \
+                status_list[i].config(background = '#64ef7f', foreground = 'black', \
                     text = 'bestätigt')
                 status_val_list[i] = 2
             elif str(self.entry[5]) == 'geplant':
-                status_list[i].config(background = 'yellow', foreground = 'black', \
+                status_list[i].config(background = '#d4ef64', foreground = 'black', \
                     text = 'geplant')
                 status_val_list[i] = 1
             elif str(self.entry [5]) =='denied':
-                status_list[i].config(background = 'red', foreground = 'white', \
+                status_list[i].config(background = '#ef7f64', foreground = 'white', \
                     text = 'denied')
                 status_val_list[i] = 0
             status_list[i].grid(row = i + 1, column = 5, **pad_options)
@@ -930,7 +935,7 @@ class manager_view(ttk.Frame):
         for widget in self.F1.interior.winfo_children():
             widget.destroy()
 
-        column_headers = {'borderwidth' : 1, 'relief' : 'flat', 'background' : 'white', 'foreground' : 'black'}
+        column_headers = {'borderwidth' : 1, 'relief' : 'flat'}
         column_font = tkinter.font.Font(family = "Helvetica", size = 11)
         
         self.antrags_label = ttk.Label(self.F1.interior, text = 'Antragsnummer', **column_headers)
@@ -985,6 +990,7 @@ class manager_view(ttk.Frame):
 
             antrags_list[i].insert(0, str(self.entry[0]))
             antrags_list[i].grid(row = i + 1, column = 0, **pad_options)
+            antrags_list[i].config(state = 'disabled')
 
             start_list[i].insert(0, str(self.entry[1]))
             start_list[i].grid(row = i + 1, column = 1, **pad_options)
@@ -993,12 +999,13 @@ class manager_view(ttk.Frame):
             end_list[i].grid(row = i +1, column = 2, **pad_options)
 
             stell_list[i].insert(0, str(self.entry[3]))
+            stell_list[i].config(foreground = 'black')
             if int(self.entry[6]) == 0:
-                stell_list[i].config(background = 'yellow')
+                stell_list[i].config(background = '#d4ef64')
             elif int(self.entry[6]) == 1:
-                stell_list[i].config(background = '#90EE90')
+                stell_list[i].config(background = '#64ef7f')
             elif int(self.entry[6]) == 2:
-                stell_list[i].config(background = 'red')
+                stell_list[i].config(background = '#ef7f64')
             stell_list[i].grid(row = i + 1, column = 3, **pad_options)
 
             grund_list[i].insert(0, str(self.entry[4]))
@@ -1006,31 +1013,31 @@ class manager_view(ttk.Frame):
 
             def cycle_status_val(i):
                 if status_val_list[i] == 2:
-                    status_list[i].config(background = 'yellow', foreground = 'black', \
+                    status_list[i].config(background = '#d4ef64', foreground = 'black', \
                         text = 'geplant')
                     status_val_list[i] = 1
                 elif status_val_list[i] == 1:
-                    status_list[i].config(background = 'red', foreground = 'white', \
+                    status_list[i].config(background = '#ef7f64', foreground = 'white', \
                         text = 'denied')
                     status_val_list[i] = 0
                 elif status_val_list[i] == 0:
-                    status_list[i].config(background = '#90EE90', foreground = 'black', \
+                    status_list[i].config(background = '#64ef7f', foreground = 'black', \
                         text = 'bestätigt')
                     status_val_list[i] = 2
 
-            status_list.append(tk.Button(self.F1.interior, width = 10, relief = 'groove', \
+            status_list.append(tk.Button(self.F1.interior, width = 10, \
                 command = lambda i=i :cycle_status_val(i)))
             status_val_list.append(int)
             if str(self.entry[5]) == 'bestätigt':
-                status_list[i].config(background = '#90EE90', foreground = 'black', \
+                status_list[i].config(background = '#64ef7f', foreground = 'black', \
                     text = 'bestätigt')
                 status_val_list[i] = 2
             elif str(self.entry[5]) == 'geplant':
-                status_list[i].config(background = 'yellow', foreground = 'black', \
+                status_list[i].config(background = '#d4ef64', foreground = 'black', \
                     text = 'geplant')
                 status_val_list[i] = 1
             elif str(self.entry [5]) =='denied':
-                status_list[i].config(background = 'red', foreground = 'white', \
+                status_list[i].config(background = '#ef7f64', foreground = 'white', \
                     text = 'denied')
                 status_val_list[i] = 0
             status_list[i].grid(row = i + 1, column = 5, **pad_options)
