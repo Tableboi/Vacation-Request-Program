@@ -21,7 +21,7 @@ class App(tk.Tk):
         self.geometry('1000x600')
         
         self.style = ThemedStyle()
-        self.style.theme_use('clearlooks')
+        self.style.theme_use('equilux')
 
         # creating a container
         base = ttk.Frame(self)
