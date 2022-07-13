@@ -16,6 +16,7 @@ from msilib.schema import ComboBox
 from PyQt5.QtWidgets import QTableWidgetItem
 from PyQt5.QtCore import Qt
 from PyQt5 import QtCore, QtGui, QtWidgets
+import qdarktheme
 
 from controller import Controller
 
@@ -582,6 +583,7 @@ class manager_view(ttk.Frame):
     def open_schedule(self):
         import sys
         app = QtWidgets.QApplication(sys.argv)
+        app.setStyleSheet(qdarktheme.load_stylesheet())
         Form = QtWidgets.QWidget()
         schedule = Ui_Form()
         Controller.login_empnum.clear()
@@ -1096,17 +1098,17 @@ class TableModel(QtCore.QAbstractTableModel):
         if role == Qt.BackgroundRole:
             value = self._data[index.row()][index.column()]
             if value == 'Wochenende':
-                return QtGui.QColor('light gray')
+                return QtGui.QColor('#757575')
             if value == 'Feiertag':
-                return QtGui.QColor('light blue')
+                return QtGui.QColor('#5C9BC4')
             if value == 'geplant':
-                return QtGui.QColor('yellow')
+                return QtGui.QColor('#b0a120')
             if value == 'bestätigt':
-                return QtGui.QColor('light green')
+                return QtGui.QColor('#64a049')
             if value == 'Stellvertreter':
-                return QtGui.QColor('#dcd0ff')
+                return QtGui.QColor('#a879bc')
             if value == 'Stellvertreter?':
-                return QtGui.QColor('#ffb6c1')
+                return QtGui.QColor('#cf3f6f')
             else:
                 return value
             #return value #default anything else
@@ -1128,8 +1130,6 @@ class TableModel(QtCore.QAbstractTableModel):
         return QtCore.QAbstractTableModel.headerData(self, section, orientation, role)
 
 class Ui_Form(object):
-    #def __init__(self):
-        #Form.setAttribute(QtCore.Qt.WA_DeleteOnClose)
     def setupUi(self, Form, empnum):
         Form.setObjectName("Form")
         Form.resize(917, 743)
