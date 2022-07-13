@@ -228,6 +228,7 @@ class Model:
         # ---- employee_req_view
         
         # ---- schedule
+        
         group_from_empnum_getter = """SELECT [nProduktionsGruppe]
                             FROM [PulseCoreTest5].[dbo].[PO_employee]
                             WHERE [nEmployee] = ?""" 
@@ -236,9 +237,17 @@ class Model:
                                 FROM [PulseCoreTest5].[dbo].[PO_employee]
                                         WHERE [nProduktionsGruppe] = ?"""
                                         
+        name_getter = """SELECT [sName]
+                                FROM [PulseCoreTest5].[dbo].[PO_employee]
+                                        WHERE [nProduktionsGruppe] = ?"""
+                                        
         no_group_getter = """ SELECT [nEmployee]
                                                 FROM [PulseCoreTest5].[dbo].[PO_employee]
                                                 WHERE [nProduktionsGruppe] IS NULL"""
+        
+        no_group_name_getter = """SELECT [sName]
+                                FROM [PulseCoreTest5].[dbo].[PO_employee]
+                                        WHERE [nProduktionsGruppe] IS NULL"""
         
         request_getter = """SELECT [xnRequest] 
                                         ,[dDateStart]
@@ -261,8 +270,12 @@ class Model:
                 Model.cursor.execute(Model.group_from_empnum_getter, empnum)
         def get_emp_list(produktionsgruppe):
                 Model.cursor.execute(Model.number_getter, produktionsgruppe)
+        def get_name_list(produktionsgruppe):
+                Model.cursor.execute(Model.name_getter, produktionsgruppe)
         def get_no_group_list():
                 Model.cursor.execute(Model.no_group_getter)
+        def get_no_group_name_list():
+                Model.cursor.execute(Model.no_group_name_getter)
         def get_requests():
                 Model.cursor.execute(Model.request_getter)
         def get_stellvertreter_info(stell_name):
