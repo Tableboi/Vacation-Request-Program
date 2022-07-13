@@ -26,59 +26,62 @@ class Controller:
     user_id = int()
     user_name = str
     user_info = []
-    def login(login_info):
-        Model.infofetch(login_info)
+
+    def login(self, login_info):
+        Model.infofetch(self, login_info)
         user_info = Model.cursor.fetchone()
         Controller.user_id = user_info[2]
         Controller.user_name = user_info[1]
 
     #get stellvertreter personalnummer
     stell_reqs = []
-    def get_stell():
+    def get_stell(self):
         try:
-            Model.check_stell(Controller.user_name)
+            Model.check_stell(self, Controller.user_name)
             Controller.stell_reqs = Model.cursor.fetchall()
         except pyodbc.Error as error:
-            messagebox.showerror('Error', f'{error}')
+            Controller.error_window(self, f'{error}', 'error')
 
     #update stell status
-    def update_stell(nStellStatus, xnRequest):
+    def update_stell(self, nStellStatus, xnRequest):
         try:
-            Model.update_stell(nStellStatus, xnRequest)
+            Model.update_stell(self, nStellStatus, xnRequest)
         except pyodbc.Error as error:
-            messagebox.showerror('Error', f'{error}')
+            Controller.error_window(self, f'{error}', 'error')
 
     #update vacation days
     days_left = int()
-    def get_days_left(login_info):
-        Model.get_days_left(login_info)
+    def get_days_left(self, login_info):
+        Model.get_days_left(self, login_info)
         days_left_row = Model.cursor.fetchone()
         Controller.days_left = days_left_row[0]
     
     #update
-    def update(updated_info):
+    def update(self, updated_info):
         try:
-            Model.update_request(updated_info)
+            Model.update_request(self, updated_info)
+            Controller.error_window(self, 'Update Successful', 'info')
         except pyodbc.DataError as error:
-            Controller.error_window(f'Invalid date format\n\n{error}')
+            Controller.error_window(self, f'Invalid date format\n\n{error}', 'error')
         except pyodbc.Error as error:
-            Controller.error_window('Error', f'{error}')
+            Controller.error_window(self, f'{error}', 'error')
+
     # ---- loginbox
 
     # ---- request_window
 
     #submit
-    def sub_new_info(new_info):
+    def sub_new_info(self, new_info):
         try:
-            Model.submit_request(new_info)
-            Controller.error_window('Your submission was recorded!', 'Info')
+            Model.submit_request(self, new_info)
+            Controller.error_window(self, 'Your submission was recorded!', 'info')
         except pyodbc.DataError as error:
-            Controller.error_window(f'Formatting Error\n\n{error}', 'Error')
+            Controller.error_window(self, f'Formatting Error\n\n{error}', 'error')
         except pyodbc.Error as error:
-            Controller.error_window(f'Connection Error\n\n{error}', 'Error')
+            Controller.error_window(self, f'Connection Error\n\n{error}', 'error')
 
-    def reduce_days(nDaysLeft):
-        Model.reduce_days(nDaysLeft, Controller.user_id)
+    def reduce_days(self, nDaysLeft):
+        Model.reduce_days(self, nDaysLeft, Controller.user_id)
     
     # ---- request_window
 
@@ -86,60 +89,61 @@ class Controller:
 
     #load all
     fetched_reqs = []
-    def search_all():
+    def search_all(self):
         try:
-            Model.all_search()
+            Model.all_search(self)
             Controller.fetched_reqs = Model.cursor.fetchall()
         except pyodbc.Error as error:
-            messagebox.showerror('Error', f'{error}')
+            Controller.error_window(self, f'{error}', 'error')
     
     #search by employee, also used in the employee_req_view
-    def search_emp(nEmployee):
+    def search_emp(self, nEmployee):
         try:
-            Model.emp_search(nEmployee)
+            Model.emp_search(self, nEmployee)
             Controller.fetched_reqs = Model.cursor.fetchall()
         except pyodbc.Error as error:
-            messagebox.showerror('Error', f'{error}')
+            Controller.error_window(self, f'{error}', 'error')
     
     #search by antragnummer, also used in the employee_req_view
     req_data = []
-    def search(xnRequest):
+    def search(self, xnRequest):
         try:
-            Model.fetch_request(xnRequest)
+            Model.fetch_request(self, xnRequest)
             Controller.req_data = Model.cursor.fetchone()
         except pyodbc.Error as error:
-            messagebox.showerror('Error', f'{error}')
+            Controller.error_window(self, f'{error}', 'error')
 
     #update
-    def man_update(man_info):
+    def man_update(self, man_info):
         try:
-            Model.man_update(man_info)
+            Model.man_update(self, man_info)
+            Controller.error_window(self, 'Update Successful', 'info')
         except pyodbc.DataError as error:
-            messagebox.showerror('Error', f'Incorrect Formatting \n\nError: {error}')
+            Controller.error_window(self, f'Incorrect Formatting \n\nError: {error}', 'error')
         except pyodbc.Error as error:
-            messagebox.showerror('Error', f'{error}')
+            Controller.error_window(self, f'{error}', 'error')
 
     #delete
-    def delete(xnRequest):
+    def delete(self, xnRequest):
         try:
-            Model.delete_request(xnRequest)
+            Model.delete_request(self, xnRequest)
         except pyodbc.Error as error:
-            messagebox.showerror('Error', f'{error}')
+            Controller.error_window(self, f'{error}', 'error')
     
     #load unseen
-    def get_unseen():
+    def get_unseen(self):
         try:
-            Model.get_unseen()
+            Model.get_unseen(self)
             Controller.fetched_reqs = Model.cursor.fetchall()
         except pyodbc.Error as error:
-            messagebox.showerror('Error', f'{error}')
+            Controller.error_window(self, f'{error}', 'error')
     
     #mark as seen
-    def set_seen(xnRequest):
+    def set_seen(self, xnRequest):
         try:
-            Model.set_seen(xnRequest)
+            Model.set_seen(self, xnRequest)
         except pyodbc.Error as error:
-            messagebox.showerror('Error', f'{error}')
+            Controller.error_window(self, f'{error}', 'error')
 
     # ---- manager_view
 
@@ -158,8 +162,6 @@ class Controller:
 
     list_of_holiday_dates = []
     list_of_emp_numbers = []
-    list_of_names = []
-    rows = []
     headers = []
     data_values = [] 
     selected_group = []
@@ -168,80 +170,44 @@ class Controller:
     request_list_raw = []
     request_dictionary = {}
 
+    def date_range(self, start, end):
+        delta = end - start
+        days = [start + timedelta(days = i) for i in range(delta.days + 1)]
+        return days
+
     #methods
     login_empnum = []
-    manager_empnums = [905] 
+    manager_empnums = [905]   
 
-    def __init__(self, model, view):
-        self.model = model
-        self.view = view    
-
-    def get_group_from_empnum(empnum):
-        Controller.selected_group.clear()
-        Model.get_group_from_empnum(empnum)
+    def get_group_from_empnum(self, empnum):
+        Model.get_group_from_empnum(self, empnum)
         pyodbc_row = Model.cursor.fetchall()
         if (str(pyodbc_row)[2]) == 'N':
             Controller.selected_group.append(6)
         else:
             Controller.selected_group.append(int(str(pyodbc_row)[2]))
-        Controller.login_empnum.clear()
 
-    def date_range(start, end):
-            delta = end - start
-            days = [start + timedelta(days = i) for i in range(delta.days + 1)]
-            return days
-
-    def get_holidays():
-        Model.get_holidays()
-        holidays = Model.cursor.fetchall()
-        for holiday in holidays:
-            holiday_date = holiday[1]
-            Controller.list_of_holiday_dates.append(holiday_date.strftime('%Y.' + '%m.' + '%d'))
-    
-    def create_table():
-        Controller.get_emp_list()
-        Controller.get_requests()
-        Controller.get_dates_for_headers()
-        Controller.input_default_data()
-        Controller.edit_data()
-
-    def get_emp_list():    
+    def get_emp_list(self):    
         if Controller.selected_group[0] == 6:
-            Model.get_no_group_list()
-            Controller.list_of_emp_numbers = Model.cursor.fetchall()
-            Model.get_no_group_name_list()
-            Controller.list_of_names = Model.cursor.fetchall()
+            Model.get_no_group_list(self)
         else:
-            Model.get_emp_list(Controller.selected_group[0])
-            Controller.list_of_emp_numbers = Model.cursor.fetchall()
-            Model.get_name_list(Controller.selected_group[0])
-            Controller.list_of_names = Model.cursor.fetchall()
+            Model.get_emp_list(self, Controller.selected_group[0])
+        Controller.list_of_emp_numbers = Model.cursor.fetchall()
+        Controller.list_of_emp_numbers.sort()
         for i in range(0, len(Controller.list_of_emp_numbers)):
             item = str(Controller.list_of_emp_numbers[i])
             item = re.sub(r'[(,)]', '', item)
-            newitem = item.replace("'", "")
+            newitem = item.replace('"', "")
             Controller.list_of_emp_numbers.remove(Controller.list_of_emp_numbers[i])
             Controller.list_of_emp_numbers.insert(i, int(newitem[0:-1]))
-        for i in range(0, len(Controller.list_of_names)):
-            item = str(Controller.list_of_names[i])
-            item = re.sub(r'[(,)]', '', item)
-            newitem = item.replace('"', "")
-            Controller.list_of_names.remove(Controller.list_of_names[i])
-            Controller.list_of_names.insert(i, newitem[1:-2])
-            Controller.rows.append('{} {}'.format(Controller.list_of_names[i], Controller.list_of_emp_numbers[i]))
-        Controller.rows.sort()
-
-    def get_requests():
-        Model.get_requests()
+    
+    def get_requests(self):
+        Model.get_requests(self)
         Controller.request_list_raw = Model.cursor.fetchall()
         for item in Controller.request_list_raw:
             selected_employee_number = item[3]
-            if item[6] is None:
-                pass
-            elif item[6] == 'None':
-                pass
-            else:
-                Model.get_stellvertreter_info(item[6])
+            if item[6] is not None and item[6] != 'None':
+                Model.get_stellvertreter_info(self, item[6])
                 selected_stellvertreter_info = str(Model.cursor.fetchall())
                 selected_stellvertreter_numberstr = ''
                 for m in selected_stellvertreter_info:
@@ -252,15 +218,27 @@ class Controller:
                             Controller.request_dictionary[item[0]] = [selected_employee_number, item[1].strftime('%Y.' + '%m.' + '%d')]
                             start_date = item[1]
                             end_date = item[2]
-                            daterangelist = Controller.date_range(start_date, end_date)
+                            daterangelist = Controller.date_range(self, start_date, end_date)
                             for i in range(0, len(daterangelist)):
                                 Controller.request_dictionary[item[0] + (i * .01)] = [selected_employee_number, 
                                                     daterangelist[i].strftime('%Y.' + '%m.' + '%d'), item[5], 
                                                     selected_stellvertreter_number, item[7]]
-                else:
-                        pass
 
-    def get_dates_for_headers():    
+    def get_holidays(self):
+        Model.get_holidays(self)
+        holidays = Model.cursor.fetchall()
+        for holiday in holidays:
+            holiday_date = holiday[1]
+            Controller.list_of_holiday_dates.append(holiday_date.strftime('%Y.' + '%m.' + '%d'))
+    
+    def create_table(self):
+        Controller.get_emp_list(self)
+        Controller.get_requests(self)
+        Controller.get_dates_for_headers(self)
+        Controller.input_default_data(self)
+        Controller.edit_data(self)
+
+    def get_dates_for_headers(self):    
         Controller.headers.clear()
         number_of_days = calendar.monthrange(Controller.selected_year[0], Controller.selected_month[0])[1]
         first_date = datetime.date(Controller.selected_year[0], Controller.selected_month[0], 1)
@@ -271,8 +249,8 @@ class Controller:
             day = ((first_date + datetime.timedelta(days = i)))
             Controller.headers.append(day.strftime('%a %d'))
 
-    def input_default_data():
-        Controller.get_holidays()
+    def input_default_data(self):
+        Controller.get_holidays(self)
         Controller.data_values.clear()    
         for ii in range(0, len(Controller.list_of_emp_numbers)):
             data_list = []
@@ -294,7 +272,7 @@ class Controller:
             data_tuple = tuple(data_list)
             Controller.data_values.append(data_tuple)
 
-    def edit_data():
+    def edit_data(self):
         for key, value in Controller.request_dictionary.items():
             req_list = value
             number_entered = req_list[0]
@@ -319,10 +297,6 @@ class Controller:
                         data_list[int(dayentered) - 1] = status
                         data_tuple = tuple(data_list)
                         Controller.data_values[nameindex] = data_tuple
-                    else:
-                        pass
-                else:
-                    pass
                 if stell_num == item:
                     nameindex = Controller.list_of_emp_numbers.index(stell_num)    
                 else:
@@ -335,26 +309,16 @@ class Controller:
                             data_list[int(dayentered) - 1] = 'Stellvertreter'  
                         elif stell_status == 0:
                             data_list[int(dayentered) - 1] = 'Stellvertreter?'
-                        else:
-                            pass
                         data_tuple = tuple(data_list)
                         Controller.data_values[nameindex] = data_tuple
-                    else:
-                        pass
-                else:
-                    pass
-
     # ---- schedule
     
-    #error handler
-    def error_window(message, type = 'info', timeout = 2500):
+    #popup handler
+    def error_window(self, message, type = 'info', timeout = 2500):
         error_window = tk.Tk()
         error_window.withdraw()
-        try:
-            error_window.after(timeout, error_window.destroy)
-            if type == 'info':
-                messagebox.showinfo('Info', message, master = error_window)
-            elif type == 'error':
-                messagebox.showerror('Error', message, master = error_window)
-        except:
-            pass
+        error_window.after(timeout, error_window.destroy)
+        if type == 'info':
+            messagebox.showinfo('Info', message, master = error_window)
+        elif type == 'error':
+            messagebox.showerror('Error', message, master = error_window)
