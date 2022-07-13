@@ -5,9 +5,10 @@ from datetime import timedelta
 import re
 
 from tkinter import messagebox
-from calendar import  month
+from calendar import month
 
 from models import Model
+import tkinter as tk
 
 class Controller:
 
@@ -26,14 +27,10 @@ class Controller:
     user_name = str
     user_info = []
     def login(login_info):
-        try:
-            Model.infofetch(login_info)
-            user_info = Model.cursor.fetchone()
-            Controller.user_id = user_info[2]
-            Controller.user_name = user_info[1]
-        except pyodbc.Error as error:
-            messagebox.showerror('Error', f'{error}')
-    
+        Model.infofetch(login_info)
+        user_info = Model.cursor.fetchone()
+        Controller.user_id = user_info[2]
+        Controller.user_name = user_info[1]
 
     #get stellvertreter personalnummer
     stell_reqs = []
@@ -50,7 +47,22 @@ class Controller:
             Model.update_stell(nStellStatus, xnRequest)
         except pyodbc.Error as error:
             messagebox.showerror('Error', f'{error}')
+
+    #update vacation days
+    days_left = int()
+    def get_days_left(login_info):
+        Model.get_days_left(login_info)
+        days_left_row = Model.cursor.fetchone()
+        Controller.days_left = days_left_row[0]
     
+    #update
+    def update(updated_info):
+        try:
+            Model.update_request(updated_info)
+        except pyodbc.DataError as error:
+            Controller.error_window(f'Invalid date format\n\n{error}')
+        except pyodbc.Error as error:
+            Controller.error_window('Error', f'{error}')
     # ---- loginbox
 
     # ---- request_window
@@ -59,18 +71,14 @@ class Controller:
     def sub_new_info(new_info):
         try:
             Model.submit_request(new_info)
-            messagebox.showinfo("Success", "Your submission was recorded!")
-        except pyodbc.DataError:
-            messagebox.showerror('Error', 'Formatting Error')
-        except pyodbc.DatabaseError as error:
-            messagebox.showerror('Error', f'{error}')
+            Controller.error_window('Your submission was recorded!', 'Info')
+        except pyodbc.DataError as error:
+            Controller.error_window(f'Formatting Error\n\n{error}', 'Error')
+        except pyodbc.Error as error:
+            Controller.error_window(f'Connection Error\n\n{error}', 'Error')
 
-    #update vacation days
-    days_left = int()
-    def get_days_left(login_info):
-        Model.get_days_left(login_info)
-        days_left_row = Model.cursor.fetchone()
-        Controller.days_left = days_left_row[0]
+    def reduce_days(nDaysLeft):
+        Model.reduce_days(nDaysLeft, Controller.user_id)
     
     # ---- request_window
 
@@ -135,37 +143,23 @@ class Controller:
 
     # ---- manager_view
 
-    # ---- employee_req_view
-
-    #search by employee, see search_emp in the manager_view section above
-
-    #search by antragsnummer, see search in the manager_view section above
-
-    #update
-    def update(updated_info):
-        try:
-            Model.update_request(updated_info)
-        except pyodbc.DataError:
-            messagebox.showerror('Error', 'Invalid date format')
-        except pyodbc.Error as error:
-            messagebox.showerror('Error', f'{error}')
-
-    # ---- employee_req_view
-
     # ---- schedule
 
     #initialization list
     current_date = datetime.datetime.now()    
     current_month = datetime.datetime.now().month
     current_year = datetime.datetime.now().year
-
     ProduktionsGruppe = {0:'Wissenträger', 1:'Produktions Gruppe 1', 2:'Produktions Gruppe 2', 
                      3:'Produktions Gruppe 3', 4:'Produktions Gruppe 4', 5:'Produktionsunterstützung',
                      6: 'Keine Gruppe'}
+
     years = {0:current_year, 1:current_year + 1, 2: current_year + 2, 3: current_year + 3, 
                  4:current_year + 4, 5:current_year + 5}
+
     list_of_holiday_dates = []
     list_of_emp_numbers = []
+    list_of_names = []
+    rows = []
     headers = []
     data_values = [] 
     selected_group = []
@@ -174,33 +168,36 @@ class Controller:
     request_list_raw = []
     request_dictionary = {}
 
+    #methods
     login_empnum = []
     manager_empnums = [905] 
-    
+
     def __init__(self, model, view):
         self.model = model
         self.view = view    
-        
+
     def get_group_from_empnum(empnum):
+        Controller.selected_group.clear()
         Model.get_group_from_empnum(empnum)
         pyodbc_row = Model.cursor.fetchall()
         if (str(pyodbc_row)[2]) == 'N':
             Controller.selected_group.append(6)
         else:
             Controller.selected_group.append(int(str(pyodbc_row)[2]))
+        Controller.login_empnum.clear()
 
     def date_range(start, end):
             delta = end - start
             days = [start + timedelta(days = i) for i in range(delta.days + 1)]
             return days
-        
+
     def get_holidays():
         Model.get_holidays()
         holidays = Model.cursor.fetchall()
         for holiday in holidays:
             holiday_date = holiday[1]
             Controller.list_of_holiday_dates.append(holiday_date.strftime('%Y.' + '%m.' + '%d'))
-
+    
     def create_table():
         Controller.get_emp_list()
         Controller.get_requests()
@@ -211,17 +208,29 @@ class Controller:
     def get_emp_list():    
         if Controller.selected_group[0] == 6:
             Model.get_no_group_list()
+            Controller.list_of_emp_numbers = Model.cursor.fetchall()
+            Model.get_no_group_name_list()
+            Controller.list_of_names = Model.cursor.fetchall()
         else:
             Model.get_emp_list(Controller.selected_group[0])
-        Controller.list_of_emp_numbers = Model.cursor.fetchall()
-        Controller.list_of_emp_numbers.sort()
+            Controller.list_of_emp_numbers = Model.cursor.fetchall()
+            Model.get_name_list(Controller.selected_group[0])
+            Controller.list_of_names = Model.cursor.fetchall()
         for i in range(0, len(Controller.list_of_emp_numbers)):
             item = str(Controller.list_of_emp_numbers[i])
             item = re.sub(r'[(,)]', '', item)
-            newitem = item.replace('"', "")
+            newitem = item.replace("'", "")
             Controller.list_of_emp_numbers.remove(Controller.list_of_emp_numbers[i])
             Controller.list_of_emp_numbers.insert(i, int(newitem[0:-1]))
-        
+        for i in range(0, len(Controller.list_of_names)):
+            item = str(Controller.list_of_names[i])
+            item = re.sub(r'[(,)]', '', item)
+            newitem = item.replace('"', "")
+            Controller.list_of_names.remove(Controller.list_of_names[i])
+            Controller.list_of_names.insert(i, newitem[1:-2])
+            Controller.rows.append('{} {}'.format(Controller.list_of_names[i], Controller.list_of_emp_numbers[i]))
+        Controller.rows.sort()
+
     def get_requests():
         Model.get_requests()
         Controller.request_list_raw = Model.cursor.fetchall()
@@ -250,7 +259,7 @@ class Controller:
                                                     selected_stellvertreter_number, item[7]]
                 else:
                         pass
-        
+
     def get_dates_for_headers():    
         Controller.headers.clear()
         number_of_days = calendar.monthrange(Controller.selected_year[0], Controller.selected_month[0])[1]
@@ -261,7 +270,7 @@ class Controller:
         for i in range(delta.days + 1):
             day = ((first_date + datetime.timedelta(days = i)))
             Controller.headers.append(day.strftime('%a %d'))
-            
+
     def input_default_data():
         Controller.get_holidays()
         Controller.data_values.clear()    
@@ -274,7 +283,7 @@ class Controller:
                     data_list.append('Wochenende')
                 else:
                     data_list.append(' ')
-            
+
             for item in Controller.list_of_holiday_dates:
                 dayentered = (item[8:10:1]).lstrip('0')
                 monthentered = (item[5:7:1]).lstrip('0')
@@ -284,7 +293,7 @@ class Controller:
                         data_list[int(dayentered) - 1] = 'Feiertag'
             data_tuple = tuple(data_list)
             Controller.data_values.append(data_tuple)
-       
+
     def edit_data():
         for key, value in Controller.request_dictionary.items():
             req_list = value
@@ -293,11 +302,11 @@ class Controller:
             status = req_list[2]
             stell_num = req_list[3]
             stell_status = req_list[4]
-            
+
             dayentered = (dateentered[8:10:1]).lstrip('0')
             monthentered = (dateentered[5:7:1]).lstrip('0')
             yearentered = dateentered[0:4:1]
-            
+
             for item in Controller.list_of_emp_numbers:
                 if number_entered == item:
                     nameindex = Controller.list_of_emp_numbers.index(number_entered)    
@@ -333,11 +342,19 @@ class Controller:
                     else:
                         pass
                 else:
-                    pass 
+                    pass
 
     # ---- schedule
-
-    #dont know yet
-
-    def reduce_days(nDaysLeft):
-        Model.reduce_days(nDaysLeft, Controller.user_id)
+    
+    #error handler
+    def error_window(message, type = 'info', timeout = 2500):
+        error_window = tk.Tk()
+        error_window.withdraw()
+        try:
+            error_window.after(timeout, error_window.destroy)
+            if type == 'info':
+                messagebox.showinfo('Info', message, master = error_window)
+            elif type == 'error':
+                messagebox.showerror('Error', message, master = error_window)
+        except:
+            pass
