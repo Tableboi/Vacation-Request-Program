@@ -6,7 +6,6 @@ import tkinter as tk
 from tkinter import ttk
 
 import sv_ttk
-#from ttkthemes import ThemedStyle
 
 from views import loginbox, request_window, manager_view
 
@@ -22,8 +21,6 @@ class App(tk.Tk):
         self.geometry('1075x600')
         
         sv_ttk.set_theme('dark')
-        #self.style = ThemedStyle()
-        #self.style.theme_use('clearlooks')
 
         # creating a container
         base = ttk.Frame(self)
