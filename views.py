@@ -31,13 +31,13 @@ class loginbox(ttk.Frame):
         self.top_frame.pack(side = 'top', fill = 'x')
 
         # Create an object of tkinter ImageTk
-        #self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB_negativ.png'
-        #self.img = Image.open(self.path)
-        #self.img.thumbnail((200,200))
-        #self.new_img = ImageTk.PhotoImage(self.img)
+        self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB_negativ.png'
+        self.img = Image.open(self.path)
+        self.img.thumbnail((200,200))
+        self.new_img = ImageTk.PhotoImage(self.img)
         # Create a Label Widget to display the text or Image
-        #self.label = ttk.Label(self.top_frame, image = self.new_img)
-        #self.label.pack(side = 'right')
+        self.label = ttk.Label(self.top_frame, image = self.new_img)
+        self.label.pack(side = 'right')
 
         #setting the font types
         header_font = tkinter.font.Font(\
@@ -102,7 +102,7 @@ class loginbox(ttk.Frame):
                 command = lambda : controller.show_frame(manager_view), \
                     state = 'disabled')
         self.man_view_button.grid(column = 3, row = 0, rowspan = 2, **pad_options)
-
+        
     def submit(self, event):
         #need a global variable here so other classes can easily access it
 
@@ -110,7 +110,7 @@ class loginbox(ttk.Frame):
             global login_info
             login_info = int(self.login_entry.get())
         except ValueError as error: #checks if login_info is an int
-            Controller.error_window(f'Invalid Personalnummer Format\n\n{error}', type = 'error')
+            Controller.error_window(self, f'Invalid Personalnummer Format\n\n{error}', type = 'error')
             return
 
         #reset button states
@@ -119,7 +119,7 @@ class loginbox(ttk.Frame):
         self.man_view_button.configure(state = 'disabled')
 
         try:
-            Controller.login(login_info)
+            Controller.login(self, login_info)
             #this is the employee number validator, to check if
             # the user is a manager
             if login_info == 905:
@@ -127,10 +127,10 @@ class loginbox(ttk.Frame):
             else:
                 loginbox.enable_empbuttons(self)
         except TypeError as error: #checks if personalnummer exists
-            Controller.error_window(f'Invalid Personalnummer \n\n{error}', type = 'error')
+            Controller.error_window(self, f'Invalid Personalnummer \n\n{error}', type = 'error')
             return
 
-        Controller.get_days_left(login_info)
+        Controller.get_days_left(self, login_info)
 
         self.tage_entry.config(state = 'enabled')
         self.tage_entry.delete(0, 'end')
@@ -156,7 +156,7 @@ class loginbox(ttk.Frame):
         self.man_view_button.configure(state = 'enabled')
     
     def search_by_employee(self, event = None):
-        Controller.search_emp(self.login_entry.get())
+        Controller.search_emp(self, self.login_entry.get())
         #validating if the input personalnummer has entries associated with it
         if not Controller.fetched_reqs:
             for widget in self.vert_frame.interior.winfo_children():
@@ -168,7 +168,7 @@ class loginbox(ttk.Frame):
             self.search_emp()
     
     def start_stell_stuff(self):
-        Controller.get_stell()
+        Controller.get_stell(self)
         #validating if the anyone has the user as stellvertreter
         if not Controller.stell_reqs:
             for widget in self.vert_frame2.interior.winfo_children():
@@ -281,11 +281,10 @@ class loginbox(ttk.Frame):
                 new_reason = grund_list[i].get().strip()
                 xnRequest = antrags_list[i].get().strip()
 
-                if start_date or end_date:
-                    if end_date == '':
-                        end_date = start_date
-                    updated = (start_date, end_date, new_reason, xnRequest, int(login_info))
-                    Controller.update(updated)
+                if end_date == '':
+                    end_date = start_date
+                updated = (start_date, end_date, new_reason, xnRequest, int(login_info))
+                Controller.update(self, updated)
 
             button_list.append(ttk.Button(self.vert_frame.interior, text = 'Update', width = 15, \
                 command = lambda i=i : update_button(i)))
@@ -383,7 +382,7 @@ class loginbox(ttk.Frame):
 
             def stell_status_button(i, sStellStatus):
                 xnRequest = antrags_list[i].get().strip()
-                Controller.update_stell(sStellStatus, xnRequest)
+                Controller.update_stell(self, sStellStatus, xnRequest)
                 self.start_stell_stuff()
 
             yesbutton_list.append(ttk.Button(self.vert_frame2.interior, text = 'Confirm', width = 15, \
@@ -411,13 +410,13 @@ class request_window(ttk.Frame):
         self.title_label.grid(column = 0, row = 0, padx = 5, pady = 5)
 
         # Create an object of tkinter ImageTk
-        #self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB_negativ.png'
-        #self.img = Image.open(self.path)
-        #self.img.thumbnail((200,200))
-        #self.new_img = ImageTk.PhotoImage(self.img)
+        self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB_negativ.png'
+        self.img = Image.open(self.path)
+        self.img.thumbnail((200,200))
+        self.new_img = ImageTk.PhotoImage(self.img)
         # Create a Label Widget to display the text or Image
-        #self.label = ttk.Label(self.Main, image = self.new_img)
-        #self.label.grid(column = 1, row = 0, padx = 5, pady = 5)
+        self.label = ttk.Label(self.Main, image = self.new_img)
+        self.label.grid(column = 1, row = 0, padx = 5, pady = 5)
 
         # ----- Section 1
         # pack options for section 1
@@ -442,7 +441,6 @@ class request_window(ttk.Frame):
         self.section1.grid(columnspan = 2, column = 0, row = 1, padx = 5, pady = 5, sticky = 'ns')
  
         # ----- Section 1
- 
 
         # ----- Section 2
         # pack options for section 2
@@ -489,27 +487,23 @@ class request_window(ttk.Frame):
             start_date = datetime.datetime.strptime(start_str, "%Y-%m-%d").date()
             end_date = datetime.datetime.strptime(end_str, "%Y-%m-%d").date()
             self.delta = (end_date - start_date).days
-            Controller.get_days_left(login_info)
+            Controller.get_days_left(self, login_info)
             self.nDaysLeft = Controller.days_left - (self.delta + 1)
 
-            Controller.reduce_days(self.nDaysLeft)
+            Controller.reduce_days(self, self.nDaysLeft)
 
-            Controller.get_days_left(login_info)
-
-            Controller.error_window(f'Resturlaub : {Controller.days_left} Tage', 'info')
+            Controller.get_days_left(self, login_info)
         
         except ValueError as error:
-            Controller.error_window(f'Date must be in YYYY-MM-DD format.\n\nError: {error}', 'error')
+            Controller.error_window(self, f'Date must be in YYYY-MM-DD format.\n\nError: {error}', 'error')
 
     def submit(self):
         start_date = self.dDateStart.get().strip()
         end_date = self.dDateEnd.get().strip()
-        if start_date or end_date:
-            if end_date == '' or 'YYYY-MM-DD':
-                end_date = start_date
-            data = (start_date, end_date, int(login_info), self.grund_entry.get(), "geplant", self.stell_entry.get())
-
-        Controller.sub_new_info(data)
+        if end_date == '' or 'YYYY-MM-DD':
+            end_date = start_date
+        data = (start_date, end_date, int(login_info), self.grund_entry.get(), "geplant", self.stell_entry.get())
+        Controller.sub_new_info(self, data)
 
 class manager_view(ttk.Frame):
     def __init__(self, parent, controller):
@@ -528,14 +522,14 @@ class manager_view(ttk.Frame):
         self.Headerframe.columnconfigure(6, weight = 2)
 
         # Create an object of tkinter ImageTk
-        #self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB_negativ.png'
-        #self.img = Image.open(self.path)
-        #self.img.thumbnail((200,200))
-        #self.new_img = ImageTk.PhotoImage(self.img)
+        self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB_negativ.png'
+        self.img = Image.open(self.path)
+        self.img.thumbnail((200,200))
+        self.new_img = ImageTk.PhotoImage(self.img)
         # Create a Label Widget to display the text or Image
-        #self.label = ttk.Label(self.Headerframe, image = self.new_img)
-        #self.label.grid(rowspan = 2, column = 7, row = 0, \
-        #    padx = 10, pady = 20, sticky = 'e')
+        self.label = ttk.Label(self.Headerframe, image = self.new_img)
+        self.label.grid(rowspan = 2, column = 7, row = 0, \
+            padx = 10, pady = 20, sticky = 'e')
 
         self.title_label = ttk.Label(self.Headerframe, text = "Manager Request Search")
         self.title_label.configure(font = header_font)
@@ -591,8 +585,7 @@ class manager_view(ttk.Frame):
         app.exec_()
 
     def all_view(self):
-        Controller.search_all()
-        row_len = len(Controller.fetched_reqs)
+        Controller.search_all(self)
         #list necessary for entries
         self.entries = []
 
@@ -642,7 +635,7 @@ class manager_view(ttk.Frame):
         button_list = []
         delete_button_list = []
 
-        for i in range(0, row_len, 1):
+        for i in range(0, len(Controller.fetched_reqs), 1):
             pad_options = {'padx' : 5, 'pady' : 5}
             self.entry = Controller.fetched_reqs[i]
 
@@ -730,18 +723,17 @@ class manager_view(ttk.Frame):
                 sStellvertreter = stell_list[i].get().strip()
                 xnRequest = antrags_list[i].get().strip()
 
-                if start_date or end_date:
-                    if end_date == '':
-                        end_date = start_date
-                    updated = (start_date, end_date, new_reason, sStatus, sStellvertreter, xnRequest)
-                    Controller.man_update(updated)
+                if end_date == '':
+                    end_date = start_date
+                updated = (start_date, end_date, new_reason, sStatus, sStellvertreter, xnRequest)
+                Controller.man_update(self, updated)
 
             button_list.append(ttk.Button(self.F1.interior, text = 'Update', width = 10, \
                 command = lambda i=i : update_button(i)))
             button_list[i].grid(row = i + 1, column = 7, **pad_options)
 
             def delete_button(i):
-                Controller.delete(int(antrags_list[i].get()))
+                Controller.delete(self, int(antrags_list[i].get()))
                 self.all_view()
             
             delete_button_list.append(ttk.Button(self.F1.interior, text = 'Delete', \
@@ -753,13 +745,11 @@ class manager_view(ttk.Frame):
         for widget in self.F1.interior.winfo_children():
             widget.destroy()
         
-        Controller.get_unseen()
+        Controller.get_unseen(self)
 
         if not Controller.fetched_reqs:
-            Controller.error_window('No new requests', 'info')
+            Controller.error_window(self, 'No new requests', 'info')
             return
-        else:
-            pass
 
         row_len = len(Controller.fetched_reqs)
         #list necessary for entries
@@ -899,14 +889,14 @@ class manager_view(ttk.Frame):
                     if end_date == '':
                         end_date = start_date
                     updated = (start_date, end_date, new_reason, sStatus, sStellvertreter, xnRequest)
-                    Controller.man_update(updated)
+                    Controller.man_update(self, updated)
 
             button_list.append(ttk.Button(self.F1.interior, text = 'Update', width = 10, \
                 command = lambda i=i : update_button(i)))
             button_list[i].grid(row = i + 1, column = 7, **pad_options)
 
             def mark_seen_button(i):
-                Controller.set_seen(int(antrags_list[i].get()))
+                Controller.set_seen(self, int(antrags_list[i].get()))
                 self.unseen_view()
             
             mark_seen_button_list.append(ttk.Button(self.F1.interior, text = 'Mark as Seen', \
@@ -917,16 +907,16 @@ class manager_view(ttk.Frame):
 
     def search_by_employee(self, event = None):
         try:
-            Controller.search_emp(int(self.search_entry.get()))
+            Controller.search_emp(self, int(self.search_entry.get()))
             #validating if the input personalnummer has entries associated with it
             if not Controller.fetched_reqs:
                 for widget in self.F1.interior.winfo_children():
                     widget.destroy()
-                Controller.error_window('No requests associated with this number.', 'info')
+                Controller.error_window(self, 'No requests associated with this number.', 'info')
             else:
                 self.specific_view()
         except ValueError as error:
-            Controller.error_window(f'Invalid Personalnummer Format \n\nError: {error}', 'error')
+            Controller.error_window(self, f'Invalid Personalnummer Format \n\nError: {error}', 'error')
 
 
     def specific_view(self):
@@ -1063,7 +1053,7 @@ class manager_view(ttk.Frame):
                     if end_date == '':
                         end_date = start_date
                     updated = (start_date, end_date, new_reason, sStatus, sStellvertreter, xnRequest)
-                    Controller.man_update(updated)
+                    Controller.man_update(self, updated)
 
             button_list.append(ttk.Button(self.F1.interior, text = 'Update', width = 10, \
                 command = lambda i=i : update_button(i)))
@@ -1081,7 +1071,7 @@ class TableModel(QtCore.QAbstractTableModel):
     def __init__(self, data):
         super(TableModel, self).__init__()
         self._data = data
-        Controller.create_table()
+        Controller.create_table(self)
 
     def data(self, index, role):
         #index gives location in the table for which info is currently being requested. .row() and .column()
@@ -1196,7 +1186,7 @@ class Ui_Form(object):
 
         #use empnum to bring up production group
         if empnum not in Controller.manager_empnums:
-            Controller.get_group_from_empnum(empnum)
+            Controller.get_group_from_empnum(self, empnum)
         if empnum in Controller.manager_empnums:
             Controller.selected_group.append(0)
 
@@ -1258,7 +1248,8 @@ class Ui_Form(object):
         Controller.selected_group.clear()
         Controller.selected_group.append(group_selection)
         self.model = TableModel(data)
-        self.tableWidget.setModel(self.model)
+        self.tableWidget.setModel(self.model) #needed to put table into frame
+        #print('changing group')
 
     def change_month(self):
         month_selection = int(self.comboBox_2.currentIndex()) + 1
@@ -1266,10 +1257,12 @@ class Ui_Form(object):
         Controller.selected_month.clear()
         Controller.selected_month.append(month_selection)
         self.model = TableModel(data)
-        self.tableWidget.setModel(self.model)
+        self.tableWidget.setModel(self.model) #needed to put table into frame
+        #print('changing month')
 
     def change_year(self):
         year_selection = int(self.comboBox_3.currentText())
+        #print(year_selection)
         data = Controller.data_values
         Controller.selected_year.clear()
         Controller.selected_year.append(year_selection)
