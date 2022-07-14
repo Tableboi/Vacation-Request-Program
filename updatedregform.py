@@ -146,7 +146,7 @@ class Window():
 
         gründe = self.Rvar1.get()
         if gründe == 1:
-            output = 'Erholungsurlaub'
+            output = erholungsurlaub
         elif gründe == 2:
             output = sonderurlaub
         else:
