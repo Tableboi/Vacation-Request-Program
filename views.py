@@ -32,13 +32,13 @@ class loginbox(ttk.Frame):
         self.top_frame.pack(side = 'top', fill = 'x')
 
         # Create an object of tkinter ImageTk
-        self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB_negativ.png'
-        self.img = Image.open(self.path)
-        self.img.thumbnail((200,200))
-        self.new_img = ImageTk.PhotoImage(self.img)
+        #self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB_negativ.png'
+        #self.img = Image.open(self.path)
+        #self.img.thumbnail((200,200))
+        #self.new_img = ImageTk.PhotoImage(self.img)
         # Create a Label Widget to display the text or Image
-        self.label = ttk.Label(self.top_frame, image = self.new_img)
-        self.label.pack(side = 'right')
+        #self.label = ttk.Label(self.top_frame, image = self.new_img)
+        #self.label.pack(side = 'right')
 
         #setting the font types
         header_font = tkinter.font.Font(\
@@ -411,13 +411,13 @@ class request_window(ttk.Frame):
         self.title_label.grid(column = 0, row = 0, padx = 5, pady = 5)
 
         # Create an object of tkinter ImageTk
-        self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB_negativ.png'
-        self.img = Image.open(self.path)
-        self.img.thumbnail((200,200))
-        self.new_img = ImageTk.PhotoImage(self.img)
+        #self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB_negativ.png'
+        #self.img = Image.open(self.path)
+        #self.img.thumbnail((200,200))
+        #self.new_img = ImageTk.PhotoImage(self.img)
         # Create a Label Widget to display the text or Image
-        self.label = ttk.Label(self.Main, image = self.new_img)
-        self.label.grid(column = 1, row = 0, padx = 5, pady = 5)
+        #self.label = ttk.Label(self.Main, image = self.new_img)
+        #self.label.grid(column = 1, row = 0, padx = 5, pady = 5)
 
         # ----- Section 1
         # pack options for section 1
@@ -523,14 +523,14 @@ class manager_view(ttk.Frame):
         self.Headerframe.columnconfigure(6, weight = 2)
 
         # Create an object of tkinter ImageTk
-        self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB_negativ.png'
-        self.img = Image.open(self.path)
-        self.img.thumbnail((200,200))
-        self.new_img = ImageTk.PhotoImage(self.img)
+        #self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB_negativ.png'
+        #self.img = Image.open(self.path)
+        #self.img.thumbnail((200,200))
+        #self.new_img = ImageTk.PhotoImage(self.img)
         # Create a Label Widget to display the text or Image
-        self.label = ttk.Label(self.Headerframe, image = self.new_img)
-        self.label.grid(rowspan = 2, column = 7, row = 0, \
-            padx = 10, pady = 20, sticky = 'e')
+        #self.label = ttk.Label(self.Headerframe, image = self.new_img)
+        #self.label.grid(rowspan = 2, column = 7, row = 0, \
+        #    padx = 10, pady = 20, sticky = 'e')
 
         self.title_label = ttk.Label(self.Headerframe, text = "Manager Request Search")
         self.title_label.configure(font = header_font)
@@ -1116,12 +1116,10 @@ class TableModel(QtCore.QAbstractTableModel):
         if orientation == QtCore.Qt.Horizontal and role == QtCore.Qt.DisplayRole:
             return Controller.headers[section]
         if orientation == QtCore.Qt.Vertical and role == QtCore.Qt.DisplayRole:
-            return 'Employee {}'.format(Controller.list_of_emp_numbers[section])
+            return Controller.rows[section]
         return QtCore.QAbstractTableModel.headerData(self, section, orientation, role)
-
+    
 class Ui_Form(object):
-    #def __init__(self):
-        #Form.setAttribute(QtCore.Qt.WA_DeleteOnClose)
     def setupUi(self, Form, empnum):
         Form.setObjectName("Form")
         Form.resize(917, 743)
@@ -1196,7 +1194,7 @@ class Ui_Form(object):
         self.tableWidget.setObjectName("tableWidget")
 
         data = Controller.data_values
-        self.model = TableModel(data) 
+        self.model = TableModel(data)
         self.verticalLayout.addWidget(self.tableWidget) 
         self.verticalLayout_2.addLayout(self.verticalLayout) 
         self.tableWidget.setModel(self.model) 
@@ -1204,10 +1202,9 @@ class Ui_Form(object):
             self.tableWidget.setColumnWidth(i, 80)
         self.model.setHeaderData(2, QtCore.Qt.Horizontal, 'hello', QtCore.Qt.DisplayRole)
 
-
         self.retranslateUi(Form, empnum)
         QtCore.QMetaObject.connectSlotsByName(Form)
-
+        
     def retranslateUi(self, Form, empnum):
         _translate = QtCore.QCoreApplication.translate
         Form.setWindowTitle(_translate("Form", "Form"))
@@ -1250,8 +1247,7 @@ class Ui_Form(object):
         Controller.selected_group.clear()
         Controller.selected_group.append(group_selection)
         self.model = TableModel(data)
-        self.tableWidget.setModel(self.model) #needed to put table into frame
-        #print('changing group')
+        self.tableWidget.setModel(self.model)
 
     def change_month(self):
         month_selection = int(self.comboBox_2.currentIndex()) + 1
@@ -1259,12 +1255,10 @@ class Ui_Form(object):
         Controller.selected_month.clear()
         Controller.selected_month.append(month_selection)
         self.model = TableModel(data)
-        self.tableWidget.setModel(self.model) #needed to put table into frame
-        #print('changing month')
+        self.tableWidget.setModel(self.model)
 
     def change_year(self):
         year_selection = int(self.comboBox_3.currentText())
-        #print(year_selection)
         data = Controller.data_values
         Controller.selected_year.clear()
         Controller.selected_year.append(year_selection)
