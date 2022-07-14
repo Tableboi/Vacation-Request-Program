@@ -239,6 +239,15 @@ class Model:
                                                 WHERE [nProduktionsGruppe] = ?"""
                 Model.cursor.execute(self.number_getter, nProduktionsGruppe)
 
+        def get_name_list(self, nProduktionsGruppe):
+                """Parameters
+                ---------
+                nProduktionsGruppe : int"""
+                self.name_getter = """SELECT [sName]
+                                        FROM [PulseCoreTest5].[dbo].[PO_employee]
+                                        WHERE [nProduktionsGruppe] = ?"""
+                Model.cursor.execute(self.name_getter, nProduktionsGruppe)
+
         def get_no_group_list(self):
                 """Parameters
                 ---------
@@ -247,6 +256,15 @@ class Model:
                                         FROM [PulseCoreTest5].[dbo].[PO_employee]
                                         WHERE [nProduktionsGruppe] IS NULL"""
                 Model.cursor.execute(self.no_group_getter)
+
+        def get_no_group_name_list(self):
+                """Parameters
+                ---------
+                None"""
+                self.no_group_name_getter = """SELECT [sName]
+                                        FROM [PulseCoreTest5].[dbo].[PO_employee]
+                                        WHERE [nProduktionsGruppe] IS NULL"""
+                Model.cursor.execute(self.no_group_name_getter)
 
         def get_requests(self):
                 """Parameters
