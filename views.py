@@ -32,13 +32,13 @@ class loginbox(ttk.Frame):
         self.top_frame.pack(side = 'top', fill = 'x')
 
         # Create an object of tkinter ImageTk
-        self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB_negativ.png'
-        self.img = Image.open(self.path)
-        self.img.thumbnail((200,200))
-        self.new_img = ImageTk.PhotoImage(self.img)
+        #self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB_negativ.png'
+        #self.img = Image.open(self.path)
+        #self.img.thumbnail((200,200))
+        #self.new_img = ImageTk.PhotoImage(self.img)
         # Create a Label Widget to display the text or Image
-        self.label = ttk.Label(self.top_frame, image = self.new_img)
-        self.label.pack(side = 'right')
+        #self.label = ttk.Label(self.top_frame, image = self.new_img)
+        #self.label.pack(side = 'right')
 
         #setting the font types
         header_font = tkinter.font.Font(\
@@ -411,13 +411,13 @@ class request_window(ttk.Frame):
         self.title_label.grid(column = 0, row = 0, padx = 5, pady = 5)
 
         # Create an object of tkinter ImageTk
-        self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB_negativ.png'
-        self.img = Image.open(self.path)
-        self.img.thumbnail((200,200))
-        self.new_img = ImageTk.PhotoImage(self.img)
+        #self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB_negativ.png'
+        #self.img = Image.open(self.path)
+        #self.img.thumbnail((200,200))
+        #self.new_img = ImageTk.PhotoImage(self.img)
         # Create a Label Widget to display the text or Image
-        self.label = ttk.Label(self.Main, image = self.new_img)
-        self.label.grid(column = 1, row = 0, padx = 5, pady = 5)
+        #self.label = ttk.Label(self.Main, image = self.new_img)
+        #self.label.grid(column = 1, row = 0, padx = 5, pady = 5)
 
         # ----- Section 1
         # pack options for section 1
@@ -523,14 +523,14 @@ class manager_view(ttk.Frame):
         self.Headerframe.columnconfigure(6, weight = 2)
 
         # Create an object of tkinter ImageTk
-        self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB_negativ.png'
-        self.img = Image.open(self.path)
-        self.img.thumbnail((200,200))
-        self.new_img = ImageTk.PhotoImage(self.img)
+        #self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB_negativ.png'
+        #self.img = Image.open(self.path)
+        #self.img.thumbnail((200,200))
+        #self.new_img = ImageTk.PhotoImage(self.img)
         # Create a Label Widget to display the text or Image
-        self.label = ttk.Label(self.Headerframe, image = self.new_img)
-        self.label.grid(rowspan = 2, column = 7, row = 0, \
-            padx = 10, pady = 20, sticky = 'e')
+        #self.label = ttk.Label(self.Headerframe, image = self.new_img)
+        #self.label.grid(rowspan = 2, column = 7, row = 0, \
+        #    padx = 10, pady = 20, sticky = 'e')
 
         self.title_label = ttk.Label(self.Headerframe, text = "Manager Request Search")
         self.title_label.configure(font = header_font)
@@ -1149,6 +1149,7 @@ class Ui_Form(object):
         self.comboBox.addItem("")
         self.comboBox.addItem("")
         self.comboBox.addItem("")
+        self.comboBox.addItem("")
         self.horizontalLayout.addWidget(self.comboBox)
         self.comboBox_2 = QtWidgets.QComboBox(self.layoutWidget)
         self.comboBox_2.setObjectName("comboBox_2")
@@ -1188,7 +1189,7 @@ class Ui_Form(object):
         if empnum not in Controller.manager_empnums:
             Controller.get_group_from_empnum(self, empnum)
         if empnum in Controller.manager_empnums:
-            Controller.selected_group.append(0)
+            Controller.selected_group.append(7)
 
         self.tableWidget = QtWidgets.QTableView(self.layoutWidget) 
         self.tableWidget.setObjectName("tableWidget")
@@ -1216,6 +1217,7 @@ class Ui_Form(object):
         self.comboBox.setItemText(4, _translate("Form", "Produktions Gruppe 4"))
         self.comboBox.setItemText(5, _translate("Form", "Produktionsunterstützung"))
         self.comboBox.setItemText(6, _translate("Form", "Keine Gruppe"))
+        self.comboBox.setItemText(7, _translate("Form", "Alle Grupppen"))
         self.comboBox.setCurrentIndex(Controller.selected_group[0])
         self.comboBox_2.setItemText(0, _translate("Form", "Jan"))
         self.comboBox_2.setItemText(1, _translate("Form", "Feb"))
@@ -1245,6 +1247,9 @@ class Ui_Form(object):
         group_selection = int(self.comboBox.currentIndex())
         data = Controller.data_values
         Controller.selected_group.clear()
+        Controller.list_of_emp_numbers.clear()
+        Controller.rows.clear()
+        #Controller.list_of_names.clear()
         Controller.selected_group.append(group_selection)
         self.model = TableModel(data)
         self.tableWidget.setModel(self.model)
