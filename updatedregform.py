@@ -15,7 +15,7 @@ class Window():
         self.frame.place(anchor='center', relx=0.5, rely=0.5)
 
 # Create an object of tkinter ImageTk
-        self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB.jpg'
+        self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB.PNG'
         self.img = Image.open(self.path)
         self.img.thumbnail((150,150))
         self.new_img = ImageTk.PhotoImage(self.img)
@@ -24,6 +24,7 @@ class Window():
         self.label.pack()
         self.Main = Frame(self.master)
 
+        
         
         # ----- Section 1
  
@@ -77,14 +78,40 @@ class Window():
         
         self.section3 = Frame(self.Main)
     
+        ## ---- Section 3 sub-frame 1
+        
+        self.section3_1 = Frame(self.section3)
 
-        self.L5 = Label(self.section3, text = "Urlaubsgrund")
+        self.L5 = Label(self.section3_1, text = "Urlaubsgrund")
         self.L5.pack(padx = 5, pady = 5)
 
-        self.T1 = Text(self.section3, height = 2, width = 20)
+        self.Rvar1 = IntVar()
+
+        self.R1 = Radiobutton(self.section3_1, text = "Erholungsurlaub", variable = self.Rvar1, value = 1)
+        self.R2 = Radiobutton(self.section3_1, text = "Sonderurlaub", variable = self.Rvar1, value = 2)
+
+        self.R1.pack(padx = 5, pady = 5)
+        self.R2.pack(padx = 5, pady = 5)
+
+        self.section3_1.pack(padx = 50, pady = 5, side = LEFT)
+        
+        ## ---- Section 3 sub-frame 1
+
+
+        ## ---- Section 3 sub-frame 2
+        self.section3_2 = Frame(self.section3)
+        
+        self.L6 = Label(self.section3_2, text = "Falls Sonderurlaub gewählt, Begründung angeben")
+        self.L6.pack(padx = 5, pady = 5)
+
+        self.T1 = Text(self.section3_2, height = 2, width = 20)
         self.T1.pack(padx =5, pady = 5, expand = True, fill = X)
-  
-         
+
+
+        self.section3_2.pack(padx = 50, pady = 5, side = RIGHT)
+
+         ## ---- Section 3 sub-frame 2
+
         self.section3.pack(padx = 5, pady = 5, expand = True, fill = X)
        
         # ----- Section 3
@@ -112,13 +139,26 @@ class Window():
         if start_date or end_date:
             if end_date == '':
                 end_date = start_date
-            sql = """INSERT INTO dbo.PC_VacationsRequests (dDateStart, dDateEnd, nEmployee, sReasons, sStatus, sStellvertreter)
-                    VALUES (?, ?, ?, ?, ?, ?)"""
-            values = (start_date, end_date, self.nEmployee.get(), self.T1.get("1.0", "end"), "geplant", self.E4.get())
         
-            self.cursor.execute(sql, values)
-            self.cnxn.commit() 
-            self.cnxn.close()
+        
+        erholungsurlaub = 'Erholungsurlaub'
+        sonderurlaub = self.T1.get("1.0", "end")
+
+        gründe = self.Rvar1.get()
+        if gründe == 1:
+            output = 'Erholungsurlaub'
+        elif gründe == 2:
+            output = sonderurlaub
+        else:
+            ...
+        
+        sql = """INSERT INTO dbo.PC_VacationsRequests (dDateStart, dDateEnd, nEmployee, sReasons, sStatus, sStellvertreter)
+                    VALUES (?, ?, ?, ?, ?, ?)"""
+        values = (start_date, end_date, self.nEmployee.get(), output, "geplant", self.E4.get())
+        
+        self.cursor.execute(sql, values)
+        self.cnxn.commit() 
+        self.cnxn.close()
     
 
     def click_me(self):
