@@ -162,6 +162,8 @@ class Controller:
 
     list_of_holiday_dates = []
     list_of_emp_numbers = []
+    list_of_names = []
+    rows = []
     headers = []
     data_values = [] 
     selected_group = []
@@ -184,22 +186,36 @@ class Controller:
         pyodbc_row = Model.cursor.fetchall()
         if (str(pyodbc_row)[2]) == 'N':
             Controller.selected_group.append(6)
+            Controller.login_empnum.clear()
         else:
             Controller.selected_group.append(int(str(pyodbc_row)[2]))
-
+            Controller.login_empnum.clear()
+            
     def get_emp_list(self):    
         if Controller.selected_group[0] == 6:
             Model.get_no_group_list(self)
+            Controller.list_of_emp_numbers = Model.cursor.fetchall()
+            Model.get_no_group_name_list(self)
+            Controller.list_of_names = Model.cursor.fetchall()
         else:
             Model.get_emp_list(self, Controller.selected_group[0])
-        Controller.list_of_emp_numbers = Model.cursor.fetchall()
-        Controller.list_of_emp_numbers.sort()
+            Controller.list_of_emp_numbers = Model.cursor.fetchall()
+            Model.get_name_list(self, Controller.selected_group[0])
+            Controller.list_of_names = Model.cursor.fetchall()
         for i in range(0, len(Controller.list_of_emp_numbers)):
             item = str(Controller.list_of_emp_numbers[i])
             item = re.sub(r'[(,)]', '', item)
-            newitem = item.replace('"', "")
+            newitem = item.replace("'", "")
             Controller.list_of_emp_numbers.remove(Controller.list_of_emp_numbers[i])
             Controller.list_of_emp_numbers.insert(i, int(newitem[0:-1]))
+        for i in range(0, len(Controller.list_of_names)):
+            item = str(Controller.list_of_names[i])
+            item = re.sub(r'[(,)]', '', item)
+            newitem = item.replace('"', "")
+            Controller.list_of_names.remove(Controller.list_of_names[i])
+            Controller.list_of_names.insert(i, newitem[1:-2])
+            Controller.rows.append('{} {}'.format(Controller.list_of_names[i], Controller.list_of_emp_numbers[i]))
+        Controller.rows.sort()
     
     def get_requests(self):
         Model.get_requests(self)
