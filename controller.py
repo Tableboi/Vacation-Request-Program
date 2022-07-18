@@ -150,7 +150,6 @@ class Controller:
     # ---- schedule
 
     #initialization list
-    #initialization list
     current_date = datetime.datetime.now()    
     current_month = datetime.datetime.now().month
     current_year = datetime.datetime.now().year
@@ -319,7 +318,7 @@ class Controller:
                         if stell_status == 1:
                             data_list[int(dayentered) - 1] = 'Stellvertreter'  
                         elif stell_status == 0:
-                            data_list[int(dayentered) - 1] = 'Stellvertreter?'
+                            data_list[int(dayentered) - 1] = 'Sv.: {}'.format(number_entered)
                         data_tuple = tuple(data_list)
                         Controller.data_values[nameindex] = data_tuple  
     # ---- schedule
