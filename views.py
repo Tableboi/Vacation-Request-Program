@@ -1,7 +1,7 @@
 #The view represents the GUI, which interact with the end
 #user. It represents the model's data to the user.
 import tkinter as tk
-from tkinter import Toplevel, ttk
+from tkinter import Toplevel, ttk, IntVar
 import tkinter.font
 from tkinter import messagebox
 from datetime import date
@@ -455,11 +455,18 @@ class request_window(ttk.Frame):
         self.stell_entry = ttk.Entry(self.section2)
         self.stell_entry.grid(column = 0, row = 1, **s2options)
 
+        self.Rvar1 = IntVar()
+
+        self.R1 = ttk.Radiobutton(self.section2, text = "Erholungsurlaub", variable = self.Rvar1, value = 1)
+        self.R2 = ttk.Radiobutton(self.section2, text = "Sonderurlaub", variable = self.Rvar1, value = 2)
+        self.R1.grid(column = 1, row = 0, **s2options)
+        self.R2.grid(column = 1, row = 1, **s2options)
+
         self.grund_label = ttk.Label(self.section2, text = "Urlaubsgrund")
-        self.grund_label.grid(column = 1, row = 0, **s2options)
+        self.grund_label.grid(column = 2, row = 0, **s2options)
 
         self.grund_entry = ttk.Entry(self.section2, width = 20)
-        self.grund_entry.grid(column = 1, row = 1, **s2options)
+        self.grund_entry.grid(column = 2, row = 1, **s2options)
 
         self.section2.grid(columnspan = 2, column = 0, row = 2, padx = 5, pady = 5, sticky = 'ns')
         # ----- Section 2
@@ -510,7 +517,19 @@ class request_window(ttk.Frame):
         end_date = self.dDateEnd.get().strip()
         if end_date == '' or end_date == 'YYYY-MM-DD':
             end_date = start_date
-        data = (start_date, end_date, int(login_info), self.grund_entry.get(), "geplant", self.stell_entry.get())
+        
+        erholungsurlaub = 'Erholungsurlaub'
+        sonderurlaub = self.grund_entry.get()
+
+        gründe = self.Rvar1.get()
+        if gründe == 1:
+            output = erholungsurlaub
+        elif gründe == 2:
+            output = sonderurlaub
+        else:
+            ...
+        
+        data = (start_date, end_date, int(login_info), output, "geplant", self.stell_entry.get())
         Controller.sub_new_info(self, data)
 
 class manager_view(ttk.Frame):
