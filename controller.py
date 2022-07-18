@@ -153,10 +153,6 @@ class Controller:
     current_date = datetime.datetime.now()    
     current_month = datetime.datetime.now().month
     current_year = datetime.datetime.now().year
-    #ProduktionsGruppe = {0:'Wissenträger', 1:'Produktions Gruppe 1', 2:'Produktions Gruppe 2', 
-    #                 3:'Produktions Gruppe 3', 4:'Produktions Gruppe 4', 5:'Produktionsunterstützung',
-    #                 6: 'Keine Gruppe'}
-
     ProduktionsGruppe = {0:'WISSENTRÄGER', 1:'PRODUKTIONS GRUPPE 1', 2:'PRODUKTIONS GRUPPE 2', 
                      3:'PRODUKTIONS GRUPPE 3', 4:'PRODUKTIONS GRUPPE 4', 5:'PRODUKTIONSUNTERSTÜTZ',
                      6: 'KEINE GRUPPE'}
@@ -204,6 +200,8 @@ class Controller:
             raw_list_of_emp_info.sort()
             for item in raw_list_of_emp_info:
                 Controller.list_of_emp_info.append(item)             
+        Controller.list_of_emp_info.clear()
+        Controller.rows.clear()
         if Controller.selected_group[0] == 7:
             for i in range(0,7):
                 Controller.list_of_emp_info.append([Controller.ProduktionsGruppe[i], None])
@@ -285,7 +283,7 @@ class Controller:
     def input_default_data(self):
         Controller.get_holidays(self)
         Controller.data_values.clear()    
-        for ii in range(0, len(Controller.rows)):
+        for ii in range(0, len(Controller.list_of_emp_info)):
             data_list = []
             for i in range(0, len(Controller.headers)):
                 Wochenende = set([5, 6])
@@ -303,7 +301,6 @@ class Controller:
                 if int(monthentered) == Controller.selected_month[0]:
                     if int(yearentered) == Controller.selected_year[0]:
                         data_list[int(dayentered) - 1] = 'Feiertag'
-            
             data_tuple = tuple(data_list)
             Controller.data_values.append(data_tuple)
          
