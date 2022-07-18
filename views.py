@@ -32,13 +32,13 @@ class loginbox(ttk.Frame):
         self.top_frame.pack(side = 'top', fill = 'x')
 
         # Create an object of tkinter ImageTk
-        self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB_negativ.png'
-        self.img = Image.open(self.path)
-        self.img.thumbnail((200,200))
-        self.new_img = ImageTk.PhotoImage(self.img)
+        #self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB_negativ.png'
+        #self.img = Image.open(self.path)
+        #self.img.thumbnail((200,200))
+        #self.new_img = ImageTk.PhotoImage(self.img)
         # Create a Label Widget to display the text or Image
-        self.label = ttk.Label(self.top_frame, image = self.new_img)
-        self.label.pack(side = 'right')
+        #self.label = ttk.Label(self.top_frame, image = self.new_img)
+        #self.label.pack(side = 'right')
 
         #setting the font types
         header_font = tkinter.font.Font(\
@@ -411,13 +411,13 @@ class request_window(ttk.Frame):
         self.title_label.grid(column = 0, row = 0, padx = 5, pady = 5)
 
         # Create an object of tkinter ImageTk
-        self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB_negativ.png'
-        self.img = Image.open(self.path)
-        self.img.thumbnail((200,200))
-        self.new_img = ImageTk.PhotoImage(self.img)
+        #self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB_negativ.png'
+        #self.img = Image.open(self.path)
+        #self.img.thumbnail((200,200))
+        #self.new_img = ImageTk.PhotoImage(self.img)
         # Create a Label Widget to display the text or Image
-        self.label = ttk.Label(self.Main, image = self.new_img)
-        self.label.grid(column = 1, row = 0, padx = 5, pady = 5)
+        #self.label = ttk.Label(self.Main, image = self.new_img)
+        #self.label.grid(column = 1, row = 0, padx = 5, pady = 5)
 
         # ----- Section 1
         # pack options for section 1
@@ -502,10 +502,6 @@ class request_window(ttk.Frame):
             self.nDaysLeft = Controller.days_left - (len(days))
             Controller.reduce_days(self, self.nDaysLeft)
             Controller.get_days_left(self, login_info)
-            #print(loginbox.tage_entry.get())
-            #loginbox.tage_entry.delete(0)
-            #loginbox.tage_entry.insert(0, Controller.days_left)
-        
         except ValueError as error:
             Controller.error_window(self, f'Date must be in YYYY-MM-DD format.\n\nError: {error}', 'error')
 
@@ -534,14 +530,14 @@ class manager_view(ttk.Frame):
         self.Headerframe.columnconfigure(6, weight = 2)
 
         # Create an object of tkinter ImageTk
-        self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB_negativ.png'
-        self.img = Image.open(self.path)
-        self.img.thumbnail((200,200))
-        self.new_img = ImageTk.PhotoImage(self.img)
+        #self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB_negativ.png'
+        #self.img = Image.open(self.path)
+        #self.img.thumbnail((200,200))
+        #self.new_img = ImageTk.PhotoImage(self.img)
         # Create a Label Widget to display the text or Image
-        self.label = ttk.Label(self.Headerframe, image = self.new_img)
-        self.label.grid(rowspan = 2, column = 7, row = 0, \
-            padx = 10, pady = 20, sticky = 'e')
+        #self.label = ttk.Label(self.Headerframe, image = self.new_img)
+        #self.label.grid(rowspan = 2, column = 7, row = 0, \
+        #    padx = 10, pady = 20, sticky = 'e')
 
         self.title_label = ttk.Label(self.Headerframe, text = "Manager Request Search")
         self.title_label.configure(font = header_font)
@@ -1098,8 +1094,10 @@ class TableModel(QtCore.QAbstractTableModel):
                 #return value.strftime('%d-%m-%Y')
         if role == Qt.BackgroundRole:
             value = self._data[index.row()][index.column()]
-            if value == 'Wochenende':
+            if value == '   ':
                 return QtGui.QColor('#757575')
+            if value == '______________':
+                return QtGui.QColor('dark gray')
             if value == 'Feiertag':
                 return QtGui.QColor('#55d3dd')
             if value == 'geplant':
@@ -1117,7 +1115,7 @@ class TableModel(QtCore.QAbstractTableModel):
             #return QtGui.QColor('gray')
 
     def rowCount(self, index):
-        return len(Controller.list_of_emp_numbers)
+        return len(Controller.rows)
 
 
     def columnCount(self, index = None):
@@ -1258,9 +1256,8 @@ class Ui_Form(object):
         group_selection = int(self.comboBox.currentIndex())
         data = Controller.data_values
         Controller.selected_group.clear()
-        Controller.list_of_emp_numbers.clear()
+        Controller.list_of_emp_info.clear()
         Controller.rows.clear()
-        #Controller.list_of_names.clear()
         Controller.selected_group.append(group_selection)
         self.model = TableModel(data)
         self.tableWidget.setModel(self.model)
