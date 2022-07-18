@@ -1,7 +1,7 @@
 #The view represents the GUI, which interact with the end
 #user. It represents the model's data to the user.
 import tkinter as tk
-from tkinter import Toplevel, ttk
+from tkinter import Toplevel, ttk, IntVar
 import tkinter.font
 from tkinter import messagebox
 from datetime import date
@@ -447,11 +447,20 @@ class request_window(ttk.Frame):
         self.stell_entry = ttk.Entry(self.section2)
         self.stell_entry.grid(column = 0, row = 1, **s2options)
 
+        self.Rvar1 = IntVar()
         self.grund_label = ttk.Label(self.section2, text = "Urlaubsgrund")
+
         self.grund_label.grid(column = 1, row = 0, **s2options)
+        self.R1 = ttk.Radiobutton(self.section2, text = "Erholungsurlaub", variable = self.Rvar1, value = 1)
+        self.R2 = ttk.Radiobutton(self.section2, text = "Sonderurlaub:", variable = self.Rvar1, value = 2)
+        self.R1.grid(column = 1, row = 0, **s2options)
+        self.R2.grid(column = 2, row = 0, **s2options)
+
+        self.grund_label = ttk.Label(self.section2, text = "")
+        self.grund_label.grid(column = 1, row = 1, **s2options)
 
         self.grund_entry = ttk.Entry(self.section2, width = 20)
-        self.grund_entry.grid(column = 1, row = 1, **s2options)
+        self.grund_entry.grid(column = 2, row = 1, **s2options)
 
         self.section2.grid(columnspan = 2, column = 0, row = 2, padx = 5, pady = 5, sticky = 'ns')
         # ----- Section 2
@@ -471,6 +480,7 @@ class request_window(ttk.Frame):
         self.Main.pack(fill = 'y')
 
     def update_nDaysLeft(self):
+        Controller.get_holidays(self)
         start_str = self.dDateStart.get().strip()
         end_str = self.dDateEnd.get().strip()
         if end_str == '' or end_str == 'YYYY-MM-DD':
@@ -479,9 +489,19 @@ class request_window(ttk.Frame):
         try:
             start_date = datetime.datetime.strptime(start_str, "%Y-%m-%d").date()
             end_date = datetime.datetime.strptime(end_str, "%Y-%m-%d").date()
-            self.delta = (end_date - start_date).days
+            self.delta = end_date - start_date
+            days = [start_date + timedelta(days = i) for i in range(self.delta.days + 1)]
+            Wochenende = set([5, 6])
+            days_to_delete = []
+            for i in days:
+                if i.weekday() in Wochenende:
+                    days_to_delete.append(i)
+                elif i.strftime('%Y.' + '%m.' + '%d') in Controller.list_of_holiday_dates:
+                    days_to_delete.append(i)
+            for day in days_to_delete:
+                days.remove(day)
             Controller.get_days_left(self, login_info)
-            self.nDaysLeft = Controller.days_left - (self.delta + 1)
+            self.nDaysLeft = Controller.days_left - (len(days))
 
             Controller.reduce_days(self, self.nDaysLeft)
 
@@ -495,7 +515,18 @@ class request_window(ttk.Frame):
         end_date = self.dDateEnd.get().strip()
         if end_date == '' or end_date == 'YYYY-MM-DD':
             end_date = start_date
-        data = (start_date, end_date, int(login_info), self.grund_entry.get(), "geplant", self.stell_entry.get())
+        erholungsurlaub = 'Erholungsurlaub'
+        sonderurlaub = self.grund_entry.get()
+
+        gründe = self.Rvar1.get()
+        if gründe == 1:
+            output = erholungsurlaub
+        elif gründe == 2:
+            output = sonderurlaub
+        else:
+            ...
+
+        data = (start_date, end_date, int(login_info), output, "geplant", self.stell_entry.get())
         Controller.sub_new_info(self, data)
 
 class manager_view(ttk.Frame):
@@ -936,8 +967,10 @@ class TableModel(QtCore.QAbstractTableModel):
                 #return value.strftime('%d-%m-%Y')
         if role == Qt.BackgroundRole:
             value = self._data[index.row()][index.column()]
-            if value == 'Wochenende':
+            if value == '   ':
                 return QtGui.QColor('#757575')
+            if value == '______________':
+                return QtGui.QColor('dark gray')
             if value == 'Feiertag':
                 return QtGui.QColor('#55d3dd')
             if value == 'geplant':
@@ -954,8 +987,8 @@ class TableModel(QtCore.QAbstractTableModel):
         #if role == Qt.BackgroundRole:
             #return QtGui.QColor('gray')
 
-    def rowCount(self, index):
-        return len(Controller.list_of_emp_numbers)
+    def rowCount(self, index = None):
+        return len(Controller.rows)
 
 
     def columnCount(self, index = None):
@@ -965,7 +998,7 @@ class TableModel(QtCore.QAbstractTableModel):
         if orientation == QtCore.Qt.Horizontal and role == QtCore.Qt.DisplayRole:
             return Controller.headers[section]
         if orientation == QtCore.Qt.Vertical and role == QtCore.Qt.DisplayRole:
-            return 'Employee {}'.format(Controller.list_of_emp_numbers[section])
+            return Controller.rows[section]
         return QtCore.QAbstractTableModel.headerData(self, section, orientation, role)
 
 class Ui_Form(object):
@@ -993,6 +1026,7 @@ class Ui_Form(object):
         self.verticalLayout.setObjectName("verticalLayout")
         self.comboBox = QtWidgets.QComboBox(self.layoutWidget)
         self.comboBox.setObjectName("comboBox")
+        self.comboBox.addItem("")
         self.comboBox.addItem("")
         self.comboBox.addItem("")
         self.comboBox.addItem("")
@@ -1039,7 +1073,7 @@ class Ui_Form(object):
         if empnum not in Controller.manager_empnums:
             Controller.get_group_from_empnum(self, empnum)
         if empnum in Controller.manager_empnums:
-            Controller.selected_group.append(0)
+            Controller.selected_group.append(7)
 
         self.tableWidget = QtWidgets.QTableView(self.layoutWidget) 
         self.tableWidget.setObjectName("tableWidget")
@@ -1068,6 +1102,7 @@ class Ui_Form(object):
         self.comboBox.setItemText(4, _translate("Form", "Produktions Gruppe 4"))
         self.comboBox.setItemText(5, _translate("Form", "Produktionsunterstützung"))
         self.comboBox.setItemText(6, _translate("Form", "Keine Gruppe"))
+        self.comboBox.setItemText(7, _translate("Form", "Alle Grupppen"))
         self.comboBox.setCurrentIndex(Controller.selected_group[0])
         self.comboBox_2.setItemText(0, _translate("Form", "Jan"))
         self.comboBox_2.setItemText(1, _translate("Form", "Feb"))
@@ -1097,10 +1132,11 @@ class Ui_Form(object):
         group_selection = int(self.comboBox.currentIndex())
         data = Controller.data_values
         Controller.selected_group.clear()
+        Controller.list_of_emp_info.clear()
+        Controller.rows.clear()
         Controller.selected_group.append(group_selection)
         self.model = TableModel(data)
-        self.tableWidget.setModel(self.model) #needed to put table into frame
-        #print('changing group')
+        self.tableWidget.setModel(self.model)
 
     def change_month(self):
         month_selection = int(self.comboBox_2.currentIndex()) + 1
@@ -1108,8 +1144,7 @@ class Ui_Form(object):
         Controller.selected_month.clear()
         Controller.selected_month.append(month_selection)
         self.model = TableModel(data)
-        self.tableWidget.setModel(self.model) #needed to put table into frame
-        #print('changing month')
+        self.tableWidget.setModel(self.model)
 
     def change_year(self):
         year_selection = int(self.comboBox_3.currentText())
