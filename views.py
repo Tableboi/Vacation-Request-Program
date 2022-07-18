@@ -458,12 +458,12 @@ class request_window(ttk.Frame):
         self.Rvar1 = IntVar()
 
         self.R1 = ttk.Radiobutton(self.section2, text = "Erholungsurlaub", variable = self.Rvar1, value = 1)
-        self.R2 = ttk.Radiobutton(self.section2, text = "Sonderurlaub", variable = self.Rvar1, value = 2)
+        self.R2 = ttk.Radiobutton(self.section2, text = "Sonderurlaub:", variable = self.Rvar1, value = 2)
         self.R1.grid(column = 1, row = 0, **s2options)
-        self.R2.grid(column = 1, row = 1, **s2options)
+        self.R2.grid(column = 2, row = 0, **s2options)
 
-        self.grund_label = ttk.Label(self.section2, text = "Urlaubsgrund")
-        self.grund_label.grid(column = 2, row = 0, **s2options)
+        self.grund_label = ttk.Label(self.section2, text = "")
+        self.grund_label.grid(column = 1, row = 1, **s2options)
 
         self.grund_entry = ttk.Entry(self.section2, width = 20)
         self.grund_entry.grid(column = 2, row = 1, **s2options)
