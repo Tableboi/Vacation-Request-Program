@@ -1107,8 +1107,10 @@ class TableModel(QtCore.QAbstractTableModel):
         if role == Qt.DisplayRole:
             #.row() indexes into the outer list
             #.column() indexes into the sub-list
-            value = self._data[index.row()][index.column()]
-            return value
+            
+                value = self._data[index.row()][index.column()]
+                return value
+           
             #if isinstance(value, datetime.datetime):
                 #return value.strftime('%d-%m-%Y')
         if role == Qt.BackgroundRole:
@@ -1133,7 +1135,7 @@ class TableModel(QtCore.QAbstractTableModel):
         #if role == Qt.BackgroundRole:
             #return QtGui.QColor('gray')
 
-    def rowCount(self, index):
+    def rowCount(self, index = None):
         return len(Controller.rows)
 
 
