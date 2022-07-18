@@ -32,13 +32,13 @@ class loginbox(ttk.Frame):
         self.top_frame.pack(side = 'top', fill = 'x')
 
         # Create an object of tkinter ImageTk
-        #self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB_negativ.png'
-        #self.img = Image.open(self.path)
-        #self.img.thumbnail((200,200))
-        #self.new_img = ImageTk.PhotoImage(self.img)
+        self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB_negativ.png'
+        self.img = Image.open(self.path)
+        self.img.thumbnail((200,200))
+        self.new_img = ImageTk.PhotoImage(self.img)
         # Create a Label Widget to display the text or Image
-        #self.label = ttk.Label(self.top_frame, image = self.new_img)
-        #self.label.pack(side = 'right')
+        self.label = ttk.Label(self.top_frame, image = self.new_img)
+        self.label.pack(side = 'right')
 
         #setting the font types
         header_font = tkinter.font.Font(\
@@ -411,13 +411,13 @@ class request_window(ttk.Frame):
         self.title_label.grid(column = 0, row = 0, padx = 5, pady = 5)
 
         # Create an object of tkinter ImageTk
-        #self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB_negativ.png'
-        #self.img = Image.open(self.path)
-        #self.img.thumbnail((200,200))
-        #self.new_img = ImageTk.PhotoImage(self.img)
+        self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB_negativ.png'
+        self.img = Image.open(self.path)
+        self.img.thumbnail((200,200))
+        self.new_img = ImageTk.PhotoImage(self.img)
         # Create a Label Widget to display the text or Image
-        #self.label = ttk.Label(self.Main, image = self.new_img)
-        #self.label.grid(column = 1, row = 0, padx = 5, pady = 5)
+        self.label = ttk.Label(self.Main, image = self.new_img)
+        self.label.grid(column = 1, row = 0, padx = 5, pady = 5)
 
         # ----- Section 1
         # pack options for section 1
@@ -479,21 +479,32 @@ class request_window(ttk.Frame):
         self.Main.pack(fill = 'y')
 
     def update_nDaysLeft(self):
+        Controller.get_holidays(self)
         start_str = self.dDateStart.get().strip()
         end_str = self.dDateEnd.get().strip()
-        if end_str == '' or 'YYYY-MM-DD':
+        if end_str == '' or end_str == 'YYYY-MM-DD':
             end_str = start_str
-
         try:
             start_date = datetime.datetime.strptime(start_str, "%Y-%m-%d").date()
             end_date = datetime.datetime.strptime(end_str, "%Y-%m-%d").date()
-            self.delta = (end_date - start_date).days
+            self.delta = end_date - start_date
+            days = [start_date + timedelta(days = i) for i in range(self.delta.days + 1)]
+            Wochenende = set([5, 6])
+            days_to_delete = []
+            for i in days:
+                if i.weekday() in Wochenende:
+                    days_to_delete.append(i)
+                elif i.strftime('%Y.' + '%m.' + '%d') in Controller.list_of_holiday_dates:
+                    days_to_delete.append(i)
+            for day in days_to_delete:
+                days.remove(day)
             Controller.get_days_left(self, login_info)
-            self.nDaysLeft = Controller.days_left - (self.delta + 1)
-
+            self.nDaysLeft = Controller.days_left - (len(days))
             Controller.reduce_days(self, self.nDaysLeft)
-
             Controller.get_days_left(self, login_info)
+            #print(loginbox.tage_entry.get())
+            #loginbox.tage_entry.delete(0)
+            #loginbox.tage_entry.insert(0, Controller.days_left)
         
         except ValueError as error:
             Controller.error_window(self, f'Date must be in YYYY-MM-DD format.\n\nError: {error}', 'error')
@@ -523,14 +534,14 @@ class manager_view(ttk.Frame):
         self.Headerframe.columnconfigure(6, weight = 2)
 
         # Create an object of tkinter ImageTk
-        #self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB_negativ.png'
-        #self.img = Image.open(self.path)
-        #self.img.thumbnail((200,200))
-        #self.new_img = ImageTk.PhotoImage(self.img)
+        self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB_negativ.png'
+        self.img = Image.open(self.path)
+        self.img.thumbnail((200,200))
+        self.new_img = ImageTk.PhotoImage(self.img)
         # Create a Label Widget to display the text or Image
-        #self.label = ttk.Label(self.Headerframe, image = self.new_img)
-        #self.label.grid(rowspan = 2, column = 7, row = 0, \
-        #    padx = 10, pady = 20, sticky = 'e')
+        self.label = ttk.Label(self.Headerframe, image = self.new_img)
+        self.label.grid(rowspan = 2, column = 7, row = 0, \
+            padx = 10, pady = 20, sticky = 'e')
 
         self.title_label = ttk.Label(self.Headerframe, text = "Manager Request Search")
         self.title_label.configure(font = header_font)
