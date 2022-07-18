@@ -1,5 +1,4 @@
-def all_view(self):
-        Controller.search_all(self)
+def specific_view(self):
         #list necessary for entries
         self.entries = []
 
@@ -13,7 +12,7 @@ def all_view(self):
         self.antrags_label = ttk.Label(self.F1.interior, text = 'Antragsnummer', **column_headers)
         self.antrags_label.config(font = column_font)
         self.antrags_label.grid(column = 0, row = 0)
-        
+
         self.start_label = ttk.Label(self.F1.interior, text = 'Startdatum', **column_headers)
         self.start_label.config(font = column_font)
         self.start_label.grid(column = 1, row = 0)
@@ -34,9 +33,7 @@ def all_view(self):
         self.status_label.config(font = column_font)
         self.status_label.grid(column = 5, row = 0)
 
-        self.pnummer_label = ttk.Label(self.F1.interior, text = 'Personalnummer', **column_headers)
-        self.pnummer_label.config(font = column_font)
-        self.pnummer_label.grid(column = 6, row = 0)
+        row_len = len(Controller.fetched_reqs)
 
         antrags_list = []
         start_list = []
@@ -45,11 +42,10 @@ def all_view(self):
         grund_list = []
         status_list = []
         status_val_list = []
-        emp_list = []
         button_list = []
         delete_button_list = []
 
-        for i in range(0, len(Controller.fetched_reqs), 1):
+        for i in range(0, row_len, 1):
             pad_options = {'padx' : 5, 'pady' : 5}
             self.entry = Controller.fetched_reqs[i]
 
@@ -63,8 +59,6 @@ def all_view(self):
 
             grund_list.append(tk.Entry(self.F1.interior, width = 15, relief = 'groove'))
 
-            emp_list.append(tk.Entry(self.F1.interior, width = 15, relief = 'groove'))
-
             antrags_list[i].insert(0, str(self.entry[0]))
             antrags_list[i].grid(row = i + 1, column = 0, **pad_options)
             antrags_list[i].config(state = 'disabled')
@@ -77,19 +71,16 @@ def all_view(self):
 
             stell_list[i].insert(0, str(self.entry[3]))
             stell_list[i].config(foreground = 'black')
-            if int(self.entry[7]) == 0:
+            if int(self.entry[6]) == 0:
                 stell_list[i].config(background = '#d4ef64')
-            elif int(self.entry[7]) == 1:
+            elif int(self.entry[6]) == 1:
                 stell_list[i].config(background = '#64ef7f')
-            elif int(self.entry[7]) == 2:
+            elif int(self.entry[6]) == 2:
                 stell_list[i].config(background = '#ef7f64')
             stell_list[i].grid(row = i + 1, column = 3, **pad_options)
 
             grund_list[i].insert(0, str(self.entry[4]))
             grund_list[i].grid(row = i + 1, column = 4, **pad_options)
-
-            emp_list[i].insert(0, str(self.entry[6]))
-            emp_list[i].grid(row = i + 1, column = 6)
 
             def cycle_status_val(i):
                 if status_val_list[i] == 2:
@@ -137,19 +128,20 @@ def all_view(self):
                 sStellvertreter = stell_list[i].get().strip()
                 xnRequest = antrags_list[i].get().strip()
 
-                if end_date == '':
-                    end_date = start_date
-                updated = (start_date, end_date, new_reason, sStatus, sStellvertreter, xnRequest)
-                Controller.man_update(self, updated)
+                if start_date or end_date:
+                    if end_date == '':
+                        end_date = start_date
+                    updated = (start_date, end_date, new_reason, sStatus, sStellvertreter, xnRequest)
+                    Controller.man_update(self, updated)
 
             button_list.append(ttk.Button(self.F1.interior, text = 'Update', width = 10, \
-                command = lambda i=i : update_button(i)))
-            button_list[i].grid(row = i + 1, column = 7, **pad_options)
+                command = lambda i=i : update_button(self, i)))
+            button_list[i].grid(row = i + 1, column = 6, **pad_options)
 
             def delete_button(i):
-                Controller.delete(self, int(antrags_list[i].get()))
-                self.all_view()
+                Controller.delete(int(antrags_list[i].get()))
+                self.search_by_employee()
             
             delete_button_list.append(ttk.Button(self.F1.interior, text = 'Delete', \
-                width = 10, command = lambda i=i : delete_button(i)))
+                width = 10, command = lambda i=i : delete_button(self, i)))
             delete_button_list[i].grid(row = i + 1, column = 8, **pad_options)
