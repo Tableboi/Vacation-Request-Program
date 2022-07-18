@@ -255,7 +255,7 @@ class Controller:
                         for i in range(0, len(daterangelist)):
                             Controller.request_dictionary[request_number + (i * .01)] = [selected_employee, 
                                                 daterangelist[i].strftime('%Y.' + '%m.' + '%d'), status, 
-                                                stellvertreter_info, stell_status)
+                                                stellvertreter_info, stell_status]
 
     def get_holidays(self):
         Model.get_holidays(self)
