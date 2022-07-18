@@ -94,9 +94,18 @@ class Model:
                 sReasons : str
                 sStatus : str
                 sStellvertreter : str"""
-                self.request_submitter = """INSERT INTO dbo.PC_VacationsRequests (dDateStart, dDateEnd, nEmployee, sReasons, sStatus, sStellvertreter)
-                                VALUES (?, ?, ?, ?, ?, ?)"""
-                Model.cursor.execute(self.request_submitter, new_info)
+                
+                self.name_from_empnum_getter = """SELECT [sFirstName], [sName]
+                        FROM [PulseCoreTest5].[dbo].[PO_employee]
+                        WHERE [nEmployee] = ?"""
+                
+                Model.cursor.execute(self.name_from_empnum_getter, new_info[2])
+                first_and_last_names = Model.cursor.fetchall()
+                data = (new_info) + tuple(first_and_last_names[0])
+                print(data)
+                self.request_submitter = """INSERT INTO dbo.PC_VacationsRequests (dDateStart, dDateEnd, nEmployee, sReasons, sStatus, sStellvertreter, sFirstName, sLastName)
+                                VALUES (?, ?, ?, ?, ?, ?, ?, ?)"""
+                Model.cursor.execute(self.request_submitter, data)
                 Model.cnxn.commit()
 
         def reduce_days(self, nDaysLeft, nEmployee):
