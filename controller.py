@@ -73,7 +73,10 @@ class Controller:
     #submit
     def sub_new_info(self, new_info):
         try:
-            Model.submit_request(self, new_info)
+            Model.fetch_name(self, new_info[2])
+            first_and_last_names = Model.cursor.fetchall()
+            data = (new_info) + tuple(first_and_last_names[0])
+            Model.submit_request(self, data)
             Controller.error_window(self, 'Your submission was recorded!', 'info')
         except pyodbc.DataError as error:
             Controller.error_window(self, f'Formatting Error\n\n{error}', 'error')
@@ -96,7 +99,7 @@ class Controller:
         except pyodbc.Error as error:
             Controller.error_window(self, f'{error}', 'error')
     
-    #search by employee, also used in the loginbox
+    #search by employee, also used in the employee_req_view
     def search_emp(self, nEmployee):
         try:
             Model.emp_search(self, nEmployee)
@@ -112,46 +115,6 @@ class Controller:
             Controller.req_data = Model.cursor.fetchone()
         except pyodbc.Error as error:
             Controller.error_window(self, f'{error}', 'error')
-
-    #load unseen
-    def get_unseen(self):
-        try:
-            Model.get_unseen(self)
-            Controller.fetched_reqs = Model.cursor.fetchall()
-        except pyodbc.Error as error:
-            Controller.error_window(self, f'{error}', 'error')
-    
-    #load approved
-    def get_green(self):
-        try:
-            Model.get_by_green(self)
-            Controller.fetched_reqs = Model.cursor.fetchall()
-        except pyodbc.Error as error:
-            Controller.error_window(self, f'{error}', 'error')
-    
-    #load unapproved
-    def get_yellow(self):
-        try:
-            Model.get_by_yellow(self)
-            Controller.fetched_reqs = Model.cursor.fetchall()
-        except pyodbc.Error as error:
-            Controller.error_window(self, f'{error}', 'error')
-
-    #load denied
-    def get_red(self):
-        try:
-            Model.get_by_red(self)
-            Controller.fetched_reqs = Model.cursor.fetchall()
-        except pyodbc.Error as error:
-            Controller.error_window(self, f'{error}', 'error')
-    
-    #load by name
-    def get_by_name(self, sLastName):
-        try:
-            Model.get_by_name(self, sLastName)
-            Controller.fetched_reqs = Model.cursor.fetchall()
-        except pyodbc.Error as error:
-            Controller.errow_window(self, f'{error}', 'error')
 
     #update
     def man_update(self, man_info):
@@ -169,7 +132,15 @@ class Controller:
             Model.delete_request(self, xnRequest)
         except pyodbc.Error as error:
             Controller.error_window(self, f'{error}', 'error')
-
+    
+    #load unseen
+    def get_unseen(self):
+        try:
+            Model.get_unseen(self)
+            Controller.fetched_reqs = Model.cursor.fetchall()
+        except pyodbc.Error as error:
+            Controller.error_window(self, f'{error}', 'error')
+    
     #mark as seen
     def set_seen(self, xnRequest):
         try:
@@ -185,8 +156,8 @@ class Controller:
     current_date = datetime.datetime.now()    
     current_month = datetime.datetime.now().month
     current_year = datetime.datetime.now().year
-    ProduktionsGruppe = {0:'WISSENTRÄGER', 1:'PRODUKTIONSGRUPPE 1', 2:'PRODUKTIONSGRUPPE 2', 
-                     3:'PRODUKTIONSGRUPPE 3', 4:'PRODUKTIONSGRUPPE 4', 5:'PRODUKTIONSUNTERSTÜTZUNG',
+    ProduktionsGruppe = {0:'WISSENTRÄGER', 1:'PRODUKTIONS GRUPPE 1', 2:'PRODUKTIONS GRUPPE 2', 
+                     3:'PRODUKTIONS GRUPPE 3', 4:'PRODUKTIONS GRUPPE 4', 5:'PRODUKTIONSUNTERSTÜTZ',
                      6: 'KEINE GRUPPE'}
 
     years = {0:current_year, 1:current_year + 1, 2: current_year + 2, 3: current_year + 3, 
@@ -221,7 +192,7 @@ class Controller:
         else:
             Controller.selected_group.append(int(str(pyodbc_row)[2]))
             Controller.login_empnum.clear()
-
+    
     def get_emp_list(self):    
         def get_group():
             if Controller.selected_group[0] == 6:
@@ -242,9 +213,10 @@ class Controller:
                 get_group()
             Controller.selected_group.clear()
             Controller.selected_group.append(7)
+                
         else:
             get_group()
-
+        
         for item in Controller.list_of_emp_info:
                 if item[1] is not None:
                     emp_last_name = item[0]
@@ -253,7 +225,7 @@ class Controller:
                     Controller.rows.append('{}, {} {}'.format(emp_last_name, emp_first_name, emp_number)) 
                 if item[1] is None:
                     Controller.rows.append(item[0])
-    
+   
     def get_requests(self):
         Model.get_requests(self)
         Controller.request_list_raw = Model.cursor.fetchall()
@@ -262,17 +234,16 @@ class Controller:
             request_number = item[0]
             emp_last_name = item[1]
             emp_first_name = item[2]
-            emp_number = item[5]
-            date_start = item[3]
-            date_end = item[4]
-            status = item[7]
-            stell_name = item[8]
-            stell_status = item[9]
+            emp_number = item[3]
+            date_start = item[4]
+            date_end = item[5]
+            status = item[6]
+            stell_name = item[7]
+            stell_status = item[8]
             selected_employee.append('{}, {} {}'.format(emp_last_name, emp_first_name, emp_number))
             if stell_name is not None and stell_name != 'None' and stell_name != '':
                 Model.get_stellvertreter_info(self, stell_name)
                 raw_stellvertreter_info = Model.cursor.fetchall()
-                print(raw_stellvertreter_info)
                 stell_last_name = raw_stellvertreter_info[0][0]
                 stell_first_name = raw_stellvertreter_info[0][1]
                 stell_number = raw_stellvertreter_info[0][2]
@@ -319,12 +290,13 @@ class Controller:
             data_list = []
             for i in range(0, len(Controller.headers)):
                 Wochenende = set([5, 6])
-                if datetime.datetime(int(Controller.selected_year[0]), 
+                if Controller.list_of_emp_info[ii][1] is None:
+                    data_list.append('______________')
+                elif datetime.datetime(int(Controller.selected_year[0]), 
                                      int(Controller.selected_month[0]), i + 1).weekday() in Wochenende:
-                    data_list.append('  ')
+                    data_list.append('   ')
                 else:
                     data_list.append(' ')
-
             for item in Controller.list_of_holiday_dates:
                 dayentered = (item[8:10:1]).lstrip('0')
                 monthentered = (item[5:7:1]).lstrip('0')
@@ -334,7 +306,7 @@ class Controller:
                         data_list[int(dayentered) - 1] = 'Feiertag'
             data_tuple = tuple(data_list)
             Controller.data_values.append(data_tuple)
-
+         
     def edit_data(self):
         for key, value in Controller.request_dictionary.items():
             req_info = value
@@ -369,15 +341,15 @@ class Controller:
                     data_list = list(Controller.data_values[nameindex])
                     if data_list[int(dayentered) - 1] == ' ':
                         if stell_status == 1:
-                            data_list[int(dayentered) - 1] = f'Sv.: {employee_info}' 
+                            data_list[int(dayentered) - 1] = 'Sv.: {}'.format(employee_info)  
                         elif stell_status == 0:
-                            data_list[int(dayentered) - 1] = f'Sv.?: {employee_info}'
+                            data_list[int(dayentered) - 1] = 'Sv.?: {}'.format(employee_info)
                         data_tuple = tuple(data_list)
                         Controller.data_values[nameindex] = data_tuple
     # ---- schedule
     
     #popup handler
-    def error_window(self, message, type = 'info', timeout = 2000):
+    def error_window(self, message, type = 'info', timeout = 2500):
         error_window = tk.Tk()
         error_window.withdraw()
         error_window.after(timeout, error_window.destroy)

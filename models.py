@@ -35,18 +35,7 @@ class Model:
                 """Parameters
                 ---------
                 sName = str"""
-                self.stell_checker = """SELECT [xnRequest]
-                                ,[dDateStart]
-                                ,[dDateEnd]
-                                ,[nEmployee]
-                                ,[sReasons]
-                                ,[sStatus]
-                                ,[sStellvertreter]
-                                ,[nStellStatus]
-                                ,[nNotify]
-                                ,[sFirstName]
-                                ,[sLastName]
-                                FROM [PulseCoreTest5].[dbo].[PC_VacationsRequests]
+                self.stell_checker = """SELECT * FROM [PulseCoreTest5].[dbo].[PC_VacationsRequests]
                                 WHERE [sStellvertreter] = ? AND [nStellStatus] = 0"""
 
                 Model.cursor.execute(self.stell_checker, sName)
@@ -72,22 +61,20 @@ class Model:
                                 WHERE [nEmployee] = ?"""
                 Model.cursor.execute(self.days_left_getter, login_info)
 
-        #update requests in scrollframe, autosets stellstatus to 0        
+        #update requests in scrollframe        
         def update_request(self, updated_info):      
                 """Parameters
                 -----------
                 dDateStart : date
                 dDateEnd : date
                 sReasons : str
-                nStellStatus : int
                 xnRequest : int
+                sStellvertreter : str
                 nEmployee : int"""
                 self.request_updater = """UPDATE [PulseCoreTest5].[dbo].[PC_VacationsRequests]
-                                SET [dDateStart] = ?
-                                ,[dDateEnd] = ?
-                                ,[sReasons] = ?
-                                ,[nStellStatus] = ?
-                                ,[sStatus] = 'geplant'
+                                SET [dDateStart] = ?,
+                                [dDateEnd] = ?,
+                                [sReasons] = ?
                                 WHERE [xnRequest] = ? AND [nEmployee] = ?"""
                 Model.cursor.execute(self.request_updater, updated_info)
                 Model.cnxn.commit()
@@ -98,7 +85,17 @@ class Model:
         
         #submit
 
-        def submit_request(self, new_info):
+        def fetch_name(self, nEmployee):
+                """Parameters
+                -----------
+                nEmployee : int"""
+                
+                self.name_from_empnum_getter = """SELECT [sFirstName], [sName]
+                        FROM [PulseCoreTest5].[dbo].[PO_employee]
+                        WHERE [nEmployee] = ?"""
+                Model.cursor.execute(self.name_from_empnum_getter, nEmployee)
+        
+        def submit_request(self, data):
                 """Parameters
                 -----------
                 dDateStart : date
@@ -106,15 +103,9 @@ class Model:
                 nEmployee : int
                 sReasons : str
                 sStatus : str
-                sStellvertreter : str"""
-                self.name_from_empnum_getter = """SELECT [sFirstName], [sName]
-                        FROM [PulseCoreTest5].[dbo].[PO_employee]
-                        WHERE [nEmployee] = ?"""
-
-                Model.cursor.execute(self.name_from_empnum_getter, new_info[2])
-                first_and_last_names = Model.cursor.fetchall()
-                data = (new_info) + tuple(first_and_last_names[0])
-                
+                sStellvertreter : str
+                sFirstName : str
+                sLastName : str"""          
                 self.request_submitter = """INSERT INTO dbo.PC_VacationsRequests (dDateStart, dDateEnd, nEmployee, sReasons, sStatus, sStellvertreter, sFirstName, sLastName)
                                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)"""
                 Model.cursor.execute(self.request_submitter, data)
@@ -141,14 +132,11 @@ class Model:
                 self.all_searcher = """SELECT [xnRequest]
                                 ,[dDateStart]
                                 ,[dDateEnd]
-                                ,[nEmployee]
+                                ,[sStellvertreter]
                                 ,[sReasons]
                                 ,[sStatus]
-                                ,[sStellvertreter]
+                                ,[nEmployee]
                                 ,[nStellStatus]
-                                ,[nNotify]
-                                ,[sFirstName]
-                                ,[sLastName]
                                 FROM [PulseCoreTest5].[dbo].[PC_VacationsRequests]"""
                 Model.cursor.execute(self.all_searcher)
 
@@ -160,14 +148,10 @@ class Model:
                 self.emp_searcher = """SELECT [xnRequest]
                                 ,[dDateStart]
                                 ,[dDateEnd]
-                                ,[nEmployee]
+                                ,[sStellvertreter]
                                 ,[sReasons]
                                 ,[sStatus]
-                                ,[sStellvertreter]
                                 ,[nStellStatus]
-                                ,[nNotify]
-                                ,[sFirstName]
-                                ,[sLastName]
                                 FROM [PulseCoreTest5].[dbo].[PC_VacationsRequests]
                                 WHERE [nEmployee] = ?"""
                 Model.cursor.execute(self.emp_searcher, nEmployee)
@@ -177,120 +161,15 @@ class Model:
                 """Parameters
                 -----------
                 xnRequest : int"""
-                self.request_fetcher = """SELECT [xnRequest]
-                                ,[dDateStart]
+                self.request_fetcher = """SELECT [dDateStart]
                                 ,[dDateEnd]
-                                ,[nEmployee]
+                                ,[sStellvertreter]
                                 ,[sReasons]
                                 ,[sStatus]
-                                ,[sStellvertreter]
-                                ,[nStellStatus]
-                                ,[nNotify]
-                                ,[sFirstName]
-                                ,[sLastName]
+                                ,[nEmployee]
                                 FROM [PulseCoreTest5].[dbo].[PC_VacationsRequests]
                                 WHERE [xnRequest] = ?"""
                 Model.cursor.execute(self.request_fetcher, xnRequest)
-        
-        #load unseen
-        def get_unseen(self):
-                """Parameters
-                ---------
-                None"""
-                self.unseen_getter = """SELECT [xnRequest]
-                                ,[dDateStart]
-                                ,[dDateEnd]
-                                ,[nEmployee]
-                                ,[sReasons]
-                                ,[sStatus]
-                                ,[sStellvertreter]
-                                ,[nStellStatus]
-                                ,[nNotify]
-                                ,[sFirstName]
-                                ,[sLastName]
-                                FROM [PulseCoreTest5].[dbo].[PC_VacationsRequests]
-                                WHERE [nNotify] = 0"""
-                Model.cursor.execute(self.unseen_getter)
-        
-        #fetch approved reqs
-        def get_by_green(self):
-                """Parameters
-                ---------
-                None"""
-                self.green_getter = """SELECT [xnRequest]
-                                ,[dDateStart]
-                                ,[dDateEnd]
-                                ,[nEmployee]
-                                ,[sReasons]
-                                ,[sStatus]
-                                ,[sStellvertreter]
-                                ,[nStellStatus]
-                                ,[nNotify]
-                                ,[sFirstName]
-                                ,[sLastName]
-                                FROM [PulseCoreTest5].[dbo].[PC_VacationsRequests]
-                                WHERE [sStatus] = 'bestätigt'"""
-                Model.cursor.execute(self.green_getter)
-
-        #fetch unapproved reqs
-        def get_by_yellow(self):
-                """Parameters
-                ---------
-                None"""
-                self.yellow_getter = """SELECT [xnRequest]
-                                ,[dDateStart]
-                                ,[dDateEnd]
-                                ,[nEmployee]
-                                ,[sReasons]
-                                ,[sStatus]
-                                ,[sStellvertreter]
-                                ,[nStellStatus]
-                                ,[nNotify]
-                                ,[sFirstName]
-                                ,[sLastName]
-                                FROM [PulseCoreTest5].[dbo].[PC_VacationsRequests]
-                                WHERE [sStatus] = 'geplant'"""
-                Model.cursor.execute(self.yellow_getter)
-        
-        #fetch denied reqs
-        def get_by_red(self):
-                """Parameters
-                ---------
-                None"""
-                self.red_getter = """SELECT [xnRequest]
-                                ,[dDateStart]
-                                ,[dDateEnd]
-                                ,[nEmployee]
-                                ,[sReasons]
-                                ,[sStatus]
-                                ,[sStellvertreter]
-                                ,[nStellStatus]
-                                ,[nNotify]
-                                ,[sFirstName]
-                                ,[sLastName]
-                                FROM [PulseCoreTest5].[dbo].[PC_VacationsRequests]
-                                WHERE [sStatus] = 'denied'"""
-                Model.cursor.execute(self.red_getter)
-        
-        #fetch reqs by name
-        def get_by_name(self, sLastName):
-                """Parameters
-                ---------
-                sLastName : str"""
-                self.by_name_getter ="""SELECT [xnRequest]
-                                ,[dDateStart]
-                                ,[dDateEnd]
-                                ,[nEmployee]
-                                ,[sReasons]
-                                ,[sStatus]
-                                ,[sStellvertreter]
-                                ,[nStellStatus]
-                                ,[nNotify]
-                                ,[sFirstName]
-                                ,[sLastName]
-                                FROM [PulseCoreTest5].[dbo].[PC_VacationsRequests]
-                                WHERE [sLastName] = ?"""
-                Model.cursor.execute(self.by_name_getter, sLastName)
 
         #update
         def man_update(self, man_info):       
@@ -303,11 +182,11 @@ class Model:
                 sStatus : str
                 sStellvertreter : str"""
                 self.man_updater = """UPDATE [PulseCoreTest5].[dbo].[PC_VacationsRequests]
-                                SET [dDateStart] = ?
-                                ,[dDateEnd] = ?
-                                ,[sReasons] = ?
-                                ,[sStatus] = ?
-                                ,[sStellvertreter] = ?
+                                SET [dDateStart] = ?,
+                                [dDateEnd] = ?,
+                                [sReasons] = ?,
+                                [sStatus] = ?,
+                                [sStellvertreter] = ?
                                 WHERE [xnRequest] = ?"""
                 Model.cursor.execute(self.man_updater, man_info)
                 Model.cnxn.commit()
@@ -321,6 +200,23 @@ class Model:
                                 WHERE [xnRequest] = ?"""
                 Model.cursor.execute(self.request_deleter, xnRequest)
                 Model.cnxn.commit()
+
+        #load unseen
+        def get_unseen(self):
+                """Parameters
+                ---------
+                None"""
+                self.unseen_getter = """SELECT [xnRequest]
+                                ,[dDateStart]
+                                ,[dDateEnd]
+                                ,[sStellvertreter]
+                                ,[sReasons]
+                                ,[sStatus]
+                                ,[nEmployee]
+                                ,[nStellStatus]
+                                FROM [PulseCoreTest5].[dbo].[PC_VacationsRequests]
+                                WHERE [nNotify] = 0"""
+                Model.cursor.execute(self.unseen_getter)
 
         #mark as seen
         def set_seen(self, xnRequest):
@@ -354,7 +250,7 @@ class Model:
                                         FROM [PulseCoreTest5].[dbo].[PO_employee]
                                                 WHERE [nProduktionsGruppe] = ?"""
                 Model.cursor.execute(self.number_getter, nProduktionsGruppe)
-
+                
         def get_all_emp_list(self):
                 """Parameters
                 ---------
@@ -379,10 +275,9 @@ class Model:
                 self.request_getter = """SELECT [xnRequest] 
                                         ,[sLastName]
                                         ,[sFirstName]
+                                        ,[nEmployee]
                                         ,[dDateStart]
                                         ,[dDateEnd]
-                                        ,[nEmployee]
-                                        ,[sReasons]
                                         ,[sStatus]
                                         ,[sStellvertreter]
                                         ,[nStellStatus]

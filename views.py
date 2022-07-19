@@ -32,13 +32,13 @@ class loginbox(ttk.Frame):
         self.top_frame.pack(side = 'top', fill = 'x')
 
         # Create an object of tkinter ImageTk
-        self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB_negativ.png'
-        self.img = Image.open(self.path)
-        self.img.thumbnail((200,200))
-        self.new_img = ImageTk.PhotoImage(self.img)
+        #self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB_negativ.png'
+        #self.img = Image.open(self.path)
+        #self.img.thumbnail((200,200))
+        #self.new_img = ImageTk.PhotoImage(self.img)
         # Create a Label Widget to display the text or Image
-        self.label = ttk.Label(self.top_frame, image = self.new_img)
-        self.label.pack(side = 'right')
+        #self.label = ttk.Label(self.top_frame, image = self.new_img)
+        #self.label.pack(side = 'right')
 
         #setting the font types
         header_font = tkinter.font.Font(\
@@ -191,30 +191,33 @@ class loginbox(ttk.Frame):
         column_headers = {'borderwidth' : 1, 'relief' : 'flat'}
         column_font = tkinter.font.Font(family = "Helvetica", size = 11)
 
+        self.antrags_label = ttk.Label(self.vert_frame.interior, text = 'Antragsnummer', **column_headers)
+        self.antrags_label.config(font = column_font)
+        self.antrags_label.grid(column = 0, row = 0)
+
         self.start_label = ttk.Label(self.vert_frame.interior, text = 'Startdatum', **column_headers)
         self.start_label.config(font = column_font)
-        self.start_label.grid(column = 0, row = 0)
+        self.start_label.grid(column = 1, row = 0)
 
         self.end_label = ttk.Label(self.vert_frame.interior, text = 'Endedatum', **column_headers)
         self.end_label.config(font = column_font)
-        self.end_label.grid(column = 1, row = 0)
+        self.end_label.grid(column = 2, row = 0)
 
         self.stell_label = ttk.Label(self.vert_frame.interior, text = 'Stellvertreter', **column_headers)
         self.stell_label.config(font = column_font)
-        self.stell_label.grid(column = 2, row = 0)
+        self.stell_label.grid(column = 3, row = 0)
 
         self.grund_label = ttk.Label(self.vert_frame.interior, text = 'Grund', **column_headers)
         self.grund_label.config(font = column_font)
-        self.grund_label.grid(column = 3, row = 0)
+        self.grund_label.grid(column = 4, row = 0)
 
         self.status_label = ttk.Label(self.vert_frame.interior, text = 'Status', **column_headers)
         self.status_label.config(font = column_font)
-        self.status_label.grid(column = 4, row = 0)
+        self.status_label.grid(column = 5, row = 0)
         
         #Controller.search_emp(int(login_info))
         row_len = len(Controller.fetched_reqs)
 
-        entry_list = []
         antrags_list = []
         start_list = []
         end_list = []
@@ -225,12 +228,11 @@ class loginbox(ttk.Frame):
 
         for i in range(0, row_len, 1):
             pad_options = {'padx' : 5, 'pady' : 5}
-            
-            entry_list.append(Controller.fetched_reqs[i])
+            self.entry = Controller.fetched_reqs[i]
             
             #must use tk.Entry instead of ttk because background and foreground
             # colors are not changable with ttk
-            antrags_list.append(tk.StringVar())
+            antrags_list.append(tk.Entry(self.vert_frame.interior, width = 15, relief = 'groove'))
 
             start_list.append(tk.Entry(self.vert_frame.interior, width = 15, relief = 'groove'))
 
@@ -242,55 +244,52 @@ class loginbox(ttk.Frame):
 
             status_list.append(tk.Label(self.vert_frame.interior, width = 15))
 
-            antrags_list[i] = str(entry_list[i][0])
+            antrags_list[i].insert(0, str(self.entry[0]))
+            antrags_list[i].grid(row = i + 1, column = 0, **pad_options)
+            antrags_list[i].config(state = 'disabled')
 
-            start_list[i].insert(0, str(entry_list[i][1]))
-            start_list[i].grid(row = i + 1, column = 0, **pad_options)
+            start_list[i].insert(0, str(self.entry[1]))
+            start_list[i].grid(row = i + 1, column = 1, **pad_options)
 
-            end_list[i].insert(0, str(entry_list[i][2]))
-            end_list[i].grid(row = i +1, column = 1, **pad_options)
+            end_list[i].insert(0, str(self.entry[2]))
+            end_list[i].grid(row = i +1, column = 2, **pad_options)
 
-            stell_list[i].insert(0, str(entry_list[i][6]))
+            stell_list[i].insert(0, str(self.entry[3]))
             stell_list[i].config(foreground = 'black')
-            if int(entry_list[i][7]) == 0:
+            if int(self.entry[6]) == 0:
                 stell_list[i].config(background = '#d4ef64')
-            elif int(entry_list[i][7]) == 1:
+            elif int(self.entry[6]) == 1:
                 stell_list[i].config(background = '#64ef7f')
-            elif int(entry_list[i][7]) == 2:
+            elif int(self.entry[6]) == 2:
                 stell_list[i].config(background = '#ef7f64')
-            stell_list[i].grid(row = i + 1, column = 2, **pad_options)
+            stell_list[i].grid(row = i + 1, column = 3, **pad_options)
 
-            grund_list[i].insert(0, str(entry_list[i][4]))
-            grund_list[i].grid(row = i + 1, column = 3, **pad_options)
+            grund_list[i].insert(0, str(self.entry[4]))
+            grund_list[i].grid(row = i + 1, column = 4, **pad_options)
 
-            status_list[i].config(text =  f'{entry_list[i][5]}')
-            if str(entry_list[i][5]) == 'bestätigt':
+            status_list[i].config(text =  f'{self.entry[5]}')
+            if str(self.entry[5]) == 'bestätigt':
                 status_list[i].config(background = '#64ef7f', foreground = 'black')
-            elif str(entry_list[i][5]) == 'geplant':
+            elif str(self.entry[5]) == 'geplant':
                 status_list[i].config(background = '#d4ef64', foreground = 'black')
-            elif str(entry_list[i][5]) == 'denied':
+            elif str(self.entry[5]) == 'denied':
                 status_list[i].config(background = '#ef7f64', foreground = 'white')
-            status_list[i].grid(row = i + 1, column = 4, **pad_options)
+            status_list[i].grid(row = i + 1, column = 5, **pad_options)
 
-            def update_button(self, i):
+            def update_button(i):
                 start_date = start_list[i].get().strip()
                 end_date = end_list[i].get().strip()
-                if start_date != str(entry_list[i][1]) or end_date != str(entry_list[i][2]):
-                    nStellStatus = 0
-                else:
-                    nStellStatus = entry_list[i][7]
-                
                 new_reason = grund_list[i].get().strip()
-                xnRequest = antrags_list[i]
+                xnRequest = antrags_list[i].get().strip()
 
                 if end_date == '':
                     end_date = start_date
-                updated = (start_date, end_date, new_reason, nStellStatus, xnRequest, int(login_info))
+                updated = (start_date, end_date, new_reason, xnRequest, int(login_info))
                 Controller.update(self, updated)
 
             button_list.append(ttk.Button(self.vert_frame.interior, text = 'Update', width = 15, \
-                command = lambda i=i : update_button(self, i)))
-            button_list[i].grid(row = i + 1, column = 5, **pad_options)
+                command = lambda i=i : update_button(i)))
+            button_list[i].grid(row = i + 1, column = 6, **pad_options)
     
     def stell_stuff(self):
         #lists necessary for entries
@@ -303,66 +302,75 @@ class loginbox(ttk.Frame):
         column_headers = {'borderwidth' : 1, 'relief' : 'flat'}
         column_font = tkinter.font.Font(family = "Helvetica", size = 11)
 
+        self.antrags_label = ttk.Label(self.vert_frame2.interior, text = 'Antragsnummer', **column_headers)
+        self.antrags_label.config(font = column_font)
+        self.antrags_label.grid(column = 0, row = 0)
+
         self.start_label = ttk.Label(self.vert_frame2.interior, text = 'Startdatum', **column_headers)
         self.start_label.config(font = column_font)
-        self.start_label.grid(column = 0, row = 0)
+        self.start_label.grid(column = 1, row = 0)
 
         self.end_label = ttk.Label(self.vert_frame2.interior, text = 'Endedatum', **column_headers)
         self.end_label.config(font = column_font)
-        self.end_label.grid(column = 1, row = 0)
+        self.end_label.grid(column = 2, row = 0)
 
         self.anstrell_label = ttk.Label(self.vert_frame2.interior, text = 'Antragssteller', **column_headers)
         self.anstrell_label.config(font = column_font)
-        self.anstrell_label.grid(column = 2, row = 0)
+        self.anstrell_label.grid(column = 3, row = 0)
 
         self.grund_label = ttk.Label(self.vert_frame2.interior, text = 'Grund', **column_headers)
         self.grund_label.config(font = column_font)
-        self.grund_label.grid(column = 3, row = 0)
+        self.grund_label.grid(column = 4, row = 0)
 
         self.status_label = ttk.Label(self.vert_frame2.interior, text = 'Status', **column_headers)
         self.status_label.config(font = column_font)
-        self.status_label.grid(column = 4, row = 0)
+        self.status_label.grid(column = 5, row = 0)
+        
+        #Controller.search_emp(int(login_info))
+        row_len = len(Controller.stell_reqs)
 
         antrags_list = []
         start_list = []
         end_list = []
-        antragssteller_list = []
+        stell_list = []
         grund_list = []
         status_list = []
         yesbutton_list = []
         nobutton_list = []
 
-        for i in range(0, len(Controller.stell_reqs), 1):
+        for i in range(0, row_len, 1):
             pad_options = {'padx' : 5, 'pady' : 5}
             self.entry = Controller.stell_reqs[i]
             
             #must use tk.Entry instead of ttk because background and foreground
             # colors are not changable with ttk
-            antrags_list.append(tk.StringVar())
+            antrags_list.append(tk.Entry(self.vert_frame2.interior, width = 15, relief = 'ridge'))
 
             start_list.append(tk.Entry(self.vert_frame2.interior, width = 15, relief = 'ridge'))
 
             end_list.append(tk.Entry(self.vert_frame2.interior, width = 15, relief = 'ridge'))
             
-            antragssteller_list.append(tk.Entry(self.vert_frame2.interior, width = 15, relief = 'ridge'))
+            stell_list.append(tk.Entry(self.vert_frame2.interior, width = 15, relief = 'ridge'))
 
             grund_list.append(tk.Entry(self.vert_frame2.interior, width = 15, relief = 'ridge'))
 
             status_list.append(tk.Label(self.vert_frame2.interior, width = 15))
 
-            antrags_list[i] = str(self.entry[0])
+            antrags_list[i].insert(0, str(self.entry[0]))
+            antrags_list[i].grid(row = i + 1, column = 0, **pad_options)
+            antrags_list[i].config(state = 'disabled')
 
             start_list[i].insert(0, str(self.entry[1]))
-            start_list[i].grid(row = i + 1, column = 0, **pad_options)
+            start_list[i].grid(row = i + 1, column = 1, **pad_options)
 
             end_list[i].insert(0, str(self.entry[2]))
-            end_list[i].grid(row = i +1, column = 1, **pad_options)
+            end_list[i].grid(row = i +1, column = 2, **pad_options)
 
-            antragssteller_list[i].insert(0, str(self.entry[10]))
-            antragssteller_list[i].grid(row = i + 1, column = 2, **pad_options)
+            stell_list[i].insert(0, str(self.entry[3]))
+            stell_list[i].grid(row = i + 1, column = 3, **pad_options)
 
             grund_list[i].insert(0, str(self.entry[4]))
-            grund_list[i].grid(row = i + 1, column = 3, **pad_options)
+            grund_list[i].grid(row = i + 1, column = 4, **pad_options)
 
             status_list[i].config(text =  f'{self.entry[5]}')
             if str(self.entry[5]) == 'bestätigt':
@@ -371,20 +379,20 @@ class loginbox(ttk.Frame):
                 status_list[i].config(background = '#d4ef64', foreground = 'black')
             elif str(self.entry[5]) == 'denied':
                 status_list[i].config(background = '#ef7f64', foreground = 'white')
-            status_list[i].grid(row = i + 1, column = 4, **pad_options)
+            status_list[i].grid(row = i + 1, column = 5, **pad_options)
 
             def stell_status_button(i, sStellStatus):
-                xnRequest = antrags_list[i]
+                xnRequest = antrags_list[i].get().strip()
                 Controller.update_stell(self, sStellStatus, xnRequest)
                 self.start_stell_stuff()
 
             yesbutton_list.append(ttk.Button(self.vert_frame2.interior, text = 'Confirm', width = 15, \
                 command = lambda i=i : stell_status_button(i, 1)))
-            yesbutton_list[i].grid(row = i + 1, column = 5, **pad_options)
+            yesbutton_list[i].grid(row = i + 1, column = 6, **pad_options)
 
             nobutton_list.append(ttk.Button(self.vert_frame2.interior, text = 'Deny', width = 15, \
                 command = lambda i=i : stell_status_button(i, 2)))
-            nobutton_list[i].grid(row = i + 1, column = 6, **pad_options)
+            nobutton_list[i].grid(row = i + 1, column = 7, **pad_options)
 
             
 class request_window(ttk.Frame):
@@ -403,13 +411,13 @@ class request_window(ttk.Frame):
         self.title_label.grid(column = 0, row = 0, padx = 5, pady = 5)
 
         # Create an object of tkinter ImageTk
-        self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB_negativ.png'
-        self.img = Image.open(self.path)
-        self.img.thumbnail((200,200))
-        self.new_img = ImageTk.PhotoImage(self.img)
+        #self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB_negativ.png'
+        #self.img = Image.open(self.path)
+        #self.img.thumbnail((200,200))
+        #self.new_img = ImageTk.PhotoImage(self.img)
         # Create a Label Widget to display the text or Image
-        self.label = ttk.Label(self.Main, image = self.new_img)
-        self.label.grid(column = 1, row = 0, padx = 5, pady = 5)
+        #self.label = ttk.Label(self.Main, image = self.new_img)
+        #self.label.grid(column = 1, row = 0, padx = 5, pady = 5)
 
         # ----- Section 1
         # pack options for section 1
@@ -448,9 +456,7 @@ class request_window(ttk.Frame):
         self.stell_entry.grid(column = 0, row = 1, **s2options)
 
         self.Rvar1 = IntVar()
-        self.grund_label = ttk.Label(self.section2, text = "Urlaubsgrund")
 
-        self.grund_label.grid(column = 1, row = 0, **s2options)
         self.R1 = ttk.Radiobutton(self.section2, text = "Erholungsurlaub", variable = self.Rvar1, value = 1)
         self.R2 = ttk.Radiobutton(self.section2, text = "Sonderurlaub:", variable = self.Rvar1, value = 2)
         self.R1.grid(column = 1, row = 0, **s2options)
@@ -485,7 +491,6 @@ class request_window(ttk.Frame):
         end_str = self.dDateEnd.get().strip()
         if end_str == '' or end_str == 'YYYY-MM-DD':
             end_str = start_str
-
         try:
             start_date = datetime.datetime.strptime(start_str, "%Y-%m-%d").date()
             end_date = datetime.datetime.strptime(end_str, "%Y-%m-%d").date()
@@ -502,11 +507,8 @@ class request_window(ttk.Frame):
                 days.remove(day)
             Controller.get_days_left(self, login_info)
             self.nDaysLeft = Controller.days_left - (len(days))
-
             Controller.reduce_days(self, self.nDaysLeft)
-
             Controller.get_days_left(self, login_info)
-        
         except ValueError as error:
             Controller.error_window(self, f'Date must be in YYYY-MM-DD format.\n\nError: {error}', 'error')
 
@@ -515,6 +517,7 @@ class request_window(ttk.Frame):
         end_date = self.dDateEnd.get().strip()
         if end_date == '' or end_date == 'YYYY-MM-DD':
             end_date = start_date
+        
         erholungsurlaub = 'Erholungsurlaub'
         sonderurlaub = self.grund_entry.get()
 
@@ -525,7 +528,7 @@ class request_window(ttk.Frame):
             output = sonderurlaub
         else:
             ...
-
+        
         data = (start_date, end_date, int(login_info), output, "geplant", self.stell_entry.get())
         Controller.sub_new_info(self, data)
 
@@ -546,100 +549,71 @@ class manager_view(ttk.Frame):
         self.Headerframe.columnconfigure(6, weight = 2)
 
         # Create an object of tkinter ImageTk
-        self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB_negativ.png'
-        self.img = Image.open(self.path)
-        self.img.thumbnail((200,200))
-        self.new_img = ImageTk.PhotoImage(self.img)
+        #self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB_negativ.png'
+        #self.img = Image.open(self.path)
+        #self.img.thumbnail((200,200))
+        #self.new_img = ImageTk.PhotoImage(self.img)
         # Create a Label Widget to display the text or Image
-        self.label = ttk.Label(self.Headerframe, image = self.new_img)
-        self.label.grid(rowspan = 2, column = 7, row = 0, \
-            padx = 10, pady = 20, sticky = 'e')
+        #self.label = ttk.Label(self.Headerframe, image = self.new_img)
+        #self.label.grid(rowspan = 2, column = 7, row = 0, \
+        #    padx = 10, pady = 20, sticky = 'e')
 
         self.title_label = ttk.Label(self.Headerframe, text = "Manager Request Search")
         self.title_label.configure(font = header_font)
         self.title_label.grid( columnspan = 2, column = 0, row = 0, padx = 10, pady = 20)
 
-        self.search_label = ttk.Label(self.Headerframe, text = 'Search by:')
+        self.search_label = ttk.Label(self.Headerframe, text = 'Personalnummer:')
         self.search_label.grid(column = 0, row = 1)
 
-        self.search_params = tk.StringVar()
-        self.search_by = ttk.Combobox(self.Headerframe, textvariable = self.search_params)
-        self.search_by['values'] = ('All', 'New', 'Status: bestätigt', 'Status: geplant', \
-            'Status: denied')
-        self.search_by.bind('<Return>', self.combo_handler)
-        self.search_by.grid(column = 1, row = 1)
+        self.search_entry_var = tk.StringVar()
+        self.search_entry = ttk.Entry(self.Headerframe, textvariable = self.search_entry_var)
+        self.search_entry.focus()
+        self.search_entry.bind('<Return>', self.search_by_employee)
+        self.search_entry.grid(column = 1, row = 1)
 
         self.search_button = ttk.Button(self.Headerframe, text = "Search", \
-            command = lambda : [manager_view.combo_handler(self), self.F1.canvas.yview_moveto(0)])
+            command = lambda : [manager_view.search_by_employee(self), self.F1.canvas.yview_moveto(0)])
         self.search_button.grid(column = 2, row = 1)
+
+        self.all_load_button = ttk.Button(self.Headerframe, text = "Load All", \
+            command = lambda : [manager_view.all_view(self), 
+            self.F1.canvas.yview_moveto(0), self.clear_search()])
+        self.all_load_button.grid(column = 3, row = 1)
+
+        self.new_load_button = ttk.Button(self.Headerframe, text = 'Load New', \
+            command = lambda : [manager_view.unseen_view(self), \
+                self.F1.canvas.yview_moveto(0), self.clear_search()])
+        self.new_load_button.grid(column = 4, row = 1)
         
         self.view_schedule_button = ttk.Button(self.Headerframe, text = "View Schedule", \
             command = lambda : manager_view.open_schedule(self))
-        self.view_schedule_button.grid(column = 3, row = 1, padx = 10, pady = 10)
+        self.view_schedule_button.grid(column = 5, row = 1, padx = 10, pady = 10)
         
         self.return_button = ttk.Button(self.Headerframe, text = 'Return', \
             command = lambda : controller.show_frame(loginbox))
-        self.return_button.grid(column = 4, row = 1, padx = 10, pady = 10)
+        self.return_button.grid(column = 6, row = 1, padx = 10, pady = 10)
 
         #entry box master frame
         self.F1 = VerticalScrolledFrame(self)
         self.F1.pack(fill = 'both', expand = True)
 
-    def combo_handler(self, event = None):
-        combo_val = self.search_by.get()
-        if combo_val == 'All':
-            Controller.search_all(self)
-            self.build_table()
-        elif combo_val == 'New':
-            Controller.get_unseen(self)
-            if not Controller.fetched_reqs:
-                for widget in self.F1.interior.winfo_children():
-                    widget.destroy()
-                Controller.error_window(self, 'No new requests.', 'info')
-            else:
-                self.unseen_view()
-        elif combo_val == 'Status: bestätigt':
-            Controller.get_green(self)
-            if not Controller.fetched_reqs:
-                for widget in self.F1.interior.winfo_children():
-                    widget.destroy()
-                Controller.error_window(self, 'No approved requests.', 'info')
-            else:
-                self.build_table()
-        elif combo_val == 'Status: geplant':
-            Controller.get_yellow(self)
-            if not Controller.fetched_reqs:
-                for widget in self.F1.interior.winfo_children():
-                    widget.destroy()
-                Controller.error_window(self, 'No pending requests.', 'info')
-            else:
-                self.build_table()
-        elif combo_val == 'Status: denied':
-            Controller.get_red(self)
-            if not Controller.fetched_reqs:
-                for widget in self.F1.interior.winfo_children():
-                    widget.destroy()
-                Controller.error_window(self, 'No denied requests.', 'info')
-            else:
-                self.build_table()
-        elif combo_val.isdigit() == True:
-            Controller.search_emp(self, combo_val)
-            if not Controller.fetched_reqs:
-                for widget in self.F1.interior.winfo_children():
-                    widget.destroy()
-                Controller.error_window(self, 'No requests associated with this number.', 'info')
-            else:
-                self.build_table()
-        else:
-            Controller.get_by_name(self, combo_val)
-            if not Controller.fetched_reqs:
-                for widget in self.F1.interior.winfo_children():
-                    widget.destroy()
-                Controller.error_window(self, 'No requests associated with this name.', 'info')
-            else:
-                self.build_table()
+    def clear_search(self):
+        self.search_entry.delete(0, 'end')
 
-    def build_table(self):
+    def open_schedule(self):
+        import sys
+        app = QtWidgets.QApplication(sys.argv)
+        app.setStyleSheet(qdarktheme.load_stylesheet())
+        Form = QtWidgets.QWidget()
+        schedule = Ui_Form()
+        Controller.login_empnum.clear()
+        Controller.login_empnum.append(int(login_info))
+        schedule.setupUi(Form, empnum = Controller.login_empnum[0])
+        Form.show()
+        app.exec_()
+
+    def all_view(self):
+        Controller.search_all(self)
         #list necessary for entries
         self.entries = []
 
@@ -650,29 +624,33 @@ class manager_view(ttk.Frame):
         column_headers = {'borderwidth' : 1, 'relief' : 'flat'}
         column_font = tkinter.font.Font(family = "Helvetica", size = 11)
         
+        self.antrags_label = ttk.Label(self.F1.interior, text = 'Antragsnummer', **column_headers)
+        self.antrags_label.config(font = column_font)
+        self.antrags_label.grid(column = 0, row = 0)
+        
         self.start_label = ttk.Label(self.F1.interior, text = 'Startdatum', **column_headers)
         self.start_label.config(font = column_font)
-        self.start_label.grid(column = 0, row = 0)
+        self.start_label.grid(column = 1, row = 0)
 
         self.end_label = ttk.Label(self.F1.interior, text = 'Endedatum', **column_headers)
         self.end_label.config(font = column_font)
-        self.end_label.grid(column = 1, row = 0)
+        self.end_label.grid(column = 2, row = 0)
 
         self.stell_label = ttk.Label(self.F1.interior, text = 'Stellvertreter', **column_headers)
         self.stell_label.config(font = column_font)
-        self.stell_label.grid(column = 2, row = 0)
+        self.stell_label.grid(column = 3, row = 0)
 
         self.grund_label = ttk.Label(self.F1.interior, text = 'Grund', **column_headers)
         self.grund_label.config(font = column_font)
-        self.grund_label.grid(column = 3, row = 0)
-
-        self.pnummer_label = ttk.Label(self.F1.interior, text = 'Employee', **column_headers)
-        self.pnummer_label.config(font = column_font)
-        self.pnummer_label.grid(column = 4, row = 0)
+        self.grund_label.grid(column = 4, row = 0)
 
         self.status_label = ttk.Label(self.F1.interior, text = 'Status', **column_headers)
         self.status_label.config(font = column_font)
         self.status_label.grid(column = 5, row = 0)
+
+        self.pnummer_label = ttk.Label(self.F1.interior, text = 'Personalnummer', **column_headers)
+        self.pnummer_label.config(font = column_font)
+        self.pnummer_label.grid(column = 6, row = 0)
 
         antrags_list = []
         start_list = []
@@ -689,7 +667,7 @@ class manager_view(ttk.Frame):
             pad_options = {'padx' : 5, 'pady' : 5}
             self.entry = Controller.fetched_reqs[i]
 
-            antrags_list.append(tk.StringVar())
+            antrags_list.append(tk.Entry(self.F1.interior, width = 15, relief = 'groove'))
 
             start_list.append(tk.Entry(self.F1.interior, width = 15, relief = 'groove'))
 
@@ -701,15 +679,17 @@ class manager_view(ttk.Frame):
 
             emp_list.append(tk.Entry(self.F1.interior, width = 15, relief = 'groove'))
 
-            antrags_list[i] = str(self.entry[0])
+            antrags_list[i].insert(0, str(self.entry[0]))
+            antrags_list[i].grid(row = i + 1, column = 0, **pad_options)
+            antrags_list[i].config(state = 'disabled')
 
             start_list[i].insert(0, str(self.entry[1]))
-            start_list[i].grid(row = i + 1, column = 0, **pad_options)
+            start_list[i].grid(row = i + 1, column = 1, **pad_options)
 
             end_list[i].insert(0, str(self.entry[2]))
-            end_list[i].grid(row = i +1, column = 1, **pad_options)
+            end_list[i].grid(row = i +1, column = 2, **pad_options)
 
-            stell_list[i].insert(0, str(self.entry[6]))
+            stell_list[i].insert(0, str(self.entry[3]))
             stell_list[i].config(foreground = 'black')
             if int(self.entry[7]) == 0:
                 stell_list[i].config(background = '#d4ef64')
@@ -717,13 +697,13 @@ class manager_view(ttk.Frame):
                 stell_list[i].config(background = '#64ef7f')
             elif int(self.entry[7]) == 2:
                 stell_list[i].config(background = '#ef7f64')
-            stell_list[i].grid(row = i + 1, column = 2, **pad_options)
+            stell_list[i].grid(row = i + 1, column = 3, **pad_options)
 
             grund_list[i].insert(0, str(self.entry[4]))
-            grund_list[i].grid(row = i + 1, column = 3, **pad_options)
+            grund_list[i].grid(row = i + 1, column = 4, **pad_options)
 
-            emp_list[i].insert(0, f'{str(self.entry[3])}, {str(self.entry[10])}')
-            emp_list[i].grid(row = i + 1, column = 4)
+            emp_list[i].insert(0, str(self.entry[6]))
+            emp_list[i].grid(row = i + 1, column = 6)
 
             def cycle_status_val(i):
                 if status_val_list[i] == 2:
@@ -756,7 +736,7 @@ class manager_view(ttk.Frame):
                 status_val_list[i] = 0
             status_list[i].grid(row = i + 1, column = 5, **pad_options)
 
-            def update_button(self, i):
+            def update_button(i):
                 start_date = start_list[i].get().strip()
                 end_date = end_list[i].get().strip()
                 new_reason = grund_list[i].get().strip()
@@ -769,7 +749,7 @@ class manager_view(ttk.Frame):
                     sStatus = 'denied'
 
                 sStellvertreter = stell_list[i].get().strip()
-                xnRequest = antrags_list[i]
+                xnRequest = antrags_list[i].get().strip()
 
                 if end_date == '':
                     end_date = start_date
@@ -777,62 +757,62 @@ class manager_view(ttk.Frame):
                 Controller.man_update(self, updated)
 
             button_list.append(ttk.Button(self.F1.interior, text = 'Update', width = 10, \
-                command = lambda i=i : update_button(self, i)))
-            button_list[i].grid(row = i + 1, column = 6, **pad_options)
+                command = lambda i=i : update_button(i)))
+            button_list[i].grid(row = i + 1, column = 7, **pad_options)
 
-            def delete_button(self, i):
+            def delete_button(i):
                 Controller.delete(self, int(antrags_list[i].get()))
+                self.all_view()
             
             delete_button_list.append(ttk.Button(self.F1.interior, text = 'Delete', \
-                width = 10, command = lambda i=i : delete_button(self, i)))
-            delete_button_list[i].grid(row = i + 1, column = 7, **pad_options)
-    
-    def open_schedule(self):
-        import sys
-        app = QtWidgets.QApplication(sys.argv)
-        app.setStyleSheet(qdarktheme.load_stylesheet())
-        Form = QtWidgets.QWidget()
-        schedule = Ui_Form()
-        Controller.login_empnum.clear()
-        Controller.login_empnum.append(int(login_info))
-        schedule.setupUi(Form, empnum = Controller.login_empnum[0])
-        Form.show()
-        app.exec_()
+                width = 10, command = lambda i=i : delete_button(i)))
+            delete_button_list[i].grid(row = i + 1, column = 8, **pad_options)
     
     def unseen_view(self):
         #first clear the frame that the entry widgets will fill
         for widget in self.F1.interior.winfo_children():
             widget.destroy()
+        
+        Controller.get_unseen(self)
 
+        if not Controller.fetched_reqs:
+            Controller.error_window(self, 'No new requests', 'info')
+            return
+
+        row_len = len(Controller.fetched_reqs)
         #list necessary for entries
         self.entries = []
 
         column_headers = {'borderwidth' : 1, 'relief' : 'flat'}
         column_font = tkinter.font.Font(family = "Helvetica", size = 11)
         
+        self.antrags_label = ttk.Label(self.F1.interior, text = 'Antragsnummer', **column_headers)
+        self.antrags_label.config(font = column_font)
+        self.antrags_label.grid(column = 0, row = 0)
+        
         self.start_label = ttk.Label(self.F1.interior, text = 'Startdatum', **column_headers)
         self.start_label.config(font = column_font)
-        self.start_label.grid(column = 0, row = 0)
+        self.start_label.grid(column = 1, row = 0)
 
         self.end_label = ttk.Label(self.F1.interior, text = 'Endedatum', **column_headers)
         self.end_label.config(font = column_font)
-        self.end_label.grid(column = 1, row = 0)
+        self.end_label.grid(column = 2, row = 0)
 
         self.stell_label = ttk.Label(self.F1.interior, text = 'Stellvertreter', **column_headers)
         self.stell_label.config(font = column_font)
-        self.stell_label.grid(column = 2, row = 0)
+        self.stell_label.grid(column = 3, row = 0)
 
         self.grund_label = ttk.Label(self.F1.interior, text = 'Grund', **column_headers)
         self.grund_label.config(font = column_font)
-        self.grund_label.grid(column = 3, row = 0)
+        self.grund_label.grid(column = 4, row = 0)
 
         self.status_label = ttk.Label(self.F1.interior, text = 'Status', **column_headers)
         self.status_label.config(font = column_font)
-        self.status_label.grid(column = 4, row = 0)
+        self.status_label.grid(column = 5, row = 0)
 
         self.pnummer_label = ttk.Label(self.F1.interior, text = 'Personalnummer', **column_headers)
         self.pnummer_label.config(font = column_font)
-        self.pnummer_label.grid(column = 5, row = 0)
+        self.pnummer_label.grid(column = 6, row = 0)
 
         antrags_list = []
         start_list = []
@@ -845,11 +825,11 @@ class manager_view(ttk.Frame):
         button_list = []
         mark_seen_button_list = []
 
-        for i in range(0, len(Controller.fetched_reqs), 1):
+        for i in range(0, row_len, 1):
             pad_options = {'padx' : 5, 'pady' : 5}
             self.entry = Controller.fetched_reqs[i]
 
-            antrags_list.append(tk.StringVar())
+            antrags_list.append(tk.Entry(self.F1.interior, width = 15, relief = 'groove'))
 
             start_list.append(tk.Entry(self.F1.interior, width = 15, relief = 'groove'))
 
@@ -861,15 +841,17 @@ class manager_view(ttk.Frame):
 
             emp_list.append(tk.Entry(self.F1.interior, width = 15, relief = 'groove'))
 
-            antrags_list[i] = str(self.entry[0])
+            antrags_list[i].insert(0, str(self.entry[0]))
+            antrags_list[i].grid(row = i + 1, column = 0, **pad_options)
+            antrags_list[i].config(state = 'disabled')
 
             start_list[i].insert(0, str(self.entry[1]))
-            start_list[i].grid(row = i + 1, column = 0, **pad_options)
+            start_list[i].grid(row = i + 1, column = 1, **pad_options)
 
             end_list[i].insert(0, str(self.entry[2]))
-            end_list[i].grid(row = i +1, column = 1, **pad_options)
+            end_list[i].grid(row = i +1, column = 2, **pad_options)
 
-            stell_list[i].insert(0, str(self.entry[6]))
+            stell_list[i].insert(0, str(self.entry[3]))
             stell_list[i].config(foreground = 'black')
             if int(self.entry[7]) == 0:
                 stell_list[i].config(background = '#d4ef64')
@@ -877,13 +859,13 @@ class manager_view(ttk.Frame):
                 stell_list[i].config(background = '#64ef7f')
             elif int(self.entry[7]) == 2:
                 stell_list[i].config(background = '#ef7f64')
-            stell_list[i].grid(row = i + 1, column = 2, **pad_options)
+            stell_list[i].grid(row = i + 1, column = 3, **pad_options)
 
             grund_list[i].insert(0, str(self.entry[4]))
-            grund_list[i].grid(row = i + 1, column = 3, **pad_options)
+            grund_list[i].grid(row = i + 1, column = 4, **pad_options)
 
-            emp_list[i].insert(0, f'{str(self.entry[3])}, {str(self.entry[10])}')
-            emp_list[i].grid(row = i + 1, column = 4)
+            emp_list[i].insert(0, str(self.entry[6]))
+            emp_list[i].grid(row = i + 1, column = 6)
 
             def cycle_status_val(i):
                 if status_val_list[i] == 2:
@@ -916,7 +898,7 @@ class manager_view(ttk.Frame):
                 status_val_list[i] = 0
             status_list[i].grid(row = i + 1, column = 5, **pad_options)
 
-            def update_button(self, i):
+            def update_button(i):
                 start_date = start_list[i].get().strip()
                 end_date = end_list[i].get().strip()
                 new_reason = grund_list[i].get().strip()
@@ -929,7 +911,7 @@ class manager_view(ttk.Frame):
                     sStatus = 'denied'
 
                 sStellvertreter = stell_list[i].get().strip()
-                xnRequest = antrags_list[i]
+                xnRequest = antrags_list[i].get().strip()
 
                 if start_date or end_date:
                     if end_date == '':
@@ -938,16 +920,180 @@ class manager_view(ttk.Frame):
                     Controller.man_update(self, updated)
 
             button_list.append(ttk.Button(self.F1.interior, text = 'Update', width = 10, \
-                command = lambda i=i : update_button(self, i)))
-            button_list[i].grid(row = i + 1, column = 6, **pad_options)
+                command = lambda i=i : update_button(i)))
+            button_list[i].grid(row = i + 1, column = 7, **pad_options)
 
-            def mark_seen_button(self, i):
-                Controller.set_seen(self, int(antrags_list[i]))
+            def mark_seen_button(i):
+                Controller.set_seen(self, int(antrags_list[i].get()))
                 self.unseen_view()
             
             mark_seen_button_list.append(ttk.Button(self.F1.interior, text = 'Mark as Seen', \
-                width = 15, command = lambda i=i : mark_seen_button(self, i)))
-            mark_seen_button_list[i].grid(row = i + 1, column = 7, **pad_options)
+                width = 15, command = lambda i=i : mark_seen_button(i)))
+            mark_seen_button_list[i].grid(row = i + 1, column = 8, **pad_options)
+            
+
+
+    def search_by_employee(self, event = None):
+        try:
+            Controller.search_emp(self, int(self.search_entry.get()))
+            #validating if the input personalnummer has entries associated with it
+            if not Controller.fetched_reqs:
+                for widget in self.F1.interior.winfo_children():
+                    widget.destroy()
+                Controller.error_window(self, 'No requests associated with this number.', 'info')
+            else:
+                self.specific_view()
+        except ValueError as error:
+            Controller.error_window(self, f'Invalid Personalnummer Format \n\nError: {error}', 'error')
+
+
+    def specific_view(self):
+        #list necessary for entries
+        self.entries = []
+
+        #first clear the frame that the entry widgets will fill
+        for widget in self.F1.interior.winfo_children():
+            widget.destroy()
+
+        column_headers = {'borderwidth' : 1, 'relief' : 'flat'}
+        column_font = tkinter.font.Font(family = "Helvetica", size = 11)
+        
+        self.antrags_label = ttk.Label(self.F1.interior, text = 'Antragsnummer', **column_headers)
+        self.antrags_label.config(font = column_font)
+        self.antrags_label.grid(column = 0, row = 0)
+
+        self.start_label = ttk.Label(self.F1.interior, text = 'Startdatum', **column_headers)
+        self.start_label.config(font = column_font)
+        self.start_label.grid(column = 1, row = 0)
+
+        self.end_label = ttk.Label(self.F1.interior, text = 'Endedatum', **column_headers)
+        self.end_label.config(font = column_font)
+        self.end_label.grid(column = 2, row = 0)
+
+        self.stell_label = ttk.Label(self.F1.interior, text = 'Stellvertreter', **column_headers)
+        self.stell_label.config(font = column_font)
+        self.stell_label.grid(column = 3, row = 0)
+
+        self.grund_label = ttk.Label(self.F1.interior, text = 'Grund', **column_headers)
+        self.grund_label.config(font = column_font)
+        self.grund_label.grid(column = 4, row = 0)
+
+        self.status_label = ttk.Label(self.F1.interior, text = 'Status', **column_headers)
+        self.status_label.config(font = column_font)
+        self.status_label.grid(column = 5, row = 0)
+
+        row_len = len(Controller.fetched_reqs)
+
+        antrags_list = []
+        start_list = []
+        end_list = []
+        stell_list = []
+        grund_list = []
+        status_list = []
+        status_val_list = []
+        button_list = []
+        delete_button_list = []
+
+        for i in range(0, row_len, 1):
+            pad_options = {'padx' : 5, 'pady' : 5}
+            self.entry = Controller.fetched_reqs[i]
+
+            antrags_list.append(tk.Entry(self.F1.interior, width = 15, relief = 'groove'))
+
+            start_list.append(tk.Entry(self.F1.interior, width = 15, relief = 'groove'))
+
+            end_list.append(tk.Entry(self.F1.interior, width = 15, relief = 'groove'))
+            
+            stell_list.append(tk.Entry(self.F1.interior, width = 15, relief = 'groove'))
+
+            grund_list.append(tk.Entry(self.F1.interior, width = 15, relief = 'groove'))
+
+            antrags_list[i].insert(0, str(self.entry[0]))
+            antrags_list[i].grid(row = i + 1, column = 0, **pad_options)
+            antrags_list[i].config(state = 'disabled')
+
+            start_list[i].insert(0, str(self.entry[1]))
+            start_list[i].grid(row = i + 1, column = 1, **pad_options)
+
+            end_list[i].insert(0, str(self.entry[2]))
+            end_list[i].grid(row = i +1, column = 2, **pad_options)
+
+            stell_list[i].insert(0, str(self.entry[3]))
+            stell_list[i].config(foreground = 'black')
+            if int(self.entry[6]) == 0:
+                stell_list[i].config(background = '#d4ef64')
+            elif int(self.entry[6]) == 1:
+                stell_list[i].config(background = '#64ef7f')
+            elif int(self.entry[6]) == 2:
+                stell_list[i].config(background = '#ef7f64')
+            stell_list[i].grid(row = i + 1, column = 3, **pad_options)
+
+            grund_list[i].insert(0, str(self.entry[4]))
+            grund_list[i].grid(row = i + 1, column = 4, **pad_options)
+
+            def cycle_status_val(i):
+                if status_val_list[i] == 2:
+                    status_list[i].config(background = '#d4ef64', foreground = 'black', \
+                        text = 'geplant')
+                    status_val_list[i] = 1
+                elif status_val_list[i] == 1:
+                    status_list[i].config(background = '#ef7f64', foreground = 'white', \
+                        text = 'denied')
+                    status_val_list[i] = 0
+                elif status_val_list[i] == 0:
+                    status_list[i].config(background = '#64ef7f', foreground = 'black', \
+                        text = 'bestätigt')
+                    status_val_list[i] = 2
+
+            status_list.append(tk.Button(self.F1.interior, width = 10, \
+                command = lambda i=i :cycle_status_val(i)))
+            status_val_list.append(int)
+            if str(self.entry[5]) == 'bestätigt':
+                status_list[i].config(background = '#64ef7f', foreground = 'black', \
+                    text = 'bestätigt')
+                status_val_list[i] = 2
+            elif str(self.entry[5]) == 'geplant':
+                status_list[i].config(background = '#d4ef64', foreground = 'black', \
+                    text = 'geplant')
+                status_val_list[i] = 1
+            elif str(self.entry [5]) =='denied':
+                status_list[i].config(background = '#ef7f64', foreground = 'white', \
+                    text = 'denied')
+                status_val_list[i] = 0
+            status_list[i].grid(row = i + 1, column = 5, **pad_options)
+
+            def update_button(i):
+                start_date = start_list[i].get().strip()
+                end_date = end_list[i].get().strip()
+                new_reason = grund_list[i].get().strip()
+
+                if status_val_list[i] == 2:
+                    sStatus = 'bestätigt'
+                elif status_val_list[i] == 1:
+                    sStatus = 'geplant'
+                elif status_val_list[i] == 0:
+                    sStatus = 'denied'
+
+                sStellvertreter = stell_list[i].get().strip()
+                xnRequest = antrags_list[i].get().strip()
+
+                if start_date or end_date:
+                    if end_date == '':
+                        end_date = start_date
+                    updated = (start_date, end_date, new_reason, sStatus, sStellvertreter, xnRequest)
+                    Controller.man_update(self, updated)
+
+            button_list.append(ttk.Button(self.F1.interior, text = 'Update', width = 10, \
+                command = lambda i=i : update_button(i)))
+            button_list[i].grid(row = i + 1, column = 6, **pad_options)
+
+            def delete_button(i):
+                Controller.delete(int(antrags_list[i].get()))
+                self.search_by_employee()
+            
+            delete_button_list.append(ttk.Button(self.F1.interior, text = 'Delete', \
+                width = 10, command = lambda i=i : delete_button(i)))
+            delete_button_list[i].grid(row = i + 1, column = 8, **pad_options)
 
 class TableModel(QtCore.QAbstractTableModel):
     def __init__(self, data):
@@ -961,8 +1107,10 @@ class TableModel(QtCore.QAbstractTableModel):
         if role == Qt.DisplayRole:
             #.row() indexes into the outer list
             #.column() indexes into the sub-list
-            value = self._data[index.row()][index.column()]
-            return value
+            
+                value = self._data[index.row()][index.column()]
+                return value
+           
             #if isinstance(value, datetime.datetime):
                 #return value.strftime('%d-%m-%Y')
         if role == Qt.BackgroundRole:
@@ -1000,10 +1148,8 @@ class TableModel(QtCore.QAbstractTableModel):
         if orientation == QtCore.Qt.Vertical and role == QtCore.Qt.DisplayRole:
             return Controller.rows[section]
         return QtCore.QAbstractTableModel.headerData(self, section, orientation, role)
-
+    
 class Ui_Form(object):
-    #def __init__(self):
-        #Form.setAttribute(QtCore.Qt.WA_DeleteOnClose)
     def setupUi(self, Form, empnum):
         Form.setObjectName("Form")
         Form.resize(917, 743)
@@ -1079,7 +1225,7 @@ class Ui_Form(object):
         self.tableWidget.setObjectName("tableWidget")
 
         data = Controller.data_values
-        self.model = TableModel(data) 
+        self.model = TableModel(data)
         self.verticalLayout.addWidget(self.tableWidget) 
         self.verticalLayout_2.addLayout(self.verticalLayout) 
         self.tableWidget.setModel(self.model) 
@@ -1087,10 +1233,9 @@ class Ui_Form(object):
             self.tableWidget.setColumnWidth(i, 80)
         self.model.setHeaderData(2, QtCore.Qt.Horizontal, 'hello', QtCore.Qt.DisplayRole)
 
-
         self.retranslateUi(Form, empnum)
         QtCore.QMetaObject.connectSlotsByName(Form)
-
+        
     def retranslateUi(self, Form, empnum):
         _translate = QtCore.QCoreApplication.translate
         Form.setWindowTitle(_translate("Form", "Form"))
@@ -1148,7 +1293,6 @@ class Ui_Form(object):
 
     def change_year(self):
         year_selection = int(self.comboBox_3.currentText())
-        #print(year_selection)
         data = Controller.data_values
         Controller.selected_year.clear()
         Controller.selected_year.append(year_selection)
