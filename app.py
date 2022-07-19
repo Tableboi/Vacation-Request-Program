@@ -5,13 +5,12 @@ from datetime import datetime, timedelta
 import tkinter as tk
 from tkinter import ttk
 
-from ttkthemes import ThemedStyle
+import sv_ttk
 
 from views import loginbox, request_window, manager_view
 
 #this is the main window and application
 class App(tk.Tk):
-     
     # __init__ function for class tkinterApp
     def __init__(self, *args, **kwargs):
          
@@ -20,8 +19,7 @@ class App(tk.Tk):
 
         self.geometry('1000x600')
         
-        self.style = ThemedStyle()
-        self.style.theme_use('clearlooks')
+        sv_ttk.set_theme('dark')
 
         # creating a container
         base = ttk.Frame(self)
