@@ -2,10 +2,8 @@ import calendar
 import pyodbc
 import datetime
 from datetime import timedelta
-import re
 
 from tkinter import messagebox
-from calendar import month
 
 from models import Model
 import tkinter as tk
@@ -16,17 +14,18 @@ class Controller:
         self.model = model
         self.view = view
 
+    #get current date info
     current_date = datetime.datetime.now()
     current_month = int(current_date.strftime('%m'))
     current_year = int(current_date.strftime('%Y'))
 
     # ---- loginbox
-
-    #submit button
+    #initialize needed variables
     user_id = int()
     user_name = str
     user_info = []
 
+    #fetch user info
     def login(self, login_info):
         Model.infofetch(self, login_info)
         user_info = Model.cursor.fetchone()
@@ -53,7 +52,8 @@ class Controller:
     days_left = int()
     def update_resturlaub(self, login_info):
         holidelta = 0
-        #get starting value
+
+        #get starting vacation days
         Model.get_days_left(self, login_info)
         days_left_row = Model.cursor.fetchone()
         total_days = days_left_row[0]
@@ -64,15 +64,18 @@ class Controller:
         #get requests
         Model.get_holidates(self, login_info)
         holidates = Model.cursor.fetchall()
+        
+        #iterate through dates requested off
         for item in holidates:
             start_str = item[0]
             end_str = item[1]
-            #start_date = datetime.datetime.strptime(start_str, "%Y-%m-%d").date()
-            #end_date = datetime.datetime.strptime(end_str, "%Y-%m-%d").date()
             self.delta = end_str - start_str
             days = [start_str + timedelta(days = i) for i in range(self.delta.days + 1)]
             Wochenende = set([5, 6])
             days_to_delete = []
+
+            #iterate through list of days requested off, and remove
+            # those that are holidays and weekends
             for i in days:
                 if i.weekday() in Wochenende:
                     days_to_delete.append(i)
@@ -82,10 +85,11 @@ class Controller:
                 days.remove(day)
             time_delta = len(days)
             holidelta = holidelta + time_delta
+        #calc remaining days left
         Controller.days_left = total_days - holidelta
 
     
-    #update
+    #update button in table
     def update(self, updated_info):
         try:
             Model.update_request(self, updated_info)
@@ -94,12 +98,10 @@ class Controller:
             Controller.error_window(self, f'Invalid date format\n\n{error}', 'error')
         except pyodbc.Error as error:
             Controller.error_window(self, f'{error}', 'error')
-
     # ---- loginbox
 
     # ---- request_window
-
-    #submit
+    #submit new request
     def sub_new_info(self, new_info):
         try:
             Model.fetch_name(self, new_info[2])
@@ -110,16 +112,11 @@ class Controller:
         except pyodbc.DataError as error:
             Controller.error_window(self, f'Formatting Error\n\n{error}', 'error')
         except pyodbc.Error as error:
-            Controller.error_window(self, f'Connection Error\n\n{error}', 'error')
-
-    def reduce_days(self, nDaysLeft):
-        Model.reduce_days(self, nDaysLeft, Controller.user_id)
-    
+            Controller.error_window(self, f'Connection Error\n\n{error}', 'error') 
     # ---- request_window
 
     # ---- manager_view
-
-    #load all
+    #load all reqs in table
     fetched_reqs = []
     def search_all(self):
         try:
@@ -135,17 +132,8 @@ class Controller:
             Controller.fetched_reqs = Model.cursor.fetchall()
         except pyodbc.Error as error:
             Controller.error_window(self, f'{error}', 'error')
-    
-    #search by antragnummer, also used in the employee_req_view
-    req_data = []
-    def search(self, xnRequest):
-        try:
-            Model.fetch_request(self, xnRequest)
-            Controller.req_data = Model.cursor.fetchone()
-        except pyodbc.Error as error:
-            Controller.error_window(self, f'{error}', 'error')
 
-    #load unseen
+    #search by new
     def get_unseen(self):
         try:
             Model.get_unseen(self)
@@ -153,7 +141,7 @@ class Controller:
         except pyodbc.Error as error:
             Controller.error_window(self, f'{error}', 'error')
     
-    #load approved
+    #search by bestätigt
     def get_green(self):
         try:
             Model.get_by_green(self)
@@ -161,7 +149,7 @@ class Controller:
         except pyodbc.Error as error:
             Controller.error_window(self, f'{error}', 'error')
     
-    #load unapproved
+    #search by geplant
     def get_yellow(self):
         try:
             Model.get_by_yellow(self)
@@ -169,7 +157,7 @@ class Controller:
         except pyodbc.Error as error:
             Controller.error_window(self, f'{error}', 'error')
 
-    #load denied
+    #search by denied
     def get_red(self):
         try:
             Model.get_by_red(self)
@@ -177,7 +165,7 @@ class Controller:
         except pyodbc.Error as error:
             Controller.error_window(self, f'{error}', 'error')
     
-    #load by name
+    #search by name
     def get_by_name(self, sLastName):
         try:
             Model.get_by_name(self, sLastName)
@@ -185,7 +173,7 @@ class Controller:
         except pyodbc.Error as error:
             Controller.errow_window(self, f'{error}', 'error')
 
-    #update
+    #update button in table
     def man_update(self, man_info):
         try:
             Model.man_update(self, man_info)
@@ -195,24 +183,22 @@ class Controller:
         except pyodbc.Error as error:
             Controller.error_window(self, f'{error}', 'error')
 
-    #delete
+    #delete button in table
     def delete(self, xnRequest):
         try:
             Model.delete_request(self, xnRequest)
         except pyodbc.Error as error:
             Controller.error_window(self, f'{error}', 'error')
 
-    #mark as seen
+    #mark as seen button in table
     def set_seen(self, xnRequest):
         try:
             Model.set_seen(self, xnRequest)
         except pyodbc.Error as error:
             Controller.error_window(self, f'{error}', 'error')
-
     # ---- manager_view
 
     # ---- schedule
-
     #initialization list
     current_date = datetime.datetime.now()    
     current_month = datetime.datetime.now().month
@@ -409,7 +395,7 @@ class Controller:
                         Controller.data_values[nameindex] = data_tuple
     # ---- schedule
     
-    #popup handler
+    # ---- popup handler
     def error_window(self, message, type = 'info', timeout = 2000):
         error_window = tk.Tk()
         error_window.withdraw()
