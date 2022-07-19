@@ -63,15 +63,6 @@ class Model:
                 Model.cursor.execute(self.stell_updater, nStellStatus, xnRequest)
                 Model.cnxn.commit()
 
-        #fetch remaining vacation days
-        def get_days_left(self, login_info):
-                """Parameters
-                ---------
-                nEmployee : int"""
-                self.days_left_getter = """SELECT [nDaysLeft] FROM [PulseCoreTest5].[dbo].[PO_employee]
-                                WHERE [nEmployee] = ?"""
-                Model.cursor.execute(self.days_left_getter, login_info)
-
         #update requests in scrollframe, autosets stellstatus to 0        
         def update_request(self, updated_info):      
                 """Parameters
@@ -97,8 +88,17 @@ class Model:
         # ---- request_window
         
         #submit
+        def fetch_name(self, nEmployee):
+                """Parameters
+                -----------
+                nEmployee : int"""
 
-        def submit_request(self, new_info):
+                self.name_from_empnum_getter = """SELECT [sFirstName], [sName]
+                        FROM [PulseCoreTest5].[dbo].[PO_employee]
+                        WHERE [nEmployee] = ?"""
+                Model.cursor.execute(self.name_from_empnum_getter, nEmployee)
+
+        def submit_request(self, data):
                 """Parameters
                 -----------
                 dDateStart : date
@@ -106,15 +106,10 @@ class Model:
                 nEmployee : int
                 sReasons : str
                 sStatus : str
-                sStellvertreter : str"""
-                self.name_from_empnum_getter = """SELECT [sFirstName], [sName]
-                        FROM [PulseCoreTest5].[dbo].[PO_employee]
-                        WHERE [nEmployee] = ?"""
+                sStellvertreter : str
+                sFirstName : str
+                sLastName : str"""
 
-                Model.cursor.execute(self.name_from_empnum_getter, new_info[2])
-                first_and_last_names = Model.cursor.fetchall()
-                data = (new_info) + tuple(first_and_last_names[0])
-                
                 self.request_submitter = """INSERT INTO dbo.PC_VacationsRequests (dDateStart, dDateEnd, nEmployee, sReasons, sStatus, sStellvertreter, sFirstName, sLastName)
                                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)"""
                 Model.cursor.execute(self.request_submitter, data)
@@ -377,6 +372,8 @@ class Model:
                 ---------
                 None"""
                 self.request_getter = """SELECT [xnRequest] 
+                                        ,[sLastName]
+                                        ,[sFirstName]
                                         ,[dDateStart]
                                         ,[dDateEnd]
                                         ,[nEmployee]
@@ -405,3 +402,24 @@ class Model:
                 Model.cursor.execute(self.holiday_getter)
 
         # ---- schedule
+
+        # ---- resturlaub calcs
+
+        def get_holidates(self, nEmployee):
+                """Parameters
+                ---------
+                nEmployee : int"""
+                self.holidate_getter = """SELECT [dDateStart]
+                                        ,[dDateEnd]
+                                        FROM [PulseCoreTest5].[dbo].[PC_VacationsRequests]
+                                        WHERE [nEmployee] = ? AND [sStatus] != 'denied'"""
+                Model.cursor.execute(self.holidate_getter, nEmployee)
+        
+        #fetch remaining vacation days
+        def get_days_left(self, login_info):
+                """Parameters
+                ---------
+                nEmployee : int"""
+                self.days_left_getter = """SELECT [nDaysLeft] FROM [PulseCoreTest5].[dbo].[PO_employee]
+                                WHERE [nEmployee] = ?"""
+                Model.cursor.execute(self.days_left_getter, login_info)

@@ -11,14 +11,13 @@ from views import loginbox, request_window, manager_view
 
 #this is the main window and application
 class App(tk.Tk):
-     
     # __init__ function for class tkinterApp
     def __init__(self, *args, **kwargs):
          
         # __init__ function for class Tk
         tk.Tk.__init__(self, *args, **kwargs)
 
-        self.geometry('1075x600')
+        self.geometry('1000x600')
         
         sv_ttk.set_theme('dark')
 

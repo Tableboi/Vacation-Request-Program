@@ -131,12 +131,7 @@ class loginbox(ttk.Frame):
             Controller.error_window(self, f'Invalid Personalnummer \n\n{error}', type = 'error')
             return
 
-        Controller.get_days_left(self, login_info)
-
-        self.tage_entry.config(state = 'enabled')
-        self.tage_entry.delete(0, 'end')
-        self.tage_entry.insert(0, f'{Controller.days_left} Tage')
-        self.tage_entry.config(state = 'disabled')
+        self.update_days_entry()
 
         self.search_by_employee()
 
@@ -146,6 +141,14 @@ class loginbox(ttk.Frame):
         self.start_stell_stuff()
 
         self.vert_frame2_cont.pack(fill = 'x')
+    
+    def update_days_entry(self):
+        Controller.update_resturlaub(self, login_info)
+
+        self.tage_entry.config(state = 'enabled')
+        self.tage_entry.delete(0, 'end')
+        self.tage_entry.insert(0, f'{Controller.days_left} Tage')
+        self.tage_entry.config(state = 'disabled')
     
     def enable_empbuttons(self):
         self.new_req_button.configure(state = 'enabled')
@@ -287,6 +290,10 @@ class loginbox(ttk.Frame):
                     end_date = start_date
                 updated = (start_date, end_date, new_reason, nStellStatus, xnRequest, int(login_info))
                 Controller.update(self, updated)
+
+                loginbox.update_days_entry(self)
+
+                loginbox.search_by_employee(self)
 
             button_list.append(ttk.Button(self.vert_frame.interior, text = 'Update', width = 15, \
                 command = lambda i=i : update_button(self, i)))
@@ -448,9 +455,6 @@ class request_window(ttk.Frame):
         self.stell_entry.grid(column = 0, row = 1, **s2options)
 
         self.Rvar1 = IntVar()
-        self.grund_label = ttk.Label(self.section2, text = "Urlaubsgrund")
-
-        self.grund_label.grid(column = 1, row = 0, **s2options)
         self.R1 = ttk.Radiobutton(self.section2, text = "Erholungsurlaub", variable = self.Rvar1, value = 1)
         self.R2 = ttk.Radiobutton(self.section2, text = "Sonderurlaub:", variable = self.Rvar1, value = 2)
         self.R1.grid(column = 1, row = 0, **s2options)
@@ -468,7 +472,8 @@ class request_window(ttk.Frame):
         self.bottom = ttk.Frame(self.Main)
         
         self.submit_button = ttk.Button(self.bottom, text = "Submit", \
-            command = lambda : [request_window.submit(self), request_window.update_nDaysLeft(self)])
+            command = lambda : [request_window.submit(self), \
+                Controller.update_resturlaub(self, login_info)])
         self.submit_button.pack(padx = 5, pady = 5, side = 'right')
         
         self.return_button = ttk.Button(self.bottom, text = "Return", \
@@ -478,37 +483,6 @@ class request_window(ttk.Frame):
         self.bottom.grid(columnspan = 2, column = 0, row = 4, sticky = 'ns')
  
         self.Main.pack(fill = 'y')
-
-    def update_nDaysLeft(self):
-        Controller.get_holidays(self)
-        start_str = self.dDateStart.get().strip()
-        end_str = self.dDateEnd.get().strip()
-        if end_str == '' or end_str == 'YYYY-MM-DD':
-            end_str = start_str
-
-        try:
-            start_date = datetime.datetime.strptime(start_str, "%Y-%m-%d").date()
-            end_date = datetime.datetime.strptime(end_str, "%Y-%m-%d").date()
-            self.delta = end_date - start_date
-            days = [start_date + timedelta(days = i) for i in range(self.delta.days + 1)]
-            Wochenende = set([5, 6])
-            days_to_delete = []
-            for i in days:
-                if i.weekday() in Wochenende:
-                    days_to_delete.append(i)
-                elif i.strftime('%Y.' + '%m.' + '%d') in Controller.list_of_holiday_dates:
-                    days_to_delete.append(i)
-            for day in days_to_delete:
-                days.remove(day)
-            Controller.get_days_left(self, login_info)
-            self.nDaysLeft = Controller.days_left - (len(days))
-
-            Controller.reduce_days(self, self.nDaysLeft)
-
-            Controller.get_days_left(self, login_info)
-        
-        except ValueError as error:
-            Controller.error_window(self, f'Date must be in YYYY-MM-DD format.\n\nError: {error}', 'error')
 
     def submit(self):
         start_date = self.dDateStart.get().strip()
@@ -528,6 +502,7 @@ class request_window(ttk.Frame):
 
         data = (start_date, end_date, int(login_info), output, "geplant", self.stell_entry.get())
         Controller.sub_new_info(self, data)
+        #loginbox.update_days_entry(request_window)
 
 class manager_view(ttk.Frame):
     def __init__(self, parent, controller):
@@ -776,12 +751,15 @@ class manager_view(ttk.Frame):
                 updated = (start_date, end_date, new_reason, sStatus, sStellvertreter, xnRequest)
                 Controller.man_update(self, updated)
 
+                manager_view.combo_handler(self)
+
             button_list.append(ttk.Button(self.F1.interior, text = 'Update', width = 10, \
                 command = lambda i=i : update_button(self, i)))
             button_list[i].grid(row = i + 1, column = 6, **pad_options)
 
             def delete_button(self, i):
-                Controller.delete(self, int(antrags_list[i].get()))
+                Controller.delete(self, antrags_list[i])
+                manager_view.combo_handler(self)
             
             delete_button_list.append(ttk.Button(self.F1.interior, text = 'Delete', \
                 width = 10, command = lambda i=i : delete_button(self, i)))
@@ -969,7 +947,7 @@ class TableModel(QtCore.QAbstractTableModel):
             value = self._data[index.row()][index.column()]
             if value == '   ':
                 return QtGui.QColor('#757575')
-            if value == '______________':
+            if value == '--------------':
                 return QtGui.QColor('dark gray')
             if value == 'Feiertag':
                 return QtGui.QColor('#55d3dd')
@@ -1082,7 +1060,7 @@ class Ui_Form(object):
         self.model = TableModel(data) 
         self.verticalLayout.addWidget(self.tableWidget) 
         self.verticalLayout_2.addLayout(self.verticalLayout) 
-        self.tableWidget.setModel(self.model) 
+        self.tableWidget.setModel(self.model)
         for i in range(TableModel.columnCount(TableModel)):
             self.tableWidget.setColumnWidth(i, 80)
         self.model.setHeaderData(2, QtCore.Qt.Horizontal, 'hello', QtCore.Qt.DisplayRole)
