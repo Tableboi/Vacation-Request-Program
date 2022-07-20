@@ -21,7 +21,7 @@ The below files must all be installed in the same folder:
  - pyodbc (for connecting and querying the SQL database)
  
  ## File Descriptions
-  The app.py file is the file that must be run in order to start the application. This file initializes the bass app as a tkinterApp and sets the color theme. Then imports classes defined in the views.py file as frames within an empty array. The frames are then iterated through and stacked on top of eachother. To switch which frame is displayed on top, the show_frame method is used.
+  The app.py file is the file that must be run in order to start the application. This file initializes the base app as a tkinterApp and sets the color theme. Then imports classes defined in the views.py file as frames within an empty array. The frames are then iterated through and stacked on top of eachother. To switch which frame is displayed on top, the show_frame method is used.
   
   The views.py file contains all script relevant to the GUI in one place. The views file is divided into four main GUIs: loginbox, request_window, manager_view, UI form, which are all defined as classes within the views file. Other classes are present, but they are used as a means of supporting/simplifying the 4 main classes.
  1.) The loginbox handles logging in, updating requests of the user, confirming the user's acceptance or refusal as a stellvertreter, and buttons for navigation to the other views.
