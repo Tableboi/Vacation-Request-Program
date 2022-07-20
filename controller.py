@@ -9,7 +9,6 @@ from models import Model
 import tkinter as tk
 
 class Controller:
-
     def __init__(self, model, view):
         self.model = model
         self.view = view
@@ -93,7 +92,7 @@ class Controller:
     def update(self, updated_info):
         try:
             Model.update_request(self, updated_info)
-            Controller.error_window(self, 'Update Successful', 'info')
+            Controller.error_window(self, 'Update Successful\n\nPlease note that alterations to the stellvertreter will not be recorded.', 'info', 3000)
         except pyodbc.DataError as error:
             Controller.error_window(self, f'Invalid date format\n\n{error}', 'error')
         except pyodbc.Error as error:
@@ -229,7 +228,7 @@ class Controller:
         days = [start + timedelta(days = i) for i in range(delta.days + 1)]
         return days
 
-    #starts everything
+    #starts everything related to schedule building
     def create_table(self):
         Controller.get_emp_list(self)
         Controller.get_requests(self)
@@ -336,7 +335,7 @@ class Controller:
         
         delta = last_date - first_date
         for i in range(delta.days + 1):
-            day = ((first_date + datetime.timedelta(days = i)))
+            day = (first_date + datetime.timedelta(days = i))
             Controller.headers.append(day.strftime('%a %d'))
 
     #fills table with weekends, alle gruppe borders, and

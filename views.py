@@ -323,9 +323,16 @@ class loginbox(ttk.Frame):
                 #checking for an unfilled end date
                 if end_date == '':
                     end_date = start_date
+                
+                #setting string dates to datetime
+                try:
+                    start_date = datetime.strptime(start_date, '%Y-%m-%d')
+                    end_date = datetime.strptime(end_date, '%Y-%m-%d')
+                except ValueError as error:
+                    Controller.error_window(self, f'Please enter a valid date format.\n{error}', 'error')
+                    return
+                
                 #followed by checking that the start date comes before end date
-                start_date = datetime.strptime(start_date, '%Y-%m-%d')
-                end_date = datetime.strptime(end_date, '%Y-%m-%d')
                 if start_date > end_date:
                     Controller.error_window(self, 'Please enter an end date that is later than the start date.', 'info', 3000)
                     return
@@ -487,6 +494,7 @@ class request_window(ttk.Frame):
 
         self.dDateStart = ttk.Entry(self.section1, foreground = 'grey')
         self.dDateStart.insert(0, 'YYYY-MM-DD')
+        self.dDateStart.bind('<Return>', self.submit)
         self.dDateStart.pack(side = 'left', **s1options)
 
         self.dDateEnd_label = ttk.Label(self.section1, text = "bis einschl.")
@@ -494,6 +502,7 @@ class request_window(ttk.Frame):
 
         self.dDateEnd = ttk.Entry(self.section1, foreground = 'grey')
         self.dDateEnd.insert(0, 'YYYY-MM-DD')
+        self.dDateEnd.bind('<Return>', self.submit)
         self.dDateEnd.pack(side = 'left', **s1options)
          
         self.section1.grid(columnspan = 2, column = 0, row = 1, padx = 5, pady = 5, sticky = 'ns')
@@ -509,9 +518,11 @@ class request_window(ttk.Frame):
         self.stell_label.grid(column = 0, row = 0, **s2options)
        
         self.stell_entry = ttk.Entry(self.section2)
+        self.stell_entry.bind('<Return>', self.submit)
         self.stell_entry.grid(column = 0, row = 1, **s2options)
 
         self.Rvar1 = IntVar()
+        self.Rvar1.set(1) #default value of self.Rvar1
         self.R1 = ttk.Radiobutton(self.section2, text = "Erholungsurlaub", variable = self.Rvar1, value = 1)
         self.R2 = ttk.Radiobutton(self.section2, text = "Sonderurlaub:", variable = self.Rvar1, value = 2)
         self.R1.grid(column = 1, row = 0, **s2options)
@@ -521,6 +532,7 @@ class request_window(ttk.Frame):
         self.grund_label.grid(column = 1, row = 1, **s2options)
 
         self.grund_entry = ttk.Entry(self.section2, width = 20)
+        self.grund_entry.bind('<Return>', self.submit)
         self.grund_entry.grid(column = 2, row = 1, **s2options)
 
         self.section2.grid(columnspan = 2, column = 0, row = 2, padx = 5, pady = 5, sticky = 'ns')
@@ -545,7 +557,7 @@ class request_window(ttk.Frame):
         self.Main.pack(fill = 'y')
 
     #on submit button press
-    def submit(self):
+    def submit(self, event = None):
         start_date = self.dDateStart.get().strip()
         end_date = self.dDateEnd.get().strip()
 
@@ -558,8 +570,13 @@ class request_window(ttk.Frame):
         if end_date == '' or end_date == 'YYYY-MM-DD':
             end_date = start_date
         
-        start_date = datetime.strptime(start_date, '%Y-%m-%d')
-        end_date = datetime.strptime(end_date, '%Y-%m-%d')
+        #setting string dates to datetime
+        try:
+            start_date = datetime.strptime(start_date, '%Y-%m-%d')
+            end_date = datetime.strptime(end_date, '%Y-%m-%d')
+        except ValueError as error:
+            Controller.error_window(self, f'Please enter a valid date format.\n\n{error}', 'error')
+            return
 
         #checking that the start date is before or equal to end date
         if start_date > end_date:
@@ -856,11 +873,17 @@ class manager_view(ttk.Frame):
                     return
 
                 #checking for an unfilled end date
-                if end_date == '':
+                if end_date == '' or end_date == 'YYYY-MM-DD':
                     end_date = start_date
-                #followed by checking that the start date comes before end date
-                start_date = datetime.strptime(start_date, '%Y-%m-%d')
-                end_date = datetime.strptime(end_date, '%Y-%m-%d')
+                
+                #setting string dates to datetime
+                try:
+                    start_date = datetime.strptime(start_date, '%Y-%m-%d')
+                    end_date = datetime.strptime(end_date, '%Y-%m-%d')
+                except ValueError as error:
+                    Controller.error_window(self, f'Please enter a valid date format.\n\n{error}', 'error')
+                    return
+
                 if start_date > end_date:
                     Controller.error_window(self, 'Please enter an end date that is later than the start date.', 'info', 3000)
                     return
@@ -1049,11 +1072,17 @@ class manager_view(ttk.Frame):
                     return
 
                 #checking for an unfilled end date
-                if end_date == '':
+                if end_date == '' or end_date == 'YYYY-MM-DD':
                     end_date = start_date
-                #followed by checking that the start date comes before end date
-                start_date = datetime.strptime(start_date, '%Y-%m-%d')
-                end_date = datetime.strptime(end_date, '%Y-%m-%d')
+                
+                #setting string dates to datetime
+                try:
+                    start_date = datetime.strptime(start_date, '%Y-%m-%d')
+                    end_date = datetime.strptime(end_date, '%Y-%m-%d')
+                except ValueError as error:
+                    Controller.error_window(self, f'Please enter a valid date format.\n\n{error}', 'error')
+                    return
+
                 if start_date > end_date:
                     Controller.error_window(self, 'Please enter an end date that is later than the start date.', 'info', 3000)
                     return
