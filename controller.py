@@ -231,6 +231,7 @@ class Controller:
     manager_empnums = [905]   
 
     def get_group_from_empnum(self, empnum):
+        Controller.selected_group.clear()
         Model.get_group_from_empnum(self, empnum)
         pyodbc_row = Model.cursor.fetchall()
         if (str(pyodbc_row)[2]) == 'N':
