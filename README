@@ -1,0 +1,28 @@
+# Urlaubsanträge Management Application
+
+This application enables the creation, alteration, and confirmation of vacation requests for employees of Core Solutions
+
+## Installation
+Python 3 is required for running this application
+
+The below files must all be installed in the same folder:
+ - app.py
+ - views.py
+ - conroller.py
+ - models.py
+ 
+ The following modules need to be installed/imported to the python environment that will be used to run this application.
+ Using the pip installer via the terminal is the easiest way to install these modules:
+ - tkinter (for GUI management)
+ - PyQt5 (for GUI management)
+ - PIL (for diplaying Core Solution Logo)
+ - qdarktheme (for theming PyQt5 GUI)
+ - calendar (for retrieving month range information)
+ - pyodbc (for connecting and querying the SQL database)
+ 
+ ## File Descriptions
+  The views.py file contains all script relevant to the GUI in one place. The views file is divided into four main GUIs: loginbox, request_window, manager_view, UI form, which are all defined as classes within the views file. Other classes are present, but they are used as a means of supporting/simplifying the 4 main classes.
+ 1.) The loginbox handles logging in, updating requests of the user, confirming the user's acceptance or refusal as a stellvertreter, and buttons for navigation to the other views
+ 2.) The request_window handles the creation of new requests and the verification of each input's format.
+ 3.) The manager_view handles all manager functions including the display of vacation requests filtered by various options, updating request information, confirmation or denial of requests, and contains buttons for navigation to the other views
+ 4.) The UI form is used to display a table in a popup window. The GUI handler of this view is unlike the others, as it is a PyQt5 GUI rather than tkinter. The table contains filtering options like production group, month, and year. If accessed by someone that does not have managerial credentials, the table will only display the production group associated with the user.
