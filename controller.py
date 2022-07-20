@@ -220,16 +220,24 @@ class Controller:
     selected_year = [current_year]
     request_list_raw = []
     request_dictionary = {}
+    login_empnum = []
+    manager_empnums = [905, 1116]
 
+    #needed for finding days between start and end date
     def date_range(self, start, end):
         delta = end - start
         days = [start + timedelta(days = i) for i in range(delta.days + 1)]
         return days
 
-    #methods
-    login_empnum = []
-    manager_empnums = [905]   
+    #starts everything
+    def create_table(self):
+        Controller.get_emp_list(self)
+        Controller.get_requests(self)
+        Controller.get_dates_for_headers(self)
+        Controller.input_default_data(self)
+        Controller.edit_data(self)
 
+    #find production group of user
     def get_group_from_empnum(self, empnum):
         Controller.selected_group.clear()
         Model.get_group_from_empnum(self, empnum)
@@ -241,6 +249,7 @@ class Controller:
             Controller.selected_group.append(int(str(pyodbc_row)[2]))
             Controller.login_empnum.clear()
 
+    #populates the employee column
     def get_emp_list(self):    
         def get_group():
             if Controller.selected_group[0] == 6:
@@ -253,6 +262,8 @@ class Controller:
                 Controller.list_of_emp_info.append(item)             
         Controller.list_of_emp_info.clear()
         Controller.rows.clear()
+        
+        #if user is a manager, shows all production groups
         if Controller.selected_group[0] == 7:
             for i in range(0,7):
                 Controller.list_of_emp_info.append([Controller.ProduktionsGruppe[i], None])
@@ -264,6 +275,7 @@ class Controller:
         else:
             get_group()
 
+        #formatting
         for item in Controller.list_of_emp_info:
                 if item[1] is not None:
                     emp_last_name = item[0]
@@ -273,6 +285,8 @@ class Controller:
                 if item[1] is None:
                     Controller.rows.append(item[0])
     
+    #formats requests from sql table into a request dictionary
+    # from the selected production group
     def get_requests(self):
         Model.get_requests(self)
         Controller.request_list_raw = Model.cursor.fetchall()
@@ -305,20 +319,15 @@ class Controller:
                                                 daterangelist[i].strftime('%Y.' + '%m.' + '%d'), status, 
                                                 stellvertreter_info, stell_status]
 
+    #formats holidays from sql
     def get_holidays(self):
         Model.get_holidays(self)
         holidays = Model.cursor.fetchall()
         for holiday in holidays:
             holiday_date = holiday[1]
             Controller.list_of_holiday_dates.append(holiday_date.strftime('%Y.' + '%m.' + '%d'))
-    
-    def create_table(self):
-        Controller.get_emp_list(self)
-        Controller.get_requests(self)
-        Controller.get_dates_for_headers(self)
-        Controller.input_default_data(self)
-        Controller.edit_data(self)
 
+    #populates row of dates with every day of the month
     def get_dates_for_headers(self):    
         Controller.headers.clear()
         number_of_days = calendar.monthrange(Controller.selected_year[0], Controller.selected_month[0])[1]
@@ -330,6 +339,8 @@ class Controller:
             day = ((first_date + datetime.timedelta(days = i)))
             Controller.headers.append(day.strftime('%a %d'))
 
+    #fills table with weekends, alle gruppe borders, and
+    # spaces for 'empty' cells
     def input_default_data(self):
         Controller.get_holidays(self)
         Controller.data_values.clear()    
@@ -355,6 +366,9 @@ class Controller:
             data_tuple = tuple(data_list)
             Controller.data_values.append(data_tuple)
 
+    #takes all requests in a selected group, month, and year,
+    # and populates the table with requests and stellvertreter status
+    # indicators
     def edit_data(self):
         for key, value in Controller.request_dictionary.items():
             req_info = value
@@ -389,9 +403,9 @@ class Controller:
                     data_list = list(Controller.data_values[nameindex])
                     if data_list[int(dayentered) - 1] == ' ':
                         if stell_status == 1:
-                            data_list[int(dayentered) - 1] = f'Sv.: {employee_info}' 
+                            data_list[int(dayentered) - 1] = f'{employee_info}' 
                         elif stell_status == 0:
-                            data_list[int(dayentered) - 1] = f'Sv.?: {employee_info}'
+                            data_list[int(dayentered) - 1] = f'*{employee_info}'
                         data_tuple = tuple(data_list)
                         Controller.data_values[nameindex] = data_tuple
     # ---- schedule

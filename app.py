@@ -13,7 +13,7 @@ class App(tk.Tk):
         # __init__ function for class Tk
         tk.Tk.__init__(self, *args, **kwargs)
 
-        self.geometry('1000x600')
+        self.geometry('1050x600')
         
         sv_ttk.set_theme('dark')
 

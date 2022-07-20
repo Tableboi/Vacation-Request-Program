@@ -117,6 +117,10 @@ class loginbox(ttk.Frame):
             login_info = int(self.login_entry.get())
         except ValueError as error: #checks if login_info is an int
             Controller.error_window(self, f'Invalid Personalnummer Format\n\n{error}', type = 'error')
+            for widget in self.vert_frame.interior.winfo_children():
+                widget.destroy()
+            for widget in self.vert_frame2.interior.winfo_children():
+                widget.destroy()
             return
 
         #reset button states
@@ -127,12 +131,16 @@ class loginbox(ttk.Frame):
         #validate user info
         try:
             Controller.login(self, login_info)
-            if login_info == 905: #checks if user is a manager
+            if login_info in Controller.manager_empnums: #checks if user is a manager
                 loginbox.enable_manbuttons(self)
             else:
                 loginbox.enable_buttons(self)
         except TypeError as error: #checks if personalnummer exists
             Controller.error_window(self, f'Invalid Personalnummer \n\n{error}', type = 'error')
+            for widget in self.vert_frame.interior.winfo_children():
+                widget.destroy()
+            for widget in self.vert_frame2.interior.winfo_children():
+                widget.destroy()
             return
 
         #updates resturlaub counter
@@ -763,7 +771,7 @@ class manager_view(ttk.Frame):
 
             grund_list.append(tk.Entry(self.F1.interior, width = 15, relief = 'groove'))
 
-            emp_list.append(tk.Entry(self.F1.interior, width = 15, relief = 'groove'))
+            emp_list.append(tk.Entry(self.F1.interior, width = 25, relief = 'groove'))
             # ---- build widgets
 
             # ---- insert info into each widget by index
@@ -789,7 +797,7 @@ class manager_view(ttk.Frame):
             grund_list[i].insert(0, str(self.entry[4]))
             grund_list[i].grid(row = i + 1, column = 3, **pad_options)
 
-            emp_list[i].insert(0, f'{str(self.entry[3])}, {str(self.entry[10])}')
+            emp_list[i].insert(0, f'{str(self.entry[3])} {str(self.entry[10])}, {str(self.entry[9])}')
             emp_list[i].grid(row = i + 1, column = 4)
             # ---- insert info into each widget by index
 
@@ -958,7 +966,7 @@ class manager_view(ttk.Frame):
 
             grund_list.append(tk.Entry(self.F1.interior, width = 15, relief = 'groove'))
 
-            emp_list.append(tk.Entry(self.F1.interior, width = 15, relief = 'groove'))
+            emp_list.append(tk.Entry(self.F1.interior, width = 25, relief = 'groove'))
             # ---- build widgets
 
             # ---- insert info into each widget by index
@@ -984,7 +992,7 @@ class manager_view(ttk.Frame):
             grund_list[i].insert(0, str(self.entry[4]))
             grund_list[i].grid(row = i + 1, column = 3, **pad_options)
 
-            emp_list[i].insert(0, f'{str(self.entry[3])}, {str(self.entry[10])}')
+            emp_list[i].insert(0, f'{str(self.entry[3])} {str(self.entry[10])}, {str(self.entry[9])}')
             emp_list[i].grid(row = i + 1, column = 4)
 
             # ---- table button widgets
@@ -1072,18 +1080,15 @@ class TableModel(QtCore.QAbstractTableModel):
     def __init__(self, data):
         super(TableModel, self).__init__()
         self._data = data
+        #start processes to build schedule
         Controller.create_table(self)
 
     def data(self, index, role):
         #index gives location in the table for which info is currently being requested. .row() and .column()
         #role describes what kind of info the method should return on thi call. QtDisplayRole expects a str.
         if role == Qt.DisplayRole:
-            #.row() indexes into the outer list
-            #.column() indexes into the sub-list
             value = self._data[index.row()][index.column()]
             return value
-            #if isinstance(value, datetime.datetime):
-                #return value.strftime('%d-%m-%Y')
         if role == Qt.BackgroundRole:
             value = self._data[index.row()][index.column()]
             if value == '   ':
@@ -1096,23 +1101,22 @@ class TableModel(QtCore.QAbstractTableModel):
                 return QtGui.QColor('#dda355')
             if value == 'bestätigt':
                 return QtGui.QColor('#5dbb4e')
-            if value == 'Stellvertreter':
+            if ',' in value and '*' not in value:
                 return QtGui.QColor('#ef7f64')
-            if value == 'Stellvertreter?':
+            if '*' in value:
                 return QtGui.QColor('#8d55dd')
             else:
                 return value
-            #return value #default anything else
-        #if role == Qt.BackgroundRole:
-            #return QtGui.QColor('gray')
 
+    #needed for dimensions of table
     def rowCount(self, index = None):
         return len(Controller.rows)
 
-
+    #needed for dimensions of table
     def columnCount(self, index = None):
         return len(Controller.headers)
 
+    #needed for column headers
     def headerData(self, section, orientation, role = QtCore.Qt.DisplayRole):
         if orientation == QtCore.Qt.Horizontal and role == QtCore.Qt.DisplayRole:
             return Controller.headers[section]
@@ -1121,8 +1125,7 @@ class TableModel(QtCore.QAbstractTableModel):
         return QtCore.QAbstractTableModel.headerData(self, section, orientation, role)
 
 class Ui_Form(object):
-    #def __init__(self):
-        #Form.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+    #directly pulled from the QT Designer file
     def setupUi(self, Form, empnum):
         Form.setObjectName("Form")
         Form.resize(917, 743)
@@ -1194,22 +1197,25 @@ class Ui_Form(object):
         if empnum in Controller.manager_empnums:
             Controller.selected_group.append(7)
 
+        #builds table widget
         self.tableWidget = QtWidgets.QTableView(self.layoutWidget) 
         self.tableWidget.setObjectName("tableWidget")
 
+        #puts the TableModel class into table widget and fills it with data
         data = Controller.data_values
         self.model = TableModel(data) 
         self.verticalLayout.addWidget(self.tableWidget) 
         self.verticalLayout_2.addLayout(self.verticalLayout) 
         self.tableWidget.setModel(self.model)
         for i in range(TableModel.columnCount(TableModel)):
-            self.tableWidget.setColumnWidth(i, 80)
+            self.tableWidget.setColumnWidth(i, 100)
         self.model.setHeaderData(2, QtCore.Qt.Horizontal, 'hello', QtCore.Qt.DisplayRole)
 
 
         self.retranslateUi(Form, empnum)
         QtCore.QMetaObject.connectSlotsByName(Form)
 
+    #more QTDesigner code
     def retranslateUi(self, Form, empnum):
         _translate = QtCore.QCoreApplication.translate
         Form.setWindowTitle(_translate("Form", "Form"))
@@ -1242,6 +1248,7 @@ class Ui_Form(object):
         self.comboBox_3.setItemText(3, _translate("Form", str(Controller.years[3])))
         self.comboBox_3.setItemText(4, _translate("Form", str(Controller.years[4])))
 
+        #disables produktionsgruppe combobox if user is not a manager
         if empnum not in Controller.manager_empnums:
             self.comboBox.setEnabled(False)
         if empnum in Controller.manager_empnums:
