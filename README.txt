@@ -33,3 +33,10 @@ The below files must all be installed in the same folder:
  - The error_window method at the bottom of the file is responsible for the creation of these popups. It takes four parameters: self, error message to be displayed as a string, the type of message as a string, and the time in milliseconds as an integer with a default of 2000.
  
  The models.py contains the Model class, which is imported by the controller. This class contains the string and method required to establish a connection to the database. Methods are defined within this class, which handle the fetching, updating, and deleting of data in the SQL server database. Each method contains a string containing a list of the parameters required for each query and their respective datatype. This string is then followed by a variable, which defines the SQL query as a string. Finally, every method ends with the function required to execute the above query with the parameters supplied by the controller.py file. For methods that update or add new information within the SQL database, the method must end with the Model.cnxn.commit() method, in order to finalize changes to the table.
+
+## Notable Methods
+On the loginbox view:
+ - submit_click(self, event) starts everything on this page, it first creates a global variable, login_info, which is then populated by the contents of the entry box. The method then validates the user's input and initiates the methods used to load the resturlaub counter, the current request table, and pending stellvertreter request table.
+ 
+ On the request_window view:
+  - submit(self, event = None) is responsible for all actions on this page other than the return button. It first validates, formats, and passes the entered data to the controller
