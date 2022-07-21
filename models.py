@@ -34,7 +34,7 @@ class Model:
         def check_stell(self, nEmployee):
                 """Parameters
                 ---------
-                sName = str"""
+                nEmployee = int"""
                 self.stell_checker = """SELECT [xnRequest]
                                 ,[dDateStart]
                                 ,[dDateEnd]
@@ -84,6 +84,7 @@ class Model:
                 Model.cursor.execute(self.request_updater, updated_info)
                 Model.cnxn.commit()
         
+        #fetch stellvertreter first and last name from employee number
         def get_stellvertreter_name(self, nStellEmp):
                 """Parameters
                 ---------
@@ -179,26 +180,6 @@ class Model:
                                 FROM [PulseCoreTest5].[dbo].[PC_VacationsRequests]
                                 WHERE [nEmployee] = ?"""
                 Model.cursor.execute(self.emp_searcher, nEmployee)
-
-        #fetch a request by its request number
-        def fetch_request(self, xnRequest):
-                """Parameters
-                -----------
-                xnRequest : int"""
-                self.request_fetcher = """SELECT [xnRequest]
-                                ,[dDateStart]
-                                ,[dDateEnd]
-                                ,[nEmployee]
-                                ,[sReasons]
-                                ,[sStatus]
-                                ,[sStellvertreter]
-                                ,[nStellStatus]
-                                ,[nNotify]
-                                ,[sFirstName]
-                                ,[sLastName]
-                                FROM [PulseCoreTest5].[dbo].[PC_VacationsRequests]
-                                WHERE [xnRequest] = ?"""
-                Model.cursor.execute(self.request_fetcher, xnRequest)
         
         #load unseen
         def get_unseen(self):
@@ -312,15 +293,17 @@ class Model:
                 dDateStart : date
                 dDateEnd : date
                 sReasons : str
-                xnRequest : int
                 sStatus : str
-                sStellvertreter : str"""
+                sStellvertreter : str
+                nApprover : int
+                xnRequest : int"""
                 self.man_updater = """UPDATE [PulseCoreTest5].[dbo].[PC_VacationsRequests]
                                 SET [dDateStart] = ?
                                 ,[dDateEnd] = ?
                                 ,[sReasons] = ?
                                 ,[sStatus] = ?
                                 ,[sStellvertreter] = ?
+                                ,[nApprover] = ?
                                 WHERE [xnRequest] = ?"""
                 Model.cursor.execute(self.man_updater, man_info)
                 Model.cnxn.commit()
@@ -421,7 +404,7 @@ class Model:
 
         # ---- schedule
 
-        # ---- resturlaub calcs
+        # ---- resturlaub
 
         def get_holidates(self, nEmployee):
                 """Parameters
@@ -441,3 +424,4 @@ class Model:
                 self.days_left_getter = """SELECT [nDaysLeft] FROM [PulseCoreTest5].[dbo].[PO_employee]
                                 WHERE [nEmployee] = ?"""
                 Model.cursor.execute(self.days_left_getter, login_info)
+        # ---- resturlaub
