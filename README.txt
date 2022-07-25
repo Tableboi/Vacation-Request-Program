@@ -37,6 +37,14 @@ The below files must all be installed in the same folder:
 ## Notable Methods
 On the loginbox view:
  - submit_click(self, event) starts everything on this page, it first creates a global variable, login_info, which is then populated by the contents of the entry box. The method then validates the user's input and initiates the methods used to load the resturlaub counter, the current request table, and pending stellvertreter request table.
+ - search_by_employee(self, event = None) checks for the existence of vacation requests associated with the user's login info, it then prompts the construction of the necessary table if there are requests by calling self.search_emp().
+ - start_stell_stuff(self) checks if the user has been listed as a stellvertreter in any existing requests, it then prompts the construction of the stellvertreter table by calling self.stell_stuff().
  
  On the request_window view:
-  - submit(self, event = None) is responsible for all actions on this page other than the return button. It first validates, formats, and passes the entered data to the controller
+  - submit(self, event = None) is responsible for all actions on this page other than the return button. It first validates, formats, and passes the entered data to the controller by calling the Controller.sub_new_info(self, data) method.
+
+On the manager_view:
+- combo_handler(self, event = None) contains all the different search options, which are selected by a combobox whose value determines the search parameters
+- build_table(self) builds a table used to contain the fetched vacation requests. It's structure is always the same but the data to be stored is determined by the combobox handler
+- open_schedule(self) handles all methods, variables, etc necessary for calling the schedule to load on a button press
+- unseen_view(self) builds the table used to display all vacation requests that are marked as 'unseen'. This table is different from the build_table because of different buttons within the table
