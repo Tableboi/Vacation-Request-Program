@@ -12,7 +12,6 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 import qdarktheme
 
 from datetime import datetime
-
 from controller import Controller
 
 class loginbox(ttk.Frame):
@@ -23,19 +22,19 @@ class loginbox(ttk.Frame):
         self.columnconfigure(0, weight = 1)
         self.columnconfigure(1, weight = 1)
 
-        # Create a frame to contain top widgets
+        #Create a frame to contain top widgets
         self.top_frame = ttk.Frame(self, padding = 5)
         self.top_frame.pack(side = 'top', fill = 'x')
 
-        # ---- logo
+        
         # Create an object of tkinter ImageTk
-        self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB_negativ.png'
-        self.img = Image.open(self.path)
-        self.img.thumbnail((200,200))
-        self.new_img = ImageTk.PhotoImage(self.img)
+        #self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB_negativ.png'
+        #self.img = Image.open(self.path)
+        #self.img.thumbnail((200,200))
+        #self.new_img = ImageTk.PhotoImage(self.img)
         # Create a Label Widget to display the text or Image
-        self.label = ttk.Label(self.top_frame, image = self.new_img)
-        self.label.pack(side = 'right')
+        #self.label = ttk.Label(self.top_frame, image = self.new_img)
+        #self.label.pack(side = 'right')
         # ---- logo
 
         #setting the font types
@@ -108,8 +107,8 @@ class loginbox(ttk.Frame):
                     state = 'disabled')
         self.man_view_button.grid(column = 3, row = 0, rowspan = 2, **pad_options)
         # ---- resturlaub and button widgets
-
-    #on submit button click   
+        
+    #on submit button click
     def submit_click(self, event):
         #need a global variable here so other classes can easily access it
         global login_info
@@ -235,7 +234,7 @@ class loginbox(ttk.Frame):
         self.status_label.config(font = column_font)
         self.status_label.grid(column = 4, row = 0)
         # ---- column headers
-
+       
         #lists needed for iteration and indexing
         entry_list = []
         antrags_list = []
@@ -262,13 +261,13 @@ class loginbox(ttk.Frame):
 
             end_list.append(tk.Entry(self.vert_frame.interior, width = 15, relief = 'groove'))
             
-            stell_list.append(tk.Entry(self.vert_frame.interior, width = 15, relief = 'groove'))
+            stell_list.append(tk.Entry(self.vert_frame.interior, width = 20, relief = 'groove'))
 
             grund_list.append(tk.Entry(self.vert_frame.interior, width = 15, relief = 'groove'))
 
             status_list.append(tk.Label(self.vert_frame.interior, width = 15))
             # ---- build widgets
-
+            
             # ---- insert info into each widget by index
             antrags_list[i] = str(entry_list[i][0])
 
@@ -278,7 +277,9 @@ class loginbox(ttk.Frame):
             end_list[i].insert(0, str(entry_list[i][2]))
             end_list[i].grid(row = i +1, column = 1, **pad_options)
 
-            stell_list[i].insert(0, str(entry_list[i][6]))
+            if entry_list[i][11]:
+                Controller.get_stellvertreter_name(self, entry_list[i][11])
+                stell_list[i].insert(0, Controller.stell_info_formatted[0])
             stell_list[i].config(foreground = 'black')
             #color widget based on its contents
             if int(entry_list[i][7]) == 0:
@@ -301,8 +302,8 @@ class loginbox(ttk.Frame):
             elif str(entry_list[i][5]) == 'denied':
                 status_list[i].config(background = '#ef7f64', foreground = 'white')
             status_list[i].grid(row = i + 1, column = 4, **pad_options)
-            # ---- insert info into each widget by index
-
+            # ---- insert into into each widget by index
+            
             # ---- table button widgets
             def update_button(self, i):
                 start_date = start_list[i].get().strip()
@@ -323,7 +324,7 @@ class loginbox(ttk.Frame):
                 #checking for an unfilled end date
                 if end_date == '':
                     end_date = start_date
-                
+                    
                 #setting string dates to datetime
                 try:
                     start_date = datetime.strptime(start_date, '%Y-%m-%d')
@@ -331,12 +332,12 @@ class loginbox(ttk.Frame):
                 except ValueError as error:
                     Controller.error_window(self, f'Please enter a valid date format.\n{error}', 'error')
                     return
-                
+
                 #followed by checking that the start date comes before end date
                 if start_date > end_date:
                     Controller.error_window(self, 'Please enter an end date that is later than the start date.', 'info', 3000)
                     return
-
+                
                 updated = (start_date, end_date, new_reason, nStellStatus, xnRequest, int(login_info))
                 Controller.update(self, updated)
 
@@ -348,7 +349,7 @@ class loginbox(ttk.Frame):
                 command = lambda i=i : update_button(self, i)))
             button_list[i].grid(row = i + 1, column = 5, **pad_options)
             # ---- table button widgets
-    
+            
     #builds pending stell request table
     def stell_stuff(self):
         #lists necessary for entries
@@ -361,7 +362,7 @@ class loginbox(ttk.Frame):
         # ---- column headers
         column_headers = {'borderwidth' : 1, 'relief' : 'flat'}
         column_font = tkinter.font.Font(family = "Helvetica", size = 11)
-        
+
         self.start_label = ttk.Label(self.vert_frame2.interior, text = 'Startdatum', **column_headers)
         self.start_label.config(font = column_font)
         self.start_label.grid(column = 0, row = 0)
@@ -382,8 +383,8 @@ class loginbox(ttk.Frame):
         self.status_label.config(font = column_font)
         self.status_label.grid(column = 4, row = 0)
         # ---- column headers
-
-        #lists needed for iteration and indexing
+        
+        #lists needed for iterating and indexing
         antrags_list = []
         start_list = []
         end_list = []
@@ -396,7 +397,7 @@ class loginbox(ttk.Frame):
         #iterate through rows of fetched requests
         for i in range(0, len(Controller.stell_reqs), 1):
             pad_options = {'padx' : 5, 'pady' : 5}
-
+            
             #picks one row of the fetched reqs
             self.entry = Controller.stell_reqs[i]
             
@@ -409,15 +410,15 @@ class loginbox(ttk.Frame):
 
             end_list.append(tk.Entry(self.vert_frame2.interior, width = 15, relief = 'ridge'))
             
-            antragssteller_list.append(tk.Entry(self.vert_frame2.interior, width = 15, relief = 'ridge'))
+            antragssteller_list.append(tk.Entry(self.vert_frame2.interior, width = 20, relief = 'ridge'))
 
             grund_list.append(tk.Entry(self.vert_frame2.interior, width = 15, relief = 'ridge'))
 
             status_list.append(tk.Label(self.vert_frame2.interior, width = 15))
 
             antrags_list[i] = str(self.entry[0])
-            # ---- widgets
-
+            # ---- build widgets
+            
             # ---- insert info into each widget by index
             start_list[i].insert(0, str(self.entry[1]))
             start_list[i].grid(row = i + 1, column = 0, **pad_options)
@@ -425,7 +426,8 @@ class loginbox(ttk.Frame):
             end_list[i].insert(0, str(self.entry[2]))
             end_list[i].grid(row = i +1, column = 1, **pad_options)
 
-            antragssteller_list[i].insert(0, str(self.entry[10]))
+            antragssteller_info = f'{self.entry[3]} {self.entry[10]}, {self.entry[9]}'
+            antragssteller_list[i].insert(0, antragssteller_info)
             antragssteller_list[i].grid(row = i + 1, column = 2, **pad_options)
 
             grund_list[i].insert(0, str(self.entry[4]))
@@ -455,7 +457,6 @@ class loginbox(ttk.Frame):
                 command = lambda i=i : stell_status_button(i, 2)))
             nobutton_list[i].grid(row = i + 1, column = 6, **pad_options)
             # ---- table button widgets
-
             
 class request_window(ttk.Frame):
     def __init__(self, parent, controller):
@@ -474,16 +475,16 @@ class request_window(ttk.Frame):
 
         # ---- logo
         # Create an object of tkinter ImageTk
-        self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB_negativ.png'
-        self.img = Image.open(self.path)
-        self.img.thumbnail((200,200))
-        self.new_img = ImageTk.PhotoImage(self.img)
+        #self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB_negativ.png'
+        #self.img = Image.open(self.path)
+        #self.img.thumbnail((200,200))
+        #self.new_img = ImageTk.PhotoImage(self.img)
         # Create a Label Widget to display the text or Image
-        self.label = ttk.Label(self.Main, image = self.new_img)
-        self.label.grid(column = 1, row = 0, padx = 5, pady = 5)
+        #self.label = ttk.Label(self.Main, image = self.new_img)
+        #self.label.grid(column = 1, row = 0, padx = 5, pady = 5)
         # ---- logo
-
-        # ---- section 1
+        
+        # ----- section 1
         # pack options for section 1
         s1options = {'padx' : 5, 'pady' : 5}
 
@@ -506,9 +507,9 @@ class request_window(ttk.Frame):
         self.dDateEnd.pack(side = 'left', **s1options)
          
         self.section1.grid(columnspan = 2, column = 0, row = 1, padx = 5, pady = 5, sticky = 'ns')
-        # ---- section 1
+        # ----- section 1
 
-        # ---- section 2
+        # ----- section 2
         # pack options for section 2
         s2options = {'padx' : 5, 'pady' : 5}
 
@@ -536,7 +537,7 @@ class request_window(ttk.Frame):
         self.grund_entry.grid(column = 2, row = 1, **s2options)
 
         self.section2.grid(columnspan = 2, column = 0, row = 2, padx = 5, pady = 5, sticky = 'ns')
-        # ---- section 2
+        # ----- section 2
 
         #frame for the bottom buttons
         self.bottom = ttk.Frame(self.Main)
@@ -551,16 +552,33 @@ class request_window(ttk.Frame):
             command = lambda : controller.show_frame(loginbox))
         self.return_button.pack(padx = 5, pady = 5, side = 'left')
         # ---- buttons
-
-        self.bottom.grid(columnspan = 2, column = 0, row = 4, sticky = 'ns')
+        
+        self.bottom.grid(columnspan = 2, column = 0, row = 5, sticky = 'ns')
  
         self.Main.pack(fill = 'y')
-
+        
+        #------ Section for Stellvertreters with the same last name
+        self.same_last_name = ttk.Frame(self.Main, **frame_options)
+        
+        self.stell_label = ttk.Label(self.same_last_name, text = "There are two employees with this last name. Which would you like to choose as your Stellvertreter?")
+        self.stell_label.grid(column = 0, row = 0, **s2options)
+        
+        self.stellvertreter_selection = tk.StringVar()
+        self.stellvertreter_combo = ttk.Combobox(self.same_last_name, \
+            state = "readonly", textvariable = self.stellvertreter_selection)
+        
+        self.stellvertreter_combo.bind('<<ComboboxSelected>>', self.stell_combo_handler)
+        self.stellvertreter_combo.grid(column = 0, row = 1)
+        #------ Section for Stellvertreters with the same last name
+    
     #on submit button press
-    def submit(self, event = None):
+    def submit(self):
+        self.same_last_name.grid_remove()
+        Controller.stellvertreter_values.clear()
+        Controller.stellvertreter_info.clear()
         start_date = self.dDateStart.get().strip()
         end_date = self.dDateEnd.get().strip()
-
+        
         #checking for an unfilled start date
         if start_date == '' or start_date == 'YYYY-MM-DD':
             Controller.error_window(self, 'Please enter a start date.', 'info', 2500)
@@ -569,7 +587,7 @@ class request_window(ttk.Frame):
         #checking for an unfilled end date
         if end_date == '' or end_date == 'YYYY-MM-DD':
             end_date = start_date
-        
+            
         #setting string dates to datetime
         try:
             start_date = datetime.strptime(start_date, '%Y-%m-%d')
@@ -593,16 +611,38 @@ class request_window(ttk.Frame):
             output = erholungsurlaub
         elif gründe == 2:
             output = sonderurlaub
-            if sonderurlaub == '':
-                Controller.error_window(self, 'Please enter a short Sonderurlaub description.', 'info')
-                return
+        if output == '':
+            Controller.error_window(self, 'Please enter a short Sonderurlaub description.', 'info')
+            return
         elif gründe == 0:
             Controller.error_window(self, 'Please select vacation type.', 'info')
             return
+        else:
+            self.data = [start_date, end_date, int(login_info), output, "geplant", '', None]
+            #check for stellvertreter entry
+            if self.stell_entry.get() != '':
+                Controller.get_stellvertreter_number(self, self.stell_entry.get())
+                if len(Controller.stellvertreter_values) != 0:
+                    self.stellvertreter_combo['values'] = Controller.stellvertreter_values
+                    self.same_last_name.grid(column = 0, row = 4)
+                elif len(Controller.stellvertreter_info) == 0:
+                    ...
+                else:
+                    #add stellvertreter info to data
+                    self.data[5] = Controller.stellvertreter_info[0][2]
+                    self.data[6] = Controller.stellvertreter_info[0][0]
+                    Controller.sub_new_info(self, self.data)    
+            else:
+                Controller.sub_new_info(self, self.data)
 
-        data = (start_date, end_date, int(login_info), output, "geplant", self.stell_entry.get())
-        Controller.sub_new_info(self, data)
-
+    #if there are multiple employees with the name entered for stellvertreter,
+    #handles combobox for employee to choose which one they meant
+    def stell_combo_handler(self, event = None):
+        stell_index = self.stellvertreter_combo.current()
+        self.data[5] = Controller.stellvertreter_info[stell_index][2]
+        self.data[6] = Controller.stellvertreter_info[stell_index][0]
+        Controller.sub_new_info(self, self.data)
+        
 class manager_view(ttk.Frame):
     def __init__(self, parent, controller):
 
@@ -620,14 +660,14 @@ class manager_view(ttk.Frame):
         self.Headerframe.columnconfigure(6, weight = 2)
 
         # Create an object of tkinter ImageTk
-        self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB_negativ.png'
-        self.img = Image.open(self.path)
-        self.img.thumbnail((200,200))
-        self.new_img = ImageTk.PhotoImage(self.img)
+        #self.path = 'S:/Öffentliche Ordner/Logos/Core Solution/Logo/CoreSolution_Logo_RGB_negativ.png'
+        #self.img = Image.open(self.path)
+        #self.img.thumbnail((200,200))
+        #self.new_img = ImageTk.PhotoImage(self.img)
         # Create a Label Widget to display the text or Image
-        self.label = ttk.Label(self.Headerframe, image = self.new_img)
-        self.label.grid(rowspan = 2, column = 7, row = 0, \
-            padx = 10, pady = 20, sticky = 'e')
+        #self.label = ttk.Label(self.Headerframe, image = self.new_img)
+        #self.label.grid(rowspan = 2, column = 7, row = 0, \
+        #    padx = 10, pady = 20, sticky = 'e')
 
         # ---- control widgets
         self.title_label = ttk.Label(self.Headerframe, text = "Manager Request Search")
@@ -644,7 +684,7 @@ class manager_view(ttk.Frame):
         self.search_by.bind('<Return>', self.combo_handler)
         self.search_by.grid(column = 1, row = 1)
         # ---- control widgets
-
+        
         # ---- buttons
         self.search_button = ttk.Button(self.Headerframe, text = "Search", \
             command = lambda : [manager_view.combo_handler(self), self.F1.canvas.yview_moveto(0)])
@@ -658,7 +698,7 @@ class manager_view(ttk.Frame):
             command = lambda : controller.show_frame(loginbox))
         self.return_button.grid(column = 4, row = 1, padx = 10, pady = 10)
         # ---- buttons
-
+        
         #table frame
         self.F1 = VerticalScrolledFrame(self)
         self.F1.pack(fill = 'both', expand = True)
@@ -755,7 +795,7 @@ class manager_view(ttk.Frame):
         self.status_label.config(font = column_font)
         self.status_label.grid(column = 5, row = 0)
         # ---- column headers
-
+        
         #lists needed for iteration and indexing
         antrags_list = []
         start_list = []
@@ -771,12 +811,12 @@ class manager_view(ttk.Frame):
         #iterate through rows of fetched requests
         for i in range(0, len(Controller.fetched_reqs), 1):
             pad_options = {'padx' : 5, 'pady' : 5}
-
+            
             #take data from one row of fetched reqs
             self.entry = Controller.fetched_reqs[i]
 
             # ---- build widgets
-            #must use tk.Entry instead of ttk because background and foreground
+            #must use tkEntry instead of ttk because background and foreground 
             # colors are not changable with ttk
             antrags_list.append(tk.StringVar())
 
@@ -784,13 +824,13 @@ class manager_view(ttk.Frame):
 
             end_list.append(tk.Entry(self.F1.interior, width = 15, relief = 'groove'))
             
-            stell_list.append(tk.Entry(self.F1.interior, width = 15, relief = 'groove'))
+            stell_list.append(tk.Entry(self.F1.interior, width = 20, relief = 'groove'))
 
             grund_list.append(tk.Entry(self.F1.interior, width = 15, relief = 'groove'))
 
-            emp_list.append(tk.Entry(self.F1.interior, width = 25, relief = 'groove'))
+            emp_list.append(tk.Entry(self.F1.interior, width = 20, relief = 'groove'))
             # ---- build widgets
-
+            
             # ---- insert info into each widget by index
             antrags_list[i] = str(self.entry[0])
 
@@ -800,7 +840,9 @@ class manager_view(ttk.Frame):
             end_list[i].insert(0, str(self.entry[2]))
             end_list[i].grid(row = i +1, column = 1, **pad_options)
 
-            stell_list[i].insert(0, str(self.entry[6]))
+            if self.entry[11]:
+                Controller.get_stellvertreter_name(self, self.entry[11])
+                stell_list[i].insert(0, Controller.stell_info_formatted[0])
             stell_list[i].config(foreground = 'black')
             #color widget based on its contents
             if int(self.entry[7]) == 0:
@@ -817,7 +859,7 @@ class manager_view(ttk.Frame):
             emp_list[i].insert(0, f'{str(self.entry[3])} {str(self.entry[10])}, {str(self.entry[9])}')
             emp_list[i].grid(row = i + 1, column = 4)
             # ---- insert info into each widget by index
-
+            
             # ---- table button widgets
             #used for changing the approval status button
             def cycle_status_val(i):
@@ -875,7 +917,7 @@ class manager_view(ttk.Frame):
                 #checking for an unfilled end date
                 if end_date == '' or end_date == 'YYYY-MM-DD':
                     end_date = start_date
-                
+
                 #setting string dates to datetime
                 try:
                     start_date = datetime.strptime(start_date, '%Y-%m-%d')
@@ -905,7 +947,7 @@ class manager_view(ttk.Frame):
                 width = 10, command = lambda i=i : delete_button(self, i)))
             delete_button_list[i].grid(row = i + 1, column = 7, **pad_options)
             # ---- table button widgets
-    
+            
     #opens the full schedule view
     def open_schedule(self):
         import sys
@@ -948,15 +990,15 @@ class manager_view(ttk.Frame):
         self.grund_label.config(font = column_font)
         self.grund_label.grid(column = 3, row = 0)
 
-        self.status_label = ttk.Label(self.F1.interior, text = 'Status', **column_headers)
+        self.status_label = ttk.Label(self.F1.interior, text = 'Employee', **column_headers)
         self.status_label.config(font = column_font)
         self.status_label.grid(column = 4, row = 0)
 
-        self.pnummer_label = ttk.Label(self.F1.interior, text = 'Personalnummer', **column_headers)
+        self.pnummer_label = ttk.Label(self.F1.interior, text = 'Status', **column_headers)
         self.pnummer_label.config(font = column_font)
         self.pnummer_label.grid(column = 5, row = 0)
         # ---- column headers
-
+        
         #lists needed for iteration and indexing
         antrags_list = []
         start_list = []
@@ -973,7 +1015,7 @@ class manager_view(ttk.Frame):
         for i in range(0, len(Controller.fetched_reqs), 1):
             pad_options = {'padx' : 5, 'pady' : 5}
             
-            #pick one row of fetched reqs
+            #pick one row of fetched requests
             self.entry = Controller.fetched_reqs[i]
 
             # ---- build widgets
@@ -985,13 +1027,13 @@ class manager_view(ttk.Frame):
 
             end_list.append(tk.Entry(self.F1.interior, width = 15, relief = 'groove'))
             
-            stell_list.append(tk.Entry(self.F1.interior, width = 15, relief = 'groove'))
+            stell_list.append(tk.Entry(self.F1.interior, width = 20, relief = 'groove'))
 
             grund_list.append(tk.Entry(self.F1.interior, width = 15, relief = 'groove'))
 
-            emp_list.append(tk.Entry(self.F1.interior, width = 25, relief = 'groove'))
+            emp_list.append(tk.Entry(self.F1.interior, width = 20, relief = 'groove'))
             # ---- build widgets
-
+            
             # ---- insert info into each widget by index
             antrags_list[i] = str(self.entry[0])
 
@@ -1001,7 +1043,9 @@ class manager_view(ttk.Frame):
             end_list[i].insert(0, str(self.entry[2]))
             end_list[i].grid(row = i +1, column = 1, **pad_options)
 
-            stell_list[i].insert(0, str(self.entry[6]))
+            if self.entry[11]:
+                Controller.get_stellvertreter_name(self, self.entry[11])
+                stell_list[i].insert(0, Controller.stell_info_formatted[0])
             stell_list[i].config(foreground = 'black')
             #color widget based on its contents
             if int(self.entry[7]) == 0:
@@ -1074,7 +1118,7 @@ class manager_view(ttk.Frame):
                 #checking for an unfilled end date
                 if end_date == '' or end_date == 'YYYY-MM-DD':
                     end_date = start_date
-                
+
                 #setting string dates to datetime
                 try:
                     start_date = datetime.strptime(start_date, '%Y-%m-%d')
@@ -1091,7 +1135,6 @@ class manager_view(ttk.Frame):
                 Controller.man_update(self, updated)
                 manager_view.combo_handler(self)
 
-
             button_list.append(ttk.Button(self.F1.interior, text = 'Update', width = 10, \
                 command = lambda i=i : update_button(self, i)))
             button_list[i].grid(row = i + 1, column = 6, **pad_options)
@@ -1103,7 +1146,7 @@ class manager_view(ttk.Frame):
             mark_seen_button_list.append(ttk.Button(self.F1.interior, text = 'Mark as Seen', \
                 width = 15, command = lambda i=i : mark_seen_button(self, i)))
             mark_seen_button_list[i].grid(row = i + 1, column = 7, **pad_options)
-            # ---- table button widgets
+            # ---- table buton widgets
 
 class TableModel(QtCore.QAbstractTableModel):
     def __init__(self, data):
@@ -1277,11 +1320,11 @@ class Ui_Form(object):
         self.comboBox_3.setItemText(3, _translate("Form", str(Controller.years[3])))
         self.comboBox_3.setItemText(4, _translate("Form", str(Controller.years[4])))
 
-        #disables produktionsgruppe combobox if user is not a manager
+        #disables produktionsgruppe combobox if user is not a manater
         if empnum not in Controller.manager_empnums:
             self.comboBox.setEnabled(False)
         if empnum in Controller.manager_empnums:
-            pass
+            ...
 
     def change_group(self):
         group_selection = int(self.comboBox.currentIndex())
@@ -1303,7 +1346,6 @@ class Ui_Form(object):
 
     def change_year(self):
         year_selection = int(self.comboBox_3.currentText())
-        #print(year_selection)
         data = Controller.data_values
         Controller.selected_year.clear()
         Controller.selected_year.append(year_selection)

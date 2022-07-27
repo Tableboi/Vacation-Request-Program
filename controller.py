@@ -19,6 +19,7 @@ class Controller:
     current_year = int(current_date.strftime('%Y'))
 
     # ---- loginbox
+
     #initialize needed variables
     user_id = int()
     user_name = str
@@ -35,10 +36,23 @@ class Controller:
     stell_reqs = []
     def get_stell(self):
         try:
-            Model.check_stell(self, Controller.user_name)
+            Model.check_stell(self, Controller.user_id)
             Controller.stell_reqs = Model.cursor.fetchall()
         except pyodbc.Error as error:
             Controller.error_window(self, f'{error}', 'error')
+
+    stell_info_formatted = []
+    def get_stellvertreter_name(self, nStellEmp):
+        Controller.stell_info_formatted.clear()
+        try:
+            Model.get_stellvertreter_name(self, nStellEmp)
+            item = Model.cursor.fetchall()
+            last_name = item[0][0]
+            first_name = item[0][1]
+            Controller.stell_info_formatted.append(f'{nStellEmp} {last_name}, {first_name}')
+        except pyodbc.Error as error:
+            Controller.error_window(self, f'{error}', 'error')
+
 
     #update stell status
     def update_stell(self, nStellStatus, xnRequest):
@@ -51,7 +65,7 @@ class Controller:
     days_left = int()
     def update_resturlaub(self, login_info):
         holidelta = 0
-
+        
         #get starting vacation days
         Model.get_days_left(self, login_info)
         days_left_row = Model.cursor.fetchone()
@@ -72,9 +86,8 @@ class Controller:
             days = [start_str + timedelta(days = i) for i in range(self.delta.days + 1)]
             Wochenende = set([5, 6])
             days_to_delete = []
-
-            #iterate through list of days requested off, and remove
-            # those that are holidays and weekends
+            
+            #iterate through list of days requested off, and remove those that are holidays and weekends
             for i in days:
                 if i.weekday() in Wochenende:
                     days_to_delete.append(i)
@@ -97,25 +110,47 @@ class Controller:
             Controller.error_window(self, f'Invalid date format\n\n{error}', 'error')
         except pyodbc.Error as error:
             Controller.error_window(self, f'{error}', 'error')
+
     # ---- loginbox
 
     # ---- request_window
+
     #submit new request
+    stellvertreter_values = []
+    stellvertreter_info = []
+    def get_stellvertreter_number(self, stellvertreter_last_name):
+        Model.get_stellvertreter_info(self, stellvertreter_last_name)
+        stellvertreter_name_and_number = Model.cursor.fetchall()
+        if len(stellvertreter_name_and_number) > 1:
+                for item in stellvertreter_name_and_number:
+                    Controller.stellvertreter_info.append(item)
+                    last_name = item[0]
+                    first_name = item[1]
+                    stell_number = item[2]
+                    Controller.stellvertreter_values.append(f'{last_name}, {first_name} {stell_number}')
+        elif len(stellvertreter_name_and_number) == 0:
+            Controller.error_window(self, 'Please enter a valid employee name.')
+        else:
+            Controller.stellvertreter_info.append(stellvertreter_name_and_number[0])
+        
+       
     def sub_new_info(self, new_info):
         try:
             Model.fetch_name(self, new_info[2])
             first_and_last_names = Model.cursor.fetchall()
-            data = (new_info) + tuple(first_and_last_names[0])
+            data = tuple(new_info) + tuple(first_and_last_names[0])
             Model.submit_request(self, data)
             Controller.error_window(self, 'Your submission was recorded!', 'info')
         except pyodbc.DataError as error:
             Controller.error_window(self, f'Formatting Error\n\n{error}', 'error')
         except pyodbc.Error as error:
-            Controller.error_window(self, f'Connection Error\n\n{error}', 'error') 
+            Controller.error_window(self, f'Connection Error\n\n{error}', 'error')
+
     # ---- request_window
 
     # ---- manager_view
-    #load all reqs in table
+
+    #load all requests in table
     fetched_reqs = []
     def search_all(self):
         try:
@@ -195,9 +230,11 @@ class Controller:
             Model.set_seen(self, xnRequest)
         except pyodbc.Error as error:
             Controller.error_window(self, f'{error}', 'error')
+
     # ---- manager_view
 
     # ---- schedule
+
     #initialization list
     current_date = datetime.datetime.now()    
     current_month = datetime.datetime.now().month
@@ -220,22 +257,17 @@ class Controller:
     request_list_raw = []
     request_dictionary = {}
     login_empnum = []
-    manager_empnums = [905, 1116]
-
-    #needed for finding days between start and end date
-    def date_range(self, start, end):
-        delta = end - start
-        days = [start + timedelta(days = i) for i in range(delta.days + 1)]
-        return days
+    manager_empnums = [905]   
 
     #starts everything related to schedule building
+    
     def create_table(self):
         Controller.get_emp_list(self)
         Controller.get_requests(self)
         Controller.get_dates_for_headers(self)
         Controller.input_default_data(self)
         Controller.edit_data(self)
-
+   
     #find production group of user
     def get_group_from_empnum(self, empnum):
         Controller.selected_group.clear()
@@ -261,7 +293,6 @@ class Controller:
                 Controller.list_of_emp_info.append(item)             
         Controller.list_of_emp_info.clear()
         Controller.rows.clear()
-        
         #if user is a manager, shows all production groups
         if Controller.selected_group[0] == 7:
             for i in range(0,7):
@@ -273,7 +304,6 @@ class Controller:
             Controller.selected_group.append(7)
         else:
             get_group()
-
         #formatting
         for item in Controller.list_of_emp_info:
                 if item[1] is not None:
@@ -284,8 +314,13 @@ class Controller:
                 if item[1] is None:
                     Controller.rows.append(item[0])
     
-    #formats requests from sql table into a request dictionary
-    # from the selected production group
+    #needed for finding days between start and end date
+    def date_range(self, start, end):
+        delta = end - start
+        days = [start + timedelta(days = i) for i in range(delta.days + 1)]
+        return days
+
+    #formats requests from the sql table into a request dictionary from the selected production group
     def get_requests(self):
         Model.get_requests(self)
         Controller.request_list_raw = Model.cursor.fetchall()
@@ -298,16 +333,16 @@ class Controller:
             date_start = item[3]
             date_end = item[4]
             status = item[7]
-            stell_name = item[8]
+            stell_num = item[8]
             stell_status = item[9]
             selected_employee.append('{}, {} {}'.format(emp_last_name, emp_first_name, emp_number))
-            if stell_name is not None and stell_name != 'None' and stell_name != '':
-                Model.get_stellvertreter_info(self, stell_name)
+            if stell_num is not None and stell_num != 0:
+                Model.get_stellvertreter_name(self, stell_num)
                 raw_stellvertreter_info = Model.cursor.fetchall()
                 stell_last_name = raw_stellvertreter_info[0][0]
                 stell_first_name = raw_stellvertreter_info[0][1]
-                stell_number = raw_stellvertreter_info[0][2]
-                stellvertreter_info = '{}, {} {}'.format(stell_last_name, stell_first_name, stell_number)
+                #stell_number = raw_stellvertreter_info[0][2]
+                stellvertreter_info = '{}, {} {}'.format(stell_last_name, stell_first_name, stell_num)
             else:
                 stellvertreter_info = None         
             if selected_employee[0] in Controller.rows:
@@ -318,14 +353,14 @@ class Controller:
                                                 daterangelist[i].strftime('%Y.' + '%m.' + '%d'), status, 
                                                 stellvertreter_info, stell_status]
 
-    #formats holidays from sql
+    #format holidays from sql
     def get_holidays(self):
         Model.get_holidays(self)
         holidays = Model.cursor.fetchall()
         for holiday in holidays:
             holiday_date = holiday[1]
             Controller.list_of_holiday_dates.append(holiday_date.strftime('%Y.' + '%m.' + '%d'))
-
+    
     #populates row of dates with every day of the month
     def get_dates_for_headers(self):    
         Controller.headers.clear()
@@ -338,8 +373,7 @@ class Controller:
             day = (first_date + datetime.timedelta(days = i))
             Controller.headers.append(day.strftime('%a %d'))
 
-    #fills table with weekends, alle gruppe borders, and
-    # spaces for 'empty' cells
+    #fills table with weekends, alle gruppe borders, and spaces for 'empty' celss
     def input_default_data(self):
         Controller.get_holidays(self)
         Controller.data_values.clear()    
@@ -365,9 +399,7 @@ class Controller:
             data_tuple = tuple(data_list)
             Controller.data_values.append(data_tuple)
 
-    #takes all requests in a selected group, month, and year,
-    # and populates the table with requests and stellvertreter status
-    # indicators
+    #takes all requests in a selected gorup, month, and year, and populates the table with requests and stellvertreter status indicators
     def edit_data(self):
         for key, value in Controller.request_dictionary.items():
             req_info = value

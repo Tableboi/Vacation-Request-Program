@@ -14,7 +14,7 @@ class App(tk.Tk):
         tk.Tk.__init__(self, *args, **kwargs)
 
         self.title('Urlaubsanträge')
-
+        
         self.geometry('1050x600')
         
         sv_ttk.set_theme('dark')
