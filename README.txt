@@ -48,3 +48,10 @@ On the manager_view:
 - build_table(self) builds a table used to contain the fetched vacation requests. It's structure is always the same but the data to be stored is determined by the combobox handler
 - open_schedule(self) handles all methods, variables, etc necessary for calling the schedule to load on a button press
 - unseen_view(self) builds the table used to display all vacation requests that are marked as 'unseen'. This table is different from the build_table because of different buttons within the table
+
+## Schedule
+- Controller.create_table(self) is run every time the TableModel class in the views.py file is called. It runs functions to get the dates, employee names/numbers, holidays/weekends, and requests applicable for the shown dates based on the production group, year, and month selected. Each time a new production group, year, or month is selected (via the combobox on the schedule window), the table is recreated with the new infromation. 
+- The class Ui_Form(object) in views.py was originally a file converted into Python from QtDesigner. QtDesigner was used to make the visual elements of the window, and then the code in this file was altered in order to fit it to our usage. This class defines the schedule window and its widgets, including the combo boxes and an empty table widget.
+- The class TableModel(QtCore.QAbstractTableModel) in views.py comes from PyQt5. This inserts a custom TableModel into the existing table widget from the Ui_Form. This class needs an __init__(self, data) function, a data(self, index, role) function, a rowCount(self, index) function, a columnCount(self, index) function, and a headerData(self, section, orientation, role) function. The data function uses a list of tuples to populate the table with data. The rowCount and columnCount functions determine how many rows and columns to create in the table. The headerData function determines the names for the rows and columns.
+
+ORIGINAL CREATORS: Rebecca Francis, Alex Mesa, Roberto Paz
